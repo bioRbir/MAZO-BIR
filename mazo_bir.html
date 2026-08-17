@@ -152,6 +152,7 @@ font-size:13.5px;font-weight:600}
   <div class="card">
     <div class="bar"><span id="prog" style="width:0%"></span></div>
     <div class="meta"><span id="pos"></span><span id="left"></span></div>
+    <button class="btn-sec" id="pauseBtn" onclick="pauseSession()" style="margin-top:8px">Pausar y salir</button>
   </div>
   <div class="card">
     <div class="qnum">BIR <span id="qex"></span> · pregunta <span id="qn"></span><span class="pill" id="qb"></span><span class="pill hide" id="qst"></span><span class="pill hide" id="qorig"></span></div>
@@ -205,6 +206,8 @@ font-size:13.5px;font-weight:600}
     <div class="row"><label>Repasos por día</label><input id="cfgRev" type="number" min="0" max="500"></div>
     <div class="row"><label>Fecha del examen</label><input id="cfgDate" type="date"></div>
     <button class="btn-sec" onclick="saveCfg()">Guardar ajustes</button>
+    <p class="hint" id="dayhint" style="margin:10px 0 6px"></p>
+    <button class="btn-sec" onclick="resetDay()">Reiniciar recuento de hoy</button>
     <p class="hint">Ningún repaso se programa más allá del día anterior al examen. Cuando falte poco, los intervalos se comprimen solos.</p>
   </div>
   <div class="card">
@@ -226,10 +229,11 @@ const LET=['1','2','3','4'];
 const TAGS={1:{lab:'No lo sabía',c:'--t1'},2:{lab:'Se me fue',c:'--t2'},
 3:{lab:'Dudé entre dos',c:'--t3'},4:{lab:'Fallo tonto',c:'--t4'}};
 const KEY='bir_mazo_v2';
-const DEF={cards:{},paper:{},cfg:{nw:15,rv:40,exam:'2027-01-23',scope:'todo'}};
+const DEF={cards:{},paper:{},day:{d:'',nw:0,rv:0,ids:{}},cfg:{nw:15,rv:40,exam:'2027-01-23',scope:'todo'}};
 let S=DEF;
 try{const raw=localStorage.getItem(KEY);if(raw)S=Object.assign({},DEF,JSON.parse(raw))}catch(e){}
 S.cards=S.cards||{};S.paper=S.paper||{};S.cfg=Object.assign({},DEF.cfg,S.cfg||{});
+S.day=Object.assign({d:'',nw:0,rv:0,ids:{}},S.day||{});S.day.ids=S.day.ids||{};
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 
 function today(){const d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate())}
@@ -238,6 +242,11 @@ function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
 function daysTo(s){return Math.round((new Date(s+'T00:00:00')-today())/86400000)}
 function limit(){return daysTo(S.cfg.exam)-1}
 function card(id){return S.cards[id]}
+function dayRec(){const t=iso(today());
+  if(S.day.d!==t){S.day={d:t,nw:0,rv:0,ids:{}};save()}
+  return S.day}
+function restaN(){return Math.max(0,S.cfg.nw-dayRec().nw)}
+function restaR(){return Math.max(0,S.cfg.rv-dayRec().rv)}
 const SCOPES=[['todo','Todo'],['fall','Falladas'],['duda','Dudas'],['ficha','Fichas']];
 function pool(){const s=S.cfg.scope||'todo';
   if(s==='fall')return DATA.filter(q=>!q.origen&&q.tipo!=='ficha');
@@ -295,17 +304,19 @@ function drawHome(){
   const d=daysTo(S.cfg.exam);
   document.getElementById('hsub').textContent=DATA.length+' tarjetas · '+
     (d>0?'faltan '+d+' días para el examen':'examen pasado');
-  const nw=Math.min(newCards().length,S.cfg.nw);
-  const rv=Math.min(dueList().length,S.cfg.rv);
+  const nw=Math.min(newCards().length,restaN());
+  const rv=Math.min(dueList().length,restaR());
   document.getElementById('dNew').textContent=nw;
   document.getElementById('dRev').textContent=rv;
   document.getElementById('dLate').textContent=lateList().length;
   const tot=nw+rv;
   document.getElementById('goStudy').textContent=tot?('Estudiar · '+tot+' tarjetas'):'Nada pendiente hoy';
   document.getElementById('goStudy').disabled=!tot;
+  const dr=dayRec();
+  const hechoHoy=(dr.nw||dr.rv)?('Hoy llevas '+dr.nw+' nuevas y '+dr.rv+' repasos. '):'';
   document.getElementById('homehint').textContent=tot?
-    ('Quedan '+newCards().length+' sin estrenar en esta selección.'):
-    'Vuelve mañana, o sube los límites en Datos si quieres seguir.';
+    (hechoHoy+'Quedan '+newCards().length+' sin estrenar en esta selección.'):
+    (hechoHoy+'Cupo diario completo. Vuelve mañana, o sube los límites en Datos.');
   // previsión
   const t=today(),cnt=[];
   for(let k=0;k<7;k++){const s=iso(addDays(t,k));
@@ -325,9 +336,13 @@ function drawHome(){
 
 // ---- sesión ----
 let queue=[],cur=null,total=0,stepAns=false,stepTag=false,gcount={};
+let kind={};
 function startSession(){
-  const nw=newCards().slice(0,S.cfg.nw);
-  const rv=dueList().slice(0,S.cfg.rv);
+  const nw=newCards().slice(0,restaN());
+  const rv=dueList().slice(0,restaR());
+  kind={};
+  nw.forEach(q=>kind[q.id]='n');
+  rv.forEach(q=>{if(!kind[q.id])kind[q.id]='r'});
   queue=rv.concat(nw);
   // intercalar: repasos primero pero mezclados
   queue.sort(()=>Math.random()-0.5);
@@ -451,10 +466,17 @@ function grade(g){
   S.cards[id]=S.cards[id]||{ef:2.5,iv:0,reps:0,lapses:0,due:iso(today())};
   const iv=schedule(S.cards[id],g);
   S.cards[id].seen=(S.cards[id].seen||0)+1;
+  const dr=dayRec();
+  if(!dr.ids[id]){dr.ids[id]=1;if(kind[id]==='n')dr.nw++;else dr.rv++}
   gcount[g]=(gcount[g]||0)+1;
   save();
   if(g===1)queue.push(cur);
   nextCard();
+}
+function pauseSession(){
+  queue=[];cur=null;
+  document.getElementById('nav').classList.add('hide');
+  go('home');
 }
 function finish(){
   go('done');
@@ -505,6 +527,9 @@ function pSkip(){ const pend=pPend(); if(!pend.length)return; pi=(pi+1)%pend.len
 
 // ---- datos ----
 function drawStats(){
+  const dr=dayRec();
+  const dh=document.getElementById('dayhint');
+  if(dh)dh.textContent='Hoy: '+dr.nw+' de '+S.cfg.nw+' nuevas · '+dr.rv+' de '+S.cfg.rv+' repasos.';
   document.getElementById('cfgNew').value=S.cfg.nw;
   document.getElementById('cfgRev').value=S.cfg.rv;
   document.getElementById('cfgDate').value=S.cfg.exam;
@@ -518,6 +543,10 @@ function drawStats(){
       '<span class="track"><i style="width:'+p+'%;background:var('+TAGS[k].c+')"></i></span></div>'}).join('')+
       '<p class="hint">'+tot+' fallos etiquetados.</p>':
       '<p class="hint" style="margin:0">Sin etiquetas todavía.</p>';
+}
+function resetDay(){
+  if(!confirm('Se pone a cero el recuento de HOY (no toca el progreso de las tarjetas). ¿Seguro?'))return;
+  S.day={d:iso(today()),nw:0,rv:0,ids:{}};save();drawStats();alert('Recuento de hoy reiniciado.');
 }
 function saveCfg(){
   S.cfg.nw=Math.max(0,parseInt(document.getElementById('cfgNew').value)||0);

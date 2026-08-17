@@ -210,6 +210,11 @@ h1{
     <div class="choices">
       <button class="btn ghost" id="reviewBtn" style="flex:1 1 100%" disabled>Repasar mis fallos acumulados</button>
     </div>
+    <div class="choices">
+      <button class="btn ghost" id="exportBtn" style="flex:1 1 45%">Guardar copia</button>
+      <button class="btn ghost" id="importBtn" style="flex:1 1 45%">Restaurar copia</button>
+    </div>
+    <input type="file" id="importFile" accept="application/json,.json" class="hidden">
     <button class="mini" id="clearBtn">Borrar todo el progreso guardado</button>
     <p class="warn hidden" id="noStore">Ahora mismo el progreso no se está guardando. Abre el archivo desde la web publicada (o desde el navegador, no en vista previa) para que se conserve.</p>
   </section>
@@ -266,7 +271,7 @@ h1{
     </div>
   </section>
 
-  <p class="foot">Tu tabla de epitelios de revestimiento · 65 localizaciones · uretra y pene revisados</p>
+  <p class="foot">Tu tabla de epitelios de revestimiento · 69 localizaciones · uretra y pene revisados</p>
 </div>
 
 <script>
@@ -305,7 +310,7 @@ const DATA = [
  // ESTRATIFICADO PLANO QUERATINIZADO
  {l:"Epidermis", n:"estratificado", f:"plano", m:"queratinizado", nota:"Estrato córneo de células anucleadas."},
  {l:"Papilas linguales filiformes", n:"estratificado", f:"plano", m:"queratinizado", nota:"Las únicas papilas queratinizadas y las únicas sin corpúsculos gustativos."},
- {l:"Parte anterior del vestíbulo nasal", n:"estratificado", f:"plano", m:"queratinizado", nota:"Continuación de la epidermis. La parte posterior ya es no queratinizada."},
+ {l:"Parte anterior del vestíbulo nasal", n:"estratificado", f:"plano", m:"queratinizado", nota:"Continuación de la epidermis, con vibrisas. Después viene la parte posterior (no queratinizada), luego la mucosa respiratoria y por último la olfatoria."},
  // ESTRATIFICADO PLANO NO QUERATINIZADO
  {l:"Cavidad bucal", n:"estratificado", f:"plano", m:"no-queratinizado", nota:"Grado de queratinización variable → epitelio paraqueratinizado."},
  {l:"Papilas linguales fungiformes, foliadas y caliciformes", n:"estratificado", f:"plano", m:"no-queratinizado", nota:"Todas menos las filiformes."},
@@ -339,8 +344,10 @@ const DATA = [
  {l:"Tráquea", n:"especial", f:null, m:"pseudo-ciliado"},
  {l:"Bronquios", n:"especial", f:null, m:"pseudo-ciliado"},
  {l:"Bronquiolos de mayor tamaño", n:"especial", f:null, m:"pseudo-ciliado", nota:"NO en bronquiolos terminales ni respiratorios → ahí es simple cúbico."},
+ {l:"Mucosa olfatoria (techo de las fosas nasales y cornete superior)", n:"especial", f:null, m:"pseudo-ciliado", nota:"Cilios INMÓVILES que actúan como receptores: son cilios de verdad (9+2), no estereocilios. La nariz tiene cuatro epitelios: vestíbulo anterior queratinizado, vestíbulo posterior no queratinizado, mucosa respiratoria ciliada y mucosa olfatoria."},
+ {l:"Conductillos eferentes del testículo", n:"especial", f:null, m:"pseudo-ciliado", nota:"Epitelio 'festoneado': alterna grupos de células ciliadas altas con células cúbicas no ciliadas, lo que da un borde luminal ondulado. Tu tabla los mete junto al epidídimo, pero los estereocilios son del conducto del epidídimo."},
  // ESPECIAL · ESTEREOCILIOS
- {l:"Epidídimo (conductillos eferentes)", n:"especial", f:null, m:"pseudo-estereocilios"},
+ {l:"Conducto del epidídimo", n:"especial", f:null, m:"pseudo-estereocilios", nota:"Aquí sí: estereocilios (microvellosidades largas e inmóviles), no cilios."},
  {l:"Conducto deferente (segmento proximal)", n:"especial", f:null, m:"pseudo-estereocilios"},
  {l:"Células sensoriales ciliadas del oído interno", n:"especial", f:null, m:"pseudo-estereocilios"},
  // ESPECIAL · TRANSICIÓN
@@ -348,7 +355,10 @@ const DATA = [
  {l:"Pelvis renal", n:"especial", f:null, m:"transicion"},
  {l:"Uréteres", n:"especial", f:null, m:"transicion"},
  {l:"Vejiga urinaria", n:"especial", f:null, m:"transicion"},
- {l:"Porción inicial (proximal) de la uretra", n:"especial", f:null, m:"transicion", nota:"En el varón es la uretra prostática. Solo la inicial: la media es estratificado cilíndrico y la distal estratificado plano no queratinizado."}
+ {l:"Porción inicial (proximal) de la uretra", n:"especial", f:null, m:"transicion", nota:"En el varón es la uretra prostática. Solo la inicial: la media es estratificado cilíndrico y la distal estratificado plano no queratinizado."},
+ // NEUROHISTOLOGÍA (fuera de la tabla, alta frecuencia BIR)
+ {l:"Epéndimo (revestimiento de ventrículos y conducto ependimario)", n:"simple", f:"cilindrico", m:"ciliado", nota:"Cúbico o cilíndrico según la zona, siempre ciliado y sin lámina basal verdadera. No está en tu tabla."},
+ {l:"Epitelio de los plexos coroideos", n:"simple", f:"cubico", m:"no-ciliado", nota:"Epéndimo modificado que produce el LCR; tiene microvellosidades, no cilios. No está en tu tabla."}
 ];
 
 /* ============ OPCIONES ============ */
@@ -706,6 +716,41 @@ $("resumeBtn").onclick=()=>{
   });
 };
 $("reviewBtn").onclick=()=>{ const f=failedItems(); if(f.length) startRound(shuffle(f).slice(0,30)); };
+$("exportBtn").onclick=()=>{
+  const data={app:"epitelios_bir", v:1, fecha:new Date().toISOString(), stats:store.stats, current:store.current};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url; a.download="epitelios_progreso_"+new Date().toISOString().slice(0,10)+".json";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),3000);
+};
+$("importBtn").onclick=()=>$("importFile").click();
+$("importFile").onchange=e=>{
+  const f=e.target.files&&e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const p=JSON.parse(r.result);
+      if(!p || typeof p.stats!=="object" || p.stats===null) throw new Error("formato");
+      let n=0;
+      Object.keys(p.stats).forEach(l=>{
+        if(!byLoc(l)) return;
+        const s=store.stats[l]||(store.stats[l]={ok:0,ko:0});
+        s.ok=Math.max(s.ok, p.stats[l].ok||0);
+        s.ko=Math.max(s.ko, p.stats[l].ko||0);
+        n++;
+      });
+      if(p.current && !store.current) store.current=p.current;
+      save(); paintStart();
+      alert("Copia restaurada: "+n+" localizaciones recuperadas.");
+    }catch(err){
+      alert("Ese archivo no parece una copia del juego. Busca uno que empiece por epitelios_progreso_");
+    }
+    e.target.value="";
+  };
+  r.readAsText(f);
+};
 $("clearBtn").onclick=()=>{
   if(!confirm("Se borran las estadísticas y la ronda a medias. ¿Seguro?")) return;
   store={stats:{},current:null};

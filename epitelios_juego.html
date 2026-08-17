@@ -193,6 +193,24 @@ h1{
   background:rgba(75,42,114,.10);color:var(--hema);border-radius:99px;padding:4px 10px;margin-top:10px;
 }
 .lvl.dud{background:rgba(212,106,139,.16);color:var(--eos-deep)}
+.seg{display:flex;gap:6px;margin:8px 0 4px}
+.seg button{
+  flex:1;font:inherit;font-size:13px;font-weight:700;cursor:pointer;padding:11px 8px;
+  border:1.5px solid var(--line-2);background:var(--slide-2);color:var(--ink-soft);border-radius:11px;
+}
+.seg button[aria-pressed="true"]{background:var(--hema);border-color:var(--hema);color:#fff}
+.seg button:focus-visible{outline:3px solid var(--eos);outline-offset:2px}
+.why{
+  font:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-top:10px;
+  background:transparent;border:1.5px solid var(--line-2);border-radius:99px;
+  padding:6px 14px;color:var(--hema);
+}
+.why:hover{border-color:var(--hema)}
+.why:focus-visible{outline:3px solid var(--eos);outline-offset:2px}
+.whytxt{
+  font-size:13px;line-height:1.5;color:var(--ink);margin:10px 0 0;
+  border-left:2px solid var(--hema-soft);padding-left:10px;
+}
 @media (prefers-reduced-motion:reduce){*{transition:none !important}}
 </style>
 </head>
@@ -208,6 +226,12 @@ h1{
     <div id="resumeBox" class="resume hidden">
       <p><b>Tienes una ronda a medias.</b> <span id="resumeInfo"></span></p>
       <button class="btn" id="resumeBtn">Continuar donde lo dejaste</button>
+    </div>
+
+    <p class="tag" style="margin-top:16px">Modo</p>
+    <div class="seg">
+      <button data-mode="directo" aria-pressed="true" type="button">Localización → epitelio</button>
+      <button data-mode="inverso" aria-pressed="false" type="button">Epitelio → localización</button>
     </div>
 
     <p class="tag" style="margin-top:16px">Nueva ronda</p>
@@ -274,6 +298,33 @@ h1{
     <div class="actions">
       <button class="btn ghost" id="reset">Borrar</button>
       <button class="btn" id="check" disabled>Comprobar</button>
+    </div>
+  </section>
+
+  <!-- MODO INVERSO -->
+  <section id="inv" class="hidden">
+    <div class="status">
+      <span id="icounter">1 / 20</span>
+      <div class="track"><div class="fill" id="ifill"></div></div>
+      <span id="iscore">0 aciertos</span>
+    </div>
+
+    <div class="card">
+      <p class="tag">¿Cuál de estas lo tiene?</p>
+      <h2 class="muestra" id="iname">—</h2>
+      <div class="scope"><div id="isvg"></div></div>
+    </div>
+
+    <div id="ifeedback"></div>
+
+    <div class="group">
+      <p class="glabel"><span class="num">1</span> Elige la localización</p>
+      <div class="opts one" id="iopts"></div>
+    </div>
+
+    <button class="doubt" id="idoubtBtn" type="button" aria-pressed="false" disabled>He dudado entre dos opciones</button>
+    <div class="actions">
+      <button class="btn" id="icheck" disabled>Comprobar</button>
     </div>
   </section>
 
@@ -560,6 +611,147 @@ function persistCurrent(nextIdx){
   save();
 }
 
+/* ============ POR QUÉ (lógica funcional) ============ */
+const PORQUE={
+ "simple/plano/no-ciliado":"Aquí solo hay que dejar pasar cosas. Cuanto más fina la barrera, más rápida la difusión o la filtración: una capa y aplanada.",
+ "simple/cubico/no-ciliado":"Transporte activo continuo. La altura da sitio a mitocondrias y bombas, pero sin llegar a célula secretora.",
+ "simple/cilindrico/no-ciliado":"Absorción y secreción intensas: célula alta, llena de Golgi y RE, con microvellosidades en el ápice.",
+ "simple/cilindrico/ciliado":"Hay que arrastrar algo por encima. Célula alta y ciliada, pero una sola capa para no estorbar el intercambio.",
+ "estratificado/plano/queratinizado":"Roce más desecación. Capas superiores muertas y rellenas de queratina que se van descamando.",
+ "estratificado/plano/no-queratinizado":"Roce en ambiente húmedo. Muchas capas para aguantar la abrasión, sin queratina porque no hay que impermeabilizar.",
+ "estratificado/cubico/no-queratinizado":"Conductos de calibre grande: dos capas que aguantan presión, sin transporte fino. Solo conducen.",
+ "estratificado/cilindrico/no-queratinizado":"Zona de paso entre dos epitelios distintos, o conducto grande: capas para resistir y altura heredada del epitelio vecino.",
+ "especial/-/pseudo-ciliado":"El truco: todas las células tocan la basal, así las basales regeneran rápido, y a la vez el ápice bate moco hacia fuera.",
+ "especial/-/pseudo-estereocilios":"Los estereocilios son microvellosidades muy largas: superficie enorme para reabsorber líquido. No baten.",
+ "especial/-/transicion":"Tiene que cambiar de superficie sin romperse: células en paraguas con membrana de reserva y uroplaquinas impermeables a la orina."
+};
+const PQ={
+ "Conductos alveolares y alvéolos pulmonares":"La barrera aire-sangre mide menos de una micra: cualquier capa extra frenaría el intercambio.",
+ "Rama descendente y rama ascendente fina del asa de Henle":"Aquí el agua sale por gradiente osmótico, sin transporte activo, así que no hace falta célula alta.",
+ "Túbulos renales":"Reabsorben casi todo el filtrado: cúbicas y repletas de mitocondrias.",
+ "Epitelio posterior o interno de la córnea (endotelio corneal)":"Bombea agua fuera del estroma para mantener la córnea transparente. Cualquier grosor la volvería opaca.",
+ "Epitelio anterior o externo de la córnea":"Aguanta el parpadeo y las partículas del aire, y se regenera muy rápido.",
+ "Folículos tiroideos (epitelio folicular)":"Cambia de plano a cúbico y a cilíndrico según lo estimule la TSH: la forma sigue a la función, en directo.",
+ "Vesícula biliar":"Concentra la bilis reabsorbiendo agua: por eso microvellosidades, no cilios.",
+ "Trompas de Falopio (oviductos)":"Los cilios arrastran el ovocito hacia el útero; no se mueve solo.",
+ "Endocérvix":"El moco sale por presión y gradiente, no hay que barrerlo: por eso es el único no ciliado de la zona.",
+ "Conducto estriado de las glándulas salivares":"Sus invaginaciones basales llenas de mitocondrias reabsorben sodio de la saliva.",
+ "Parte anterior del vestíbulo nasal":"Entra aire seco y hay roce con el dedo y las vibrisas: se comporta como piel.",
+ "Papilas linguales filiformes":"Raspan y arrastran la comida: son las únicas que necesitan queratina, y por eso no tienen botones gustativos.",
+ "Pliegues o cuerdas vocales de la laringe":"Vibran y rozan sin parar: necesitan capas. Unos cilios ahí durarían nada.",
+ "Bronquiolos terminales":"Ya no hay moco que mover ni cartílago: epitelio bajo, con células de Club en vez de caliciformes.",
+ "Mucosa olfatoria (techo de las fosas nasales y cornete superior)":"Los cilios inmóviles solo sirven de superficie para alojar los receptores odorantes. No baten nada.",
+ "Conductillos eferentes del testículo":"Mezcla los dos oficios: unas células baten para empujar los espermatozoides y otras reabsorben líquido.",
+ "Conducto del epidídimo":"Reabsorbe hasta el 90% del líquido que sale del testículo: pura superficie de absorción.",
+ "Epéndimo (revestimiento de ventrículos y conducto ependimario)":"Sus cilios mueven el LCR por los ventrículos.",
+ "Epitelio de los plexos coroideos":"Fabrica el LCR filtrando plasma: microvellosidades para transporte, no cilios.",
+ "Vejiga urinaria":"Pasa de casi vacía a muy distendida: el epitelio se despliega en vez de estirarse.",
+ "Túbulos seminíferos (epitelio seminífero o germinativo)":"No es un epitelio de revestimiento normal: las capas son estadios de la espermatogénesis, no protección."
+};
+function porqueDe(it){
+  const base = PORQUE[it.n+"/"+(it.f||"-")+"/"+it.m] || "";
+  const esp = PQ[it.l];
+  return esp ? esp+" "+base : base;
+}
+function bloqueWhy(it){
+  const txt=porqueDe(it); if(!txt) return "";
+  return `<button class="why" type="button" onclick="toggleWhy(this)">¿Por qué?</button>
+  <p class="whytxt hidden">${txt}</p>`;
+}
+function toggleWhy(b){
+  const p=b.nextElementSibling;
+  const abierto=!p.classList.contains("hidden");
+  p.classList.toggle("hidden");
+  b.textContent = abierto ? "¿Por qué?" : "Ocultar";
+}
+
+function registrar(it, ok, dud){
+  const st = store.stats[it.l] || (store.stats[it.l]={ok:0,ko:0,dud:0,lvl:2,last:0});
+  if(st.lvl===undefined) st.lvl=2;
+  const antes = st.lvl;
+  if(ok){ st.ok++; if(dud) st.dud++; else st.lvl=Math.min(5, st.lvl+1); }
+  else { st.ko++; if(dud) st.dud++; st.lvl=1; }
+  st.last=Date.now(); st.lastKo=!ok; st.lastDud=dud;
+  const flecha = st.lvl!==antes ? `Nivel ${antes} → ${st.lvl}` : `Nivel ${st.lvl}`;
+  return `<span class="lvl${dud?" dud":""}">${flecha} · ${RITMO[st.lvl]}</span>`;
+}
+
+/* ============ MODO INVERSO ============ */
+let iSel=null;
+function distractores(it,n){
+  const objetivo=fullName(it.n,it.f,it.m);
+  const pool=DATA.filter(d=>d!==it && fullName(d.n,d.f,d.m)!==objetivo);
+  const score=d=>{
+    let s=Math.random();
+    if(d.n===it.n) s+=1.4;
+    if(d.f && d.f===it.f) s+=1.0;
+    if(d.m===it.m) s+=0.6;
+    return s;
+  };
+  return pool.map(d=>({d,s:score(d)})).sort((a,b)=>b.s-a.s).slice(0,n).map(x=>x.d);
+}
+function loadInv(){
+  answered=false; doubt=false; iSel=null;
+  const it=deck[idx];
+  $("iname").textContent=fullName(it.n,it.f,it.m);
+  $("icounter").textContent=(idx+1)+" / "+deck.length;
+  $("iscore").textContent=hits+(hits===1?" acierto":" aciertos");
+  $("ifill").style.width=(idx/deck.length*100)+"%";
+  $("ifeedback").innerHTML="";
+  $("isvg").innerHTML=drawEpi(it.n,it.f,it.m);
+  $("icheck").textContent="Comprobar"; $("icheck").disabled=true;
+  $("idoubtBtn").setAttribute("aria-pressed","false");
+  $("idoubtBtn").textContent="He dudado entre dos opciones";
+  $("idoubtBtn").disabled=true;
+  const opciones=shuffle([it].concat(distractores(it,4)));
+  const cont=$("iopts"); cont.innerHTML="";
+  opciones.forEach(o=>{
+    const b=document.createElement("button");
+    b.className="opt"; b.type="button"; b.setAttribute("aria-pressed","false");
+    b.innerHTML=`<span>${o.l}</span>`;
+    b.onclick=()=>{
+      if(answered) return;
+      iSel=o;
+      [...cont.querySelectorAll(".opt")].forEach((x,i)=>x.setAttribute("aria-pressed", opciones[i]===o?"true":"false"));
+      $("icheck").disabled=false; $("idoubtBtn").disabled=false;
+    };
+    cont.appendChild(b);
+  });
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function checkInv(){
+  const it=deck[idx];
+  const ok = iSel===it;
+  answered=true;
+  if(ok) hits++; else errors.push({it, given:iSel?iSel.l:"—"});
+  const pill=registrar(it, ok, doubt);
+  persistCurrent(idx+1);
+  $("iscore").textContent=hits+(hits===1?" acierto":" aciertos");
+  $("ifill").style.width=((idx+1)/deck.length*100)+"%";
+
+  [...$("iopts").querySelectorAll(".opt")].forEach(b=>{
+    const t=b.textContent.trim();
+    if(t===it.l) b.classList.add("mark-ok");
+    else if(iSel && t===iSel.l) b.classList.add("mark-bad");
+    b.disabled=true;
+  });
+
+  $("ifeedback").innerHTML=`<div class="fb ${ok?"ok":"bad"}">
+    <h3>${ok?(doubt?"Correcto, pero con dudas":"Correcto"):"No es eso"}</h3>
+    <p class="sol">${it.l}</p>
+    ${iSel && !ok ? `<p style="font-size:13px;color:#6C5B78">Lo que elegiste (${iSel.l}) es ${fullName(iSel.n,iSel.f,iSel.m).toLowerCase()}.</p>`:""}
+    ${it.nota?`<p class="nota">${it.nota}</p>`:""}
+    ${(ok&&doubt)?`<p class="nota" style="border-color:var(--eos)">Como dudaste, no sube de nivel.</p>`:""}
+    ${pill}
+    ${bloqueWhy(it)}
+  </div>`;
+  $("icheck").textContent = idx+1<deck.length ? "Siguiente" : "Ver resultado";
+  $("icheck").disabled=false;
+  $("idoubtBtn").disabled=true;
+  if(doubt) $("idoubtBtn").textContent="Marcada como dudosa";
+  $("ifeedback").scrollIntoView({behavior:"smooth",block:"center"});
+}
+
 /* ============ REPETICIÓN ESPACIADA ============ */
 const PESO_NIVEL={1:100, 2:62, 3:36, 4:18, 5:8};
 const RITMO={
@@ -595,17 +787,18 @@ const $=id=>document.getElementById(id);
 
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 
+let modo="directo";
 function startRound(list,resume){
   deck=list;
   if(resume){ idx=resume.idx; hits=resume.hits; errors=resume.errors; }
   else{
     idx=0; hits=0; errors=[];
-    store.current={deck:list.map(x=>x.l), idx:0, hits:0, errors:[]};
+    store.current={deck:list.map(x=>x.l), idx:0, hits:0, errors:[], modo:modo};
     save();
   }
   $("start").classList.add("hidden"); $("end").classList.add("hidden");
-  $("game").classList.remove("hidden");
-  loadItem();
+  if(modo==="inverso"){ $("game").classList.add("hidden"); $("inv").classList.remove("hidden"); loadInv(); }
+  else { $("inv").classList.add("hidden"); $("game").classList.remove("hidden"); loadItem(); }
 }
 function loadItem(){
   answered=false; doubt=false; sel={n:null,f:null,m:null};
@@ -668,21 +861,8 @@ function check(){
   const ok = sel.n===it.n && sel.m===it.m && (it.n==="especial" || sel.f===it.f);
   answered=true;
   if(ok) hits++; else errors.push({it, given:fullName(sel.n,sel.f,sel.m)});
-  const st = store.stats[it.l] || (store.stats[it.l]={ok:0,ko:0,dud:0,lvl:2,last:0});
-  if(st.lvl===undefined) st.lvl=2;
-  const antes = st.lvl;
-  if(ok){
-    st.ok++;
-    if(doubt) st.dud++; else st.lvl=Math.min(5, st.lvl+1);
-  }else{
-    st.ko++; if(doubt) st.dud++;
-    st.lvl=1;
-  }
-  st.last=Date.now(); st.lastKo=!ok; st.lastDud=doubt;
+  const pill=registrar(it, ok, doubt);
   persistCurrent(idx+1);
-
-  const flecha = st.lvl!==antes ? `Nivel ${antes} → ${st.lvl}` : `Nivel ${st.lvl}`;
-  const pill = `<span class="lvl${doubt?" dud":""}">${flecha} · ${RITMO[st.lvl]}</span>`;
   const nota_duda = (ok && doubt) ? `<p class="nota" style="border-color:var(--eos)">Como dudaste, no sube de nivel: volverá a salirte hasta que la tengas clara.</p>` : "";
   $("score").textContent=hits+(hits===1?" acierto":" aciertos");
   $("fill").style.width=((idx+1)/deck.length*100)+"%";
@@ -694,6 +874,7 @@ function check(){
     ${it.nota?`<p class="nota">${it.nota}</p>`:""}
     ${nota_duda}
     ${pill}
+    ${bloqueWhy(it)}
   </div>`;
   // marcar el corte correcto
   $("svgbox").innerHTML=drawEpi(it.n,it.f,it.m);
@@ -722,11 +903,13 @@ function markButtons(it){
 }
 function next(){
   idx++;
-  if(idx<deck.length) loadItem(); else finish();
+  if(idx>=deck.length){ finish(); return; }
+  modo==="inverso" ? loadInv() : loadItem();
 }
 function finish(){
   store.current=null; save(); paintStart();
   $("game").classList.add("hidden");
+  $("inv").classList.add("hidden");
   $("end").classList.remove("hidden");
   $("finalScore").innerHTML=hits+`<span>/${deck.length}</span>`;
   const pct=Math.round(hits/deck.length*100);
@@ -775,6 +958,19 @@ document.querySelectorAll("[data-len]").forEach(b=>{
     startRound(v==="all" ? shuffle(DATA) : buildDeck(Math.min(+v, DATA.length)));
   };
 });
+document.querySelectorAll("[data-mode]").forEach(b=>{
+  b.onclick=()=>{
+    modo=b.dataset.mode;
+    document.querySelectorAll("[data-mode]").forEach(x=>x.setAttribute("aria-pressed", x===b?"true":"false"));
+  };
+});
+$("icheck").onclick=()=>{ answered ? next() : checkInv(); };
+$("idoubtBtn").onclick=()=>{
+  if(answered) return;
+  doubt=!doubt;
+  $("idoubtBtn").setAttribute("aria-pressed", doubt?"true":"false");
+  $("idoubtBtn").textContent = doubt ? "Marcada: dudé entre dos" : "He dudado entre dos opciones";
+};
 $("doubtBtn").onclick=()=>{
   if(answered) return;
   doubt=!doubt;
@@ -785,6 +981,8 @@ $("resumeBtn").onclick=()=>{
   const c=store.current; if(!c) return;
   const list=c.deck.map(byLoc).filter(Boolean);
   if(c.idx>=list.length){ store.current=null; save(); paintStart(); return; }
+  modo = c.modo || "directo";
+  document.querySelectorAll("[data-mode]").forEach(x=>x.setAttribute("aria-pressed", x.dataset.mode===modo?"true":"false"));
   startRound(list,{
     idx:c.idx, hits:c.hits||0,
     errors:(c.errors||[]).map(e=>({it:byLoc(e.l),given:e.given})).filter(e=>e.it)
@@ -841,7 +1039,11 @@ $("reset").onclick=()=>{ if(!answered){ sel={n:null,f:null,m:null}; render(); } 
 $("again").onclick=()=>{ paintStart(); $("end").classList.add("hidden"); $("start").classList.remove("hidden"); };
 $("redo").onclick=()=>{ startRound(shuffle(errors.map(e=>e.it))); };
 document.addEventListener("keydown",e=>{
-  if(e.key==="Enter" && !$("game").classList.contains("hidden") && !$("check").disabled){ e.preventDefault(); $("check").click(); }
+  if(e.key!=="Enter") return;
+  const g=!$("game").classList.contains("hidden") && !$("check").disabled;
+  const i=!$("inv").classList.contains("hidden") && !$("icheck").disabled;
+  if(g){ e.preventDefault(); $("check").click(); }
+  else if(i){ e.preventDefault(); $("icheck").click(); }
 });
 
 /* ============ ARRANQUE ============ */

@@ -176,6 +176,23 @@ h1{
 .mini:hover{color:var(--bad)}
 .mini:focus-visible{outline:2px solid var(--eos);outline-offset:2px}
 .warn{font-size:12px;color:var(--ink-soft);font-style:italic;margin:12px 0 0}
+.doubt{
+  width:100%;font:inherit;font-weight:700;font-size:14px;cursor:pointer;
+  background:transparent;border:1.5px dashed var(--line-2);border-radius:11px;
+  padding:11px;color:var(--ink-soft);margin-bottom:10px;
+  transition:background .12s ease,border-color .12s ease,color .12s ease;
+}
+.doubt:hover:not(:disabled){border-color:var(--eos);color:var(--eos-deep)}
+.doubt[aria-pressed="true"]{
+  background:rgba(212,106,139,.14);border-style:solid;border-color:var(--eos);color:var(--eos-deep);
+}
+.doubt:disabled{opacity:.4;cursor:not-allowed}
+.doubt:focus-visible{outline:3px solid var(--eos);outline-offset:2px}
+.lvl{
+  display:inline-block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  background:rgba(75,42,114,.10);color:var(--hema);border-radius:99px;padding:4px 10px;margin-top:10px;
+}
+.lvl.dud{background:rgba(212,106,139,.16);color:var(--eos-deep)}
 @media (prefers-reduced-motion:reduce){*{transition:none !important}}
 </style>
 </head>
@@ -205,7 +222,7 @@ h1{
     <div class="stats" id="statsBox">
       <div class="stat"><b id="stTotal">0</b><span>Respondidas</span></div>
       <div class="stat"><b id="stPct">—</b><span>Acierto</span></div>
-      <div class="stat"><b id="stFail">0</b><span>Con fallos</span></div>
+      <div class="stat"><b id="stFail">0</b><span>Dominadas</span></div>
     </div>
     <div class="choices">
       <button class="btn ghost" id="reviewBtn" style="flex:1 1 100%" disabled>Repasar mis fallos acumulados</button>
@@ -253,6 +270,7 @@ h1{
       <div class="opts" id="o3"></div>
     </div>
 
+    <button class="doubt" id="doubtBtn" type="button" aria-pressed="false" disabled>He dudado entre dos opciones</button>
     <div class="actions">
       <button class="btn ghost" id="reset">Borrar</button>
       <button class="btn" id="check" disabled>Comprobar</button>
@@ -525,6 +543,13 @@ function load(){
     if(raw){ const p=JSON.parse(raw); store={stats:p.stats||{}, current:p.current||null}; }
     localStorage.setItem(KEY+"_probe","1"); localStorage.removeItem(KEY+"_probe");
   }catch(e){ persist=false; }
+  // migración desde la versión sin niveles
+  Object.keys(store.stats).forEach(l=>{
+    const s=store.stats[l];
+    if(s.lvl===undefined) s.lvl = s.ko>0 ? 1 : (s.ok>1 ? 3 : 2);
+    if(s.dud===undefined) s.dud=0;
+    if(s.last===undefined) s.last=0;
+  });
 }
 function save(){ if(!persist) return; try{ localStorage.setItem(KEY,JSON.stringify(store)); }catch(e){ persist=false; } }
 function persistCurrent(nextIdx){
@@ -535,8 +560,37 @@ function persistCurrent(nextIdx){
   save();
 }
 
+/* ============ REPETICIÓN ESPACIADA ============ */
+const PESO_NIVEL={1:100, 2:62, 3:36, 4:18, 5:8};
+const RITMO={
+  1:"vuelve enseguida", 2:"vuelve pronto", 3:"ritmo medio",
+  4:"volverá de tarde en tarde", 5:"dominada, casi no saldrá"
+};
+function nivelDe(l){ const s=store.stats[l]; return s && s.lvl ? s.lvl : 0; }
+function pesoDe(l){
+  const s=store.stats[l];
+  if(!s || !s.last) return 55;               // nunca vista
+  let w = PESO_NIVEL[s.lvl] || 62;
+  if(s.lastKo) w+=40;                        // la última vez la fallaste
+  if(s.lastDud) w+=25;                       // la última vez dudaste
+  w += Math.min(30, ((Date.now()-s.last)/864e5)*3);  // tiempo sin verla
+  return w;
+}
+function buildDeck(n){
+  if(n>=DATA.length) return shuffle(DATA);
+  const scored=DATA.map(d=>({d, w:pesoDe(d.l)*(0.85+Math.random()*0.3)}));
+  scored.sort((a,b)=>b.w-a.w);
+  return shuffle(scored.slice(0,n).map(x=>x.d));
+}
+function pendientes(){
+  return DATA.filter(d=>{
+    const s=store.stats[d.l];
+    return s && s.last && (s.lvl<=2 || s.lastDud);
+  });
+}
+
 /* ============ ESTADO ============ */
-let deck=[], idx=0, hits=0, errors=[], sel={n:null,f:null,m:null}, answered=false;
+let deck=[], idx=0, hits=0, errors=[], sel={n:null,f:null,m:null}, answered=false, doubt=false;
 const $=id=>document.getElementById(id);
 
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -554,7 +608,7 @@ function startRound(list,resume){
   loadItem();
 }
 function loadItem(){
-  answered=false; sel={n:null,f:null,m:null};
+  answered=false; doubt=false; sel={n:null,f:null,m:null};
   const it=deck[idx];
   $("loc").textContent=it.l;
   $("counter").textContent=(idx+1)+" / "+deck.length;
@@ -563,6 +617,9 @@ function loadItem(){
   $("feedback").innerHTML="";
   $("check").textContent="Comprobar"; $("check").disabled=true;
   $("reset").disabled=false;
+  $("doubtBtn").setAttribute("aria-pressed","false");
+  $("doubtBtn").textContent="He dudado entre dos opciones";
+  $("doubtBtn").disabled=true;
   render();
   window.scrollTo({top:0,behavior:"smooth"});
 }
@@ -597,7 +654,7 @@ function render(){
   $("svgbox").innerHTML=drawEpi(sel.n,sel.f,sel.m);
   const done = sel.n && sel.m && (sel.n==="especial" || sel.f);
   $("chain").innerHTML = sel.n ? fullName(sel.n,sel.f,sel.m) : `<span class="ph">Aún no has elegido nada.</span>`;
-  if(!answered) $("check").disabled=!done;
+  if(!answered){ $("check").disabled=!done; $("doubtBtn").disabled=!done; }
 }
 function pick(g,v){
   if(answered) return;
@@ -611,17 +668,32 @@ function check(){
   const ok = sel.n===it.n && sel.m===it.m && (it.n==="especial" || sel.f===it.f);
   answered=true;
   if(ok) hits++; else errors.push({it, given:fullName(sel.n,sel.f,sel.m)});
-  const st = store.stats[it.l] || (store.stats[it.l]={ok:0,ko:0});
-  ok ? st.ok++ : st.ko++;
+  const st = store.stats[it.l] || (store.stats[it.l]={ok:0,ko:0,dud:0,lvl:2,last:0});
+  if(st.lvl===undefined) st.lvl=2;
+  const antes = st.lvl;
+  if(ok){
+    st.ok++;
+    if(doubt) st.dud++; else st.lvl=Math.min(5, st.lvl+1);
+  }else{
+    st.ko++; if(doubt) st.dud++;
+    st.lvl=1;
+  }
+  st.last=Date.now(); st.lastKo=!ok; st.lastDud=doubt;
   persistCurrent(idx+1);
+
+  const flecha = st.lvl!==antes ? `Nivel ${antes} → ${st.lvl}` : `Nivel ${st.lvl}`;
+  const pill = `<span class="lvl${doubt?" dud":""}">${flecha} · ${RITMO[st.lvl]}</span>`;
+  const nota_duda = (ok && doubt) ? `<p class="nota" style="border-color:var(--eos)">Como dudaste, no sube de nivel: volverá a salirte hasta que la tengas clara.</p>` : "";
   $("score").textContent=hits+(hits===1?" acierto":" aciertos");
   $("fill").style.width=((idx+1)/deck.length*100)+"%";
 
   $("feedback").innerHTML=`<div class="fb ${ok?"ok":"bad"}">
-    <h3>${ok?"Correcto":"No es eso"}</h3>
+    <h3>${ok?(doubt?"Correcto, pero con dudas":"Correcto"):"No es eso"}</h3>
     ${ok?"":`<p style="font-size:13px;color:#6C5B78;margin-bottom:4px">Tu respuesta: ${fullName(sel.n,sel.f,sel.m)}</p>`}
     <p class="sol">${fullName(it.n,it.f,it.m)}</p>
     ${it.nota?`<p class="nota">${it.nota}</p>`:""}
+    ${nota_duda}
+    ${pill}
   </div>`;
   // marcar el corte correcto
   $("svgbox").innerHTML=drawEpi(it.n,it.f,it.m);
@@ -632,6 +704,8 @@ function check(){
   $("check").textContent = idx+1<deck.length ? "Siguiente" : "Ver resultado";
   $("check").disabled=false;
   $("reset").disabled=true;
+  $("doubtBtn").disabled=true;
+  if(doubt) $("doubtBtn").textContent="Marcada como dudosa";
   $("feedback").scrollIntoView({behavior:"smooth",block:"center"});
 }
 function markButtons(it){
@@ -673,23 +747,19 @@ function finish(){
 }
 
 /* ============ PANTALLA DE INICIO ============ */
-function failedItems(){
-  return Object.keys(store.stats)
-    .filter(l=>store.stats[l].ko>0 && byLoc(l))
-    .sort((a,b)=>(store.stats[b].ko-store.stats[b].ok)-(store.stats[a].ko-store.stats[a].ok))
-    .map(byLoc);
-}
 function paintStart(){
-  let ok=0,ko=0,fail=0;
-  Object.values(store.stats).forEach(s=>{ok+=s.ok;ko+=s.ko;if(s.ko>0)fail++;});
+  let ok=0,ko=0,dom=0;
+  Object.values(store.stats).forEach(s=>{ok+=s.ok||0;ko+=s.ko||0;if(s.lvl>=5)dom++;});
   const tot=ok+ko;
   $("stTotal").textContent=tot;
   $("stPct").textContent = tot? Math.round(ok/tot*100)+"%" : "—";
-  $("stFail").textContent=fail;
+  $("stFail").textContent=dom;
 
-  const f=failedItems();
+  const f=pendientes();
   $("reviewBtn").disabled = f.length===0;
-  $("reviewBtn").textContent = f.length ? `Repasar mis fallos (${f.length})` : "Aún no tienes fallos guardados";
+  $("reviewBtn").textContent = f.length
+    ? `Repasar lo flojo (${f.length})`
+    : "Nada flojo por ahora";
 
   const c=store.current;
   const valid = c && c.deck && c.idx < c.deck.length;
@@ -702,10 +772,15 @@ function paintStart(){
 document.querySelectorAll("[data-len]").forEach(b=>{
   b.onclick=()=>{
     const v=b.dataset.len;
-    const all=shuffle(DATA);
-    startRound(v==="all"?all:all.slice(0,Math.min(+v,all.length)));
+    startRound(v==="all" ? shuffle(DATA) : buildDeck(Math.min(+v, DATA.length)));
   };
 });
+$("doubtBtn").onclick=()=>{
+  if(answered) return;
+  doubt=!doubt;
+  $("doubtBtn").setAttribute("aria-pressed", doubt?"true":"false");
+  $("doubtBtn").textContent = doubt ? "Marcada: dudé entre dos" : "He dudado entre dos opciones";
+};
 $("resumeBtn").onclick=()=>{
   const c=store.current; if(!c) return;
   const list=c.deck.map(byLoc).filter(Boolean);
@@ -715,7 +790,7 @@ $("resumeBtn").onclick=()=>{
     errors:(c.errors||[]).map(e=>({it:byLoc(e.l),given:e.given})).filter(e=>e.it)
   });
 };
-$("reviewBtn").onclick=()=>{ const f=failedItems(); if(f.length) startRound(shuffle(f).slice(0,30)); };
+$("reviewBtn").onclick=()=>{ const f=pendientes(); if(f.length) startRound(shuffle(f).slice(0,30)); };
 $("exportBtn").onclick=()=>{
   const data={app:"epitelios_bir", v:1, fecha:new Date().toISOString(), stats:store.stats, current:store.current};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
@@ -736,9 +811,13 @@ $("importFile").onchange=e=>{
       let n=0;
       Object.keys(p.stats).forEach(l=>{
         if(!byLoc(l)) return;
-        const s=store.stats[l]||(store.stats[l]={ok:0,ko:0});
-        s.ok=Math.max(s.ok, p.stats[l].ok||0);
-        s.ko=Math.max(s.ko, p.stats[l].ko||0);
+        const q=p.stats[l];
+        const s=store.stats[l]||(store.stats[l]={ok:0,ko:0,dud:0,lvl:2,last:0});
+        s.ok=Math.max(s.ok||0, q.ok||0);
+        s.ko=Math.max(s.ko||0, q.ko||0);
+        s.dud=Math.max(s.dud||0, q.dud||0);
+        if(q.lvl) s.lvl=Math.min(s.lvl||5, q.lvl);   // se queda el nivel más prudente
+        if((q.last||0)>(s.last||0)){ s.last=q.last; s.lastKo=q.lastKo; s.lastDud=q.lastDud; }
         n++;
       });
       if(p.current && !store.current) store.current=p.current;

@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Epitelios de revestimiento · BIR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --slide:#F6F1F4;
+  --slide-2:#FFFBFD;
+  --ink:#2A1F33;
+  --ink-soft:#6C5B78;
+  --hema:#4B2A72;
+  --hema-soft:#7E5AA6;
+  --eos:#D46A8B;
+  --eos-deep:#B23A63;
+  --ok:#2C7A5C;
+  --ok-bg:#E4F1EA;
+  --bad:#B32B34;
+  --bad-bg:#FBE7E7;
+  --line:rgba(75,42,114,.16);
+  --line-2:rgba(75,42,114,.32);
+  --shadow:0 1px 0 rgba(75,42,114,.06), 0 8px 24px -16px rgba(75,42,114,.5);
+  --r:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--slide);
+  background-image:radial-gradient(circle at 18% -10%, rgba(212,106,139,.16), transparent 55%),
+                   radial-gradient(circle at 92% 8%, rgba(126,90,166,.14), transparent 45%);
+  color:var(--ink);
+  font-family:'Karla',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+  font-size:16px;line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+  padding:18px 14px 48px;
+}
+.wrap{max-width:720px;margin:0 auto}
+
+/* --- cabecera --- */
+.eyebrow{
+  font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--hema-soft);font-weight:700;margin:0 0 6px
+}
+h1{
+  font-family:'Fraunces',Georgia,serif;
+  font-weight:800;font-size:clamp(26px,7vw,38px);line-height:1.02;
+  margin:0 0 4px;color:var(--hema);letter-spacing:-.015em;
+}
+.sub{margin:0 0 20px;color:var(--ink-soft);font-size:14px;max-width:46ch}
+
+/* --- barra de estado --- */
+.status{
+  display:flex;align-items:center;gap:12px;margin-bottom:14px;
+  font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--ink-soft);
+}
+.track{flex:1;height:5px;border-radius:99px;background:rgba(75,42,114,.12);overflow:hidden}
+.fill{height:100%;width:0;background:linear-gradient(90deg,var(--hema),var(--eos));transition:width .35s ease}
+
+/* --- tarjeta --- */
+.card{
+  background:var(--slide-2);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--shadow);padding:18px;margin-bottom:14px;
+}
+.tag{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--eos-deep);font-weight:700}
+.muestra{
+  font-family:'Fraunces',Georgia,serif;font-weight:600;
+  font-size:clamp(21px,5.4vw,29px);line-height:1.15;margin:6px 0 0;color:var(--ink);
+  letter-spacing:-.01em;
+}
+
+/* --- esquema --- */
+.scope{
+  margin-top:14px;border:1px solid var(--line);border-radius:10px;
+  background:
+    linear-gradient(0deg,rgba(212,106,139,.05),rgba(212,106,139,.05)),
+    repeating-linear-gradient(45deg,transparent 0 7px,rgba(75,42,114,.03) 7px 8px);
+  overflow:hidden;
+}
+.scope svg{display:block;width:100%;height:auto}
+.chain{
+  font-family:'Fraunces',Georgia,serif;font-size:16px;line-height:1.3;
+  padding:10px 12px;border-top:1px solid var(--line);color:var(--hema);
+  min-height:42px;display:flex;align-items:center;
+}
+.chain .ph{font-family:'Karla',sans-serif;font-size:13px;color:var(--ink-soft);font-style:italic}
+
+/* --- grupos de opciones --- */
+.group{margin-bottom:16px}
+.glabel{
+  display:flex;align-items:baseline;gap:8px;margin:0 0 8px;
+  font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--hema);
+}
+.glabel .num{
+  font-family:'Fraunces',serif;font-size:12px;color:#fff;background:var(--hema);
+  width:19px;height:19px;border-radius:50%;display:grid;place-items:center;letter-spacing:0;
+  flex:none;
+}
+.group.off{opacity:.4}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opts.one{grid-template-columns:1fr}
+@media(min-width:560px){.opts{grid-template-columns:repeat(3,1fr)}.opts.one{grid-template-columns:1fr}}
+.opt{
+  font:inherit;font-weight:500;text-align:left;cursor:pointer;
+  background:var(--slide-2);border:1.5px solid var(--line-2);border-radius:11px;
+  padding:12px 12px;min-height:52px;color:var(--ink);
+  transition:background .12s ease,border-color .12s ease,transform .08s ease;
+  display:flex;flex-direction:column;justify-content:center;gap:2px;
+}
+.opt small{display:block;font-size:11px;color:var(--ink-soft);font-weight:400;line-height:1.2}
+.opt:hover:not(:disabled){border-color:var(--hema-soft);background:#fff}
+.opt:active:not(:disabled){transform:translateY(1px)}
+.opt[aria-pressed="true"]{background:var(--hema);border-color:var(--hema);color:#fff}
+.opt[aria-pressed="true"] small{color:rgba(255,255,255,.72)}
+.opt:disabled{cursor:not-allowed;opacity:.5}
+.opt:focus-visible{outline:3px solid var(--eos);outline-offset:2px}
+.opt.mark-ok{border-color:var(--ok);box-shadow:inset 0 0 0 1px var(--ok)}
+.opt.mark-bad{border-color:var(--bad);box-shadow:inset 0 0 0 1px var(--bad)}
+
+/* --- acciones --- */
+.actions{display:flex;gap:10px;align-items:center;margin-top:4px}
+.btn{
+  font:inherit;font-weight:700;cursor:pointer;border-radius:11px;padding:14px 20px;
+  border:1.5px solid var(--hema);background:var(--hema);color:#fff;flex:1;
+  transition:filter .12s ease,transform .08s ease;
+}
+.btn:hover:not(:disabled){filter:brightness(1.12)}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--hema);flex:0 0 auto}
+.btn:focus-visible{outline:3px solid var(--eos);outline-offset:2px}
+
+/* --- feedback --- */
+.fb{border-radius:var(--r);padding:14px 16px;margin-bottom:14px;border:1px solid}
+.fb.ok{background:var(--ok-bg);border-color:rgba(44,122,92,.35)}
+.fb.bad{background:var(--bad-bg);border-color:rgba(179,43,52,.3)}
+.fb h3{margin:0 0 6px;font-family:'Fraunces',serif;font-size:16px;letter-spacing:-.01em}
+.fb.ok h3{color:var(--ok)}
+.fb.bad h3{color:var(--bad)}
+.fb p{margin:0;font-size:14px}
+.fb .sol{font-family:'Fraunces',serif;font-size:16px;color:var(--ink);margin:2px 0 6px}
+.fb .nota{font-size:13px;color:var(--ink-soft);border-left:2px solid var(--line-2);padding-left:10px;margin-top:8px}
+
+/* --- pantallas --- */
+.hidden{display:none !important}
+.choices{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 0}
+.choices .btn{flex:1 1 90px}
+.result-n{font-family:'Fraunces',serif;font-size:52px;line-height:1;color:var(--hema);margin:0}
+.result-n span{font-size:22px;color:var(--ink-soft)}
+.errlist{list-style:none;padding:0;margin:14px 0 0;border-top:1px solid var(--line)}
+.errlist li{padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}
+.errlist b{display:block;font-family:'Fraunces',serif;font-size:15px;font-weight:600}
+.errlist .yours{color:var(--bad)}
+.errlist .theirs{color:var(--ok)}
+.foot{font-size:12px;color:var(--ink-soft);text-align:center;margin-top:26px}
+.stats{
+  display:flex;gap:0;margin:14px 0 0;border:1px solid var(--line);border-radius:11px;overflow:hidden;
+  background:rgba(126,90,166,.05);
+}
+.stat{flex:1;padding:10px 8px;text-align:center;border-right:1px solid var(--line)}
+.stat:last-child{border-right:0}
+.stat b{display:block;font-family:'Fraunces',serif;font-size:20px;color:var(--hema);line-height:1.1}
+.stat span{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);font-weight:700}
+.resume{
+  border:1.5px solid var(--eos);background:rgba(212,106,139,.08);
+  border-radius:11px;padding:12px 14px;margin:14px 0 0;
+}
+.resume p{margin:0 0 10px;font-size:14px}
+.mini{
+  font:inherit;font-size:12px;font-weight:700;background:none;border:0;color:var(--ink-soft);
+  cursor:pointer;text-decoration:underline;padding:8px 4px;margin-top:10px;
+}
+.mini:hover{color:var(--bad)}
+.mini:focus-visible{outline:2px solid var(--eos);outline-offset:2px}
+.warn{font-size:12px;color:var(--ink-soft);font-style:italic;margin:12px 0 0}
+@media (prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">BIR · Histología general</p>
+  <h1>Epitelios de revestimiento</h1>
+  <p class="sub">Clasifica cada localización montando el nombre pieza a pieza. El corte se dibuja según lo que eliges.</p>
+
+  <!-- INICIO -->
+  <section id="start" class="card">
+    <div id="resumeBox" class="resume hidden">
+      <p><b>Tienes una ronda a medias.</b> <span id="resumeInfo"></span></p>
+      <button class="btn" id="resumeBtn">Continuar donde lo dejaste</button>
+    </div>
+
+    <p class="tag" style="margin-top:16px">Nueva ronda</p>
+    <p class="muestra" style="font-size:22px">¿Cuántas muestras quieres?</p>
+    <div class="choices">
+      <button class="btn" data-len="10">10</button>
+      <button class="btn" data-len="20">20</button>
+      <button class="btn" data-len="30">30</button>
+      <button class="btn ghost" data-len="all">Las 65</button>
+    </div>
+
+    <div class="stats" id="statsBox">
+      <div class="stat"><b id="stTotal">0</b><span>Respondidas</span></div>
+      <div class="stat"><b id="stPct">—</b><span>Acierto</span></div>
+      <div class="stat"><b id="stFail">0</b><span>Con fallos</span></div>
+    </div>
+    <div class="choices">
+      <button class="btn ghost" id="reviewBtn" style="flex:1 1 100%" disabled>Repasar mis fallos acumulados</button>
+    </div>
+    <button class="mini" id="clearBtn">Borrar todo el progreso guardado</button>
+    <p class="warn hidden" id="noStore">Ahora mismo el progreso no se está guardando. Abre el archivo desde la web publicada (o desde el navegador, no en vista previa) para que se conserve.</p>
+  </section>
+
+  <!-- JUEGO -->
+  <section id="game" class="hidden">
+    <div class="status">
+      <span id="counter">1 / 20</span>
+      <div class="track"><div class="fill" id="fill"></div></div>
+      <span id="score">0 aciertos</span>
+    </div>
+
+    <div class="card">
+      <p class="tag" id="tagline">Localización</p>
+      <h2 class="muestra" id="loc">—</h2>
+      <div class="scope">
+        <div id="svgbox"></div>
+        <div class="chain" id="chain"><span class="ph">Aún no has elegido nada.</span></div>
+      </div>
+    </div>
+
+    <div id="feedback"></div>
+
+    <div class="group" id="g1">
+      <p class="glabel"><span class="num">1</span> Estratificación</p>
+      <div class="opts" id="o1"></div>
+    </div>
+
+    <div class="group" id="g2">
+      <p class="glabel"><span class="num">2</span> Forma celular</p>
+      <div class="opts" id="o2"></div>
+    </div>
+
+    <div class="group" id="g3">
+      <p class="glabel"><span class="num">3</span> <span id="l3">Superficie</span></p>
+      <div class="opts" id="o3"></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn ghost" id="reset">Borrar</button>
+      <button class="btn" id="check" disabled>Comprobar</button>
+    </div>
+  </section>
+
+  <!-- RESULTADO -->
+  <section id="end" class="card hidden">
+    <p class="tag">Ronda terminada</p>
+    <p class="result-n" id="finalScore">0<span>/0</span></p>
+    <p class="sub" id="finalMsg" style="margin:8px 0 0"></p>
+    <ul class="errlist" id="errlist"></ul>
+    <div class="choices">
+      <button class="btn" id="again">Nueva ronda</button>
+      <button class="btn ghost hidden" id="redo">Repetir fallos</button>
+    </div>
+  </section>
+
+  <p class="foot">Tu tabla de epitelios de revestimiento · 65 localizaciones · uretra y pene revisados</p>
+</div>
+
+<script>
+/* ============ DATOS ============ */
+/* n = nivel · f = forma · m = modificación/subtipo · nota = pista tras responder */
+const DATA = [
+ // SIMPLE PLANO
+ {l:"Endotelio de vasos sanguíneos y linfáticos", n:"simple", f:"plano", m:"no-ciliado"},
+ {l:"Mesotelio (peritoneo, pleura y pericardio)", n:"simple", f:"plano", m:"no-ciliado", nota:"Tapiza las cavidades serosas."},
+ {l:"Conductos alveolares y alvéolos pulmonares", n:"simple", f:"plano", m:"no-ciliado", nota:"Ojo: los bronquiolos terminales y respiratorios son simple cúbico."},
+ {l:"Cápsula de Bowman (hoja parietal)", n:"simple", f:"plano", m:"no-ciliado"},
+ {l:"Rama descendente y rama ascendente fina del asa de Henle", n:"simple", f:"plano", m:"no-ciliado", nota:"Única excepción dentro de los túbulos renales, que son simple cúbico."},
+ {l:"Epitelio posterior o interno de la córnea (endotelio corneal)", n:"simple", f:"plano", m:"no-ciliado", nota:"Su lámina basal es la membrana de Descemet. El epitelio anterior es estratificado plano no queratinizado, sobre la membrana de Bowman."},
+ {l:"Cara interna del tímpano", n:"simple", f:"plano", m:"no-ciliado"},
+ // SIMPLE CÚBICO
+ {l:"Conducto intercalar de las glándulas salivares", n:"simple", f:"cubico", m:"no-ciliado", nota:"Conducto intralobulillar → cúbico simple. Los interlobulillares son estratificados cúbicos."},
+ {l:"Conducto estriado de las glándulas salivares", n:"simple", f:"cubico", m:"no-ciliado", nota:"También intralobulillar."},
+ {l:"Vénulas de endotelio alto (HEV)", n:"simple", f:"cubico", m:"no-ciliado", nota:"El endotelio vascular normal es plano; aquí es alto (cúbico)."},
+ {l:"Bronquiolos terminales", n:"simple", f:"cubico", m:"no-ciliado", nota:"Aquí ya NO hay epitelio respiratorio pseudoestratificado."},
+ {l:"Bronquiolos respiratorios", n:"simple", f:"cubico", m:"no-ciliado"},
+ {l:"Túbulos renales", n:"simple", f:"cubico", m:"no-ciliado", nota:"Excepción: ramas fina descendente y ascendente del asa de Henle → simple plano."},
+ {l:"Epitelio superficial del ovario (epitelio germinativo)", n:"simple", f:"cubico", m:"no-ciliado"},
+ {l:"Red testicular (rete testis o red de Haller)", n:"simple", f:"cubico", m:"no-ciliado", nota:"No confundir con los túbulos seminíferos (estratificado plano no queratinizado)."},
+ {l:"Folículos tiroideos (epitelio folicular)", n:"simple", f:"cubico", m:"no-ciliado"},
+ {l:"Epitelio pigmentario de la retina", n:"simple", f:"cubico", m:"no-ciliado"},
+ // SIMPLE CILÍNDRICO NO CILIADO
+ {l:"Estómago", n:"simple", f:"cilindrico", m:"no-ciliado", nota:"Epitelio prismático simple."},
+ {l:"Intestino delgado", n:"simple", f:"cilindrico", m:"no-ciliado"},
+ {l:"Intestino grueso", n:"simple", f:"cilindrico", m:"no-ciliado"},
+ {l:"Zona colorrectal del conducto anal (tercio superior)", n:"simple", f:"cilindrico", m:"no-ciliado", nota:"Zona de transición → estratificado cilíndrico. Zona escamosa (tercio inferior) → estratificado plano no queratinizado."},
+ {l:"Vesícula biliar", n:"simple", f:"cilindrico", m:"no-ciliado", nota:"Con abundantes microvellosidades (no cilios)."},
+ {l:"Endocérvix", n:"simple", f:"cilindrico", m:"no-ciliado", nota:"Es el único del aparato reproductor femenino que NO es ciliado. En el paso a vagina hay transición brusca a estratificado plano no queratinizado (zona de transformación)."},
+ // SIMPLE CILÍNDRICO CILIADO
+ {l:"Trompas de Falopio (oviductos)", n:"simple", f:"cilindrico", m:"ciliado"},
+ {l:"Endometrio uterino", n:"simple", f:"cilindrico", m:"ciliado"},
+ // ESTRATIFICADO PLANO QUERATINIZADO
+ {l:"Epidermis", n:"estratificado", f:"plano", m:"queratinizado", nota:"Estrato córneo de células anucleadas."},
+ {l:"Papilas linguales filiformes", n:"estratificado", f:"plano", m:"queratinizado", nota:"Las únicas papilas queratinizadas y las únicas sin corpúsculos gustativos."},
+ {l:"Parte anterior del vestíbulo nasal", n:"estratificado", f:"plano", m:"queratinizado", nota:"Continuación de la epidermis. La parte posterior ya es no queratinizada."},
+ // ESTRATIFICADO PLANO NO QUERATINIZADO
+ {l:"Cavidad bucal", n:"estratificado", f:"plano", m:"no-queratinizado", nota:"Grado de queratinización variable → epitelio paraqueratinizado."},
+ {l:"Papilas linguales fungiformes, foliadas y caliciformes", n:"estratificado", f:"plano", m:"no-queratinizado", nota:"Todas menos las filiformes."},
+ {l:"Orofaringe", n:"estratificado", f:"plano", m:"no-queratinizado", nota:"La nasofaringe, en cambio, es epitelio respiratorio pseudoestratificado."},
+ {l:"Laringofaringe", n:"estratificado", f:"plano", m:"no-queratinizado"},
+ {l:"Esófago", n:"estratificado", f:"plano", m:"no-queratinizado"},
+ {l:"Zona escamosa del conducto anal (tercio inferior)", n:"estratificado", f:"plano", m:"no-queratinizado"},
+ {l:"Parte posterior del vestíbulo nasal", n:"estratificado", f:"plano", m:"no-queratinizado"},
+ {l:"Pliegues o cuerdas vocales de la laringe", n:"estratificado", f:"plano", m:"no-queratinizado", nota:"Excepción dentro de la laringe, que por lo demás es epitelio respiratorio."},
+ {l:"Superficie bucal (lingual) de la epiglotis", n:"estratificado", f:"plano", m:"no-queratinizado", nota:"El cartílago de la epiglotis es elástico."},
+ {l:"Porción distal de la uretra (fosa navicular y meato)", n:"estratificado", f:"plano", m:"no-queratinizado", nota:"Recorrido de la uretra masculina: prostática → urotelio; membranosa y esponjosa (peneana) → estratificado cilíndrico (a tramos pseudoestratificado cilíndrico); fosa navicular y meato → estratificado plano no queratinizado."},
+ {l:"Glande del pene y cara interna del prepucio", n:"estratificado", f:"plano", m:"no-queratinizado", nota:"Puede estar ligeramente queratinizado (paraqueratinizado) en el adulto. La piel del cuerpo del pene sí es estratificado plano queratinizado, como el resto de la epidermis."},
+ {l:"Ectocérvix", n:"estratificado", f:"plano", m:"no-queratinizado"},
+ {l:"Vagina", n:"estratificado", f:"plano", m:"no-queratinizado"},
+ {l:"Túbulos seminíferos (epitelio seminífero o germinativo)", n:"estratificado", f:"plano", m:"no-queratinizado"},
+ {l:"Epitelio anterior o externo de la córnea", n:"estratificado", f:"plano", m:"no-queratinizado", nota:"Su lámina basal es la membrana de Bowman."},
+ // ESTRATIFICADO CÚBICO
+ {l:"Conductos interlobulillares de glándulas salivares (excretores mayores)", n:"estratificado", f:"cubico", m:"no-queratinizado", nota:"Conductos grandes de glándulas exocrinas → estratificado cúbico."},
+ {l:"Conducto excretor de las glándulas sudoríparas", n:"estratificado", f:"cubico", m:"no-queratinizado"},
+ {l:"Conducto galactóforo de la glándula mamaria", n:"estratificado", f:"cubico", m:"no-queratinizado", nota:"Biestratificado cúbico."},
+ // ESTRATIFICADO CILÍNDRICO
+ {l:"Zona de transición anal", n:"estratificado", f:"cilindrico", m:"no-queratinizado", nota:"Entre la zona colorrectal (simple cilíndrico) y la escamosa (estratificado plano no queratinizado)."},
+ {l:"Porción media de la uretra", n:"estratificado", f:"cilindrico", m:"no-queratinizado", nota:"En el varón corresponde a la uretra membranosa y esponjosa (peneana); algunos tramos son pseudoestratificados cilíndricos."},
+ {l:"Conjuntiva ocular", n:"estratificado", f:"cilindrico", m:"no-queratinizado"},
+ {l:"Conductos de mayor calibre de las glándulas exocrinas", n:"estratificado", f:"cilindrico", m:"no-queratinizado"},
+ // ESPECIAL · PSEUDOESTRATIFICADO CILIADO
+ {l:"Mucosa respiratoria de la cavidad nasal", n:"especial", f:null, m:"pseudo-ciliado"},
+ {l:"Senos paranasales", n:"especial", f:null, m:"pseudo-ciliado"},
+ {l:"Nasofaringe", n:"especial", f:null, m:"pseudo-ciliado", nota:"Solo la NASOfaringe: oro y laringofaringe son estratificado plano no queratinizado."},
+ {l:"Laringe (excepto cuerdas vocales)", n:"especial", f:null, m:"pseudo-ciliado"},
+ {l:"Tráquea", n:"especial", f:null, m:"pseudo-ciliado"},
+ {l:"Bronquios", n:"especial", f:null, m:"pseudo-ciliado"},
+ {l:"Bronquiolos de mayor tamaño", n:"especial", f:null, m:"pseudo-ciliado", nota:"NO en bronquiolos terminales ni respiratorios → ahí es simple cúbico."},
+ // ESPECIAL · ESTEREOCILIOS
+ {l:"Epidídimo (conductillos eferentes)", n:"especial", f:null, m:"pseudo-estereocilios"},
+ {l:"Conducto deferente (segmento proximal)", n:"especial", f:null, m:"pseudo-estereocilios"},
+ {l:"Células sensoriales ciliadas del oído interno", n:"especial", f:null, m:"pseudo-estereocilios"},
+ // ESPECIAL · TRANSICIÓN
+ {l:"Cálices renales", n:"especial", f:null, m:"transicion"},
+ {l:"Pelvis renal", n:"especial", f:null, m:"transicion"},
+ {l:"Uréteres", n:"especial", f:null, m:"transicion"},
+ {l:"Vejiga urinaria", n:"especial", f:null, m:"transicion"},
+ {l:"Porción inicial (proximal) de la uretra", n:"especial", f:null, m:"transicion", nota:"En el varón es la uretra prostática. Solo la inicial: la media es estratificado cilíndrico y la distal estratificado plano no queratinizado."}
+];
+
+/* ============ OPCIONES ============ */
+const OPT1=[
+ {v:"simple", t:"Simple", s:"monoestratificado"},
+ {v:"estratificado", t:"Estratificado", s:"varias capas"},
+ {v:"especial", t:"Especial", s:"pseudo / transición"}
+];
+const OPT2=[
+ {v:"plano", t:"Plano", s:"escamoso, pavimentoso"},
+ {v:"cubico", t:"Cúbico", s:""},
+ {v:"cilindrico", t:"Cilíndrico", s:"prismático, columnar"}
+];
+const OPT3={
+ simple:[{v:"ciliado",t:"Ciliado",s:""},{v:"no-ciliado",t:"No ciliado",s:""}],
+ estratificado:[{v:"queratinizado",t:"Queratinizado",s:""},{v:"no-queratinizado",t:"No queratinizado",s:""}],
+ especial:[
+   {v:"pseudo-ciliado",t:"Pseudoestratificado ciliado",s:"epitelio respiratorio"},
+   {v:"pseudo-estereocilios",t:"Pseudoestratificado con estereocilios",s:""},
+   {v:"transicion",t:"De transición",s:"urotelio"}
+ ]
+};
+const L3={simple:"Superficie",estratificado:"Queratinización",especial:"Subtipo"};
+const NAME={
+ plano:"plano", cubico:"cúbico", cilindrico:"cilíndrico",
+ ciliado:"ciliado", "no-ciliado":"no ciliado",
+ queratinizado:"queratinizado", "no-queratinizado":"no queratinizado"
+};
+
+function fullName(n,f,m){
+  if(n==="especial"){
+    if(m==="pseudo-ciliado") return "Epitelio pseudoestratificado cilíndrico ciliado";
+    if(m==="pseudo-estereocilios") return "Epitelio pseudoestratificado cilíndrico con estereocilios";
+    if(m==="transicion") return "Epitelio de transición (urotelio)";
+    return "Epitelio especial…";
+  }
+  let s="Epitelio "+n;
+  if(f) s+=" "+NAME[f];
+  if(m) s+=" "+NAME[m];
+  return s;
+}
+
+/* ============ ESQUEMA SVG ============ */
+const CYT="rgba(212,106,139,.30)", CYT2="rgba(212,106,139,.18)",
+      EDGE="rgba(178,58,99,.55)", NUC="#4B2A72",
+      KER="rgba(230,168,140,.75)", KEREDGE="rgba(190,120,90,.7)",
+      BAS="#7E5AA6";
+const W=300,H=150,BASE=122;
+
+function cellRow(y,h,w,count,opts){
+  opts=opts||{};
+  const total=w*count, x0=(W-total)/2;
+  let s="";
+  for(let i=0;i<count;i++){
+    const x=x0+i*w;
+    s+=`<rect x="${x+.6}" y="${y}" width="${w-1.2}" height="${h}" rx="3" fill="${opts.fill||CYT}" stroke="${EDGE}" stroke-width="1"/>`;
+    if(!opts.noNuc){
+      const cy = opts.nucY!==undefined ? y+opts.nucY : y+h/2;
+      const rx = opts.rx||Math.min(w*.26,8), ry=opts.ry||Math.min(h*.3,8);
+      s+=`<ellipse cx="${x+w/2}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${NUC}" opacity=".85"/>`;
+    }
+  }
+  return s;
+}
+function cilia(y,count,len,wavy){
+  const step=W*.72/count, x0=W*.14;
+  let s="";
+  for(let i=0;i<count;i++){
+    const x=x0+i*step+step/2;
+    s+= wavy
+      ? `<path d="M${x} ${y} q 3 ${-len*.45} 0 ${-len}" stroke="${EDGE}" stroke-width="1.4" fill="none" stroke-linecap="round"/>`
+      : `<line x1="${x}" y1="${y}" x2="${x+1.5}" y2="${y-len}" stroke="${EDGE}" stroke-width="1.3" stroke-linecap="round"/>`;
+  }
+  return s;
+}
+function basal(){
+  return `<line x1="14" y1="${BASE}" x2="${W-14}" y2="${BASE}" stroke="${BAS}" stroke-width="2.4" stroke-linecap="round"/>
+  <text x="14" y="${BASE+15}" font-family="Karla,sans-serif" font-size="9" fill="#6C5B78" letter-spacing="1.2">LÁMINA BASAL</text>`;
+}
+function frame(inner){
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Esquema del epitelio">
+  <rect x="14" y="${BASE}" width="${W-28}" height="10" fill="rgba(126,90,166,.10)"/>${inner}</svg>`;
+}
+
+function drawEpi(n,f,m){
+  let g="";
+  if(!n) return frame(`<line x1="14" y1="${BASE}" x2="${W-14}" y2="${BASE}" stroke="${BAS}" stroke-width="2" stroke-dasharray="4 5" opacity=".6"/>
+    <text x="${W/2}" y="${BASE-30}" text-anchor="middle" font-family="Karla,sans-serif" font-size="11" fill="#8B7A96" font-style="italic">El corte se dibuja al elegir</text>`);
+
+  if(n==="especial"){
+    if(m==="transicion"){
+      g+=cellRow(BASE-26,26,30,8,{fill:CYT2});
+      g+=cellRow(BASE-50,24,38,6,{fill:CYT2});
+      // células en paraguas (domo)
+      const w=56,x0=(W-w*4)/2;
+      for(let i=0;i<4;i++){
+        const x=x0+i*w;
+        g+=`<path d="M${x+1} ${BASE-50} L${x+1} ${BASE-64} Q${x+w/2} ${BASE-84} ${x+w-1} ${BASE-64} L${x+w-1} ${BASE-50} Z" fill="${CYT}" stroke="${EDGE}" stroke-width="1.1"/>`;
+        g+=`<ellipse cx="${x+w/2-9}" cy="${BASE-62}" rx="5.5" ry="5" fill="${NUC}" opacity=".85"/>`;
+        g+=`<ellipse cx="${x+w/2+9}" cy="${BASE-62}" rx="5.5" ry="5" fill="${NUC}" opacity=".85"/>`;
+      }
+      g+=basal();
+      return frame(g);
+    }
+    // pseudoestratificado: todas tocan la basal, alturas y núcleos escalonados
+    const w=26,count=10,x0=(W-w*count)/2;
+    for(let i=0;i<count;i++){
+      const tall=i%2===0, x=x0+i*w, top=BASE-(tall?62:62), h=tall?62:62;
+      const wid=tall?w-2:w-6;
+      g+=`<rect x="${x+(w-wid)/2}" y="${top}" width="${wid}" height="${h}" rx="3" fill="${tall?CYT:CYT2}" stroke="${EDGE}" stroke-width="1"/>`;
+      const ny=tall?BASE-46:BASE-20;
+      g+=`<ellipse cx="${x+w/2}" cy="${ny}" rx="7" ry="8" fill="${NUC}" opacity=".85"/>`;
+    }
+    if(m==="pseudo-ciliado") g+=cilia(BASE-62,26,11,false);
+    if(m==="pseudo-estereocilios") g+=cilia(BASE-62,13,24,true);
+    g+=basal();
+    return frame(g);
+  }
+
+  if(!f) return frame(basal());
+
+  if(n==="simple"){
+    if(f==="plano") g+=cellRow(BASE-14,14,50,6,{rx:9,ry:4});
+    if(f==="cubico") g+=cellRow(BASE-30,30,30,8,{rx:8,ry:8});
+    if(f==="cilindrico") g+=cellRow(BASE-56,56,24,10,{rx:7,ry:10,nucY:38});
+    if(m==="ciliado"){
+      const top = f==="plano"?BASE-14 : f==="cubico"?BASE-30 : BASE-56;
+      g+=cilia(top,24,11,false);
+    }
+    g+=basal();
+    return frame(g);
+  }
+
+  // ESTRATIFICADO
+  if(f==="cubico"){
+    g+=cellRow(BASE-28,28,32,8,{fill:CYT2,rx:7,ry:7});
+    g+=cellRow(BASE-56,28,32,8,{rx:7,ry:7});
+  }else if(f==="cilindrico"){
+    g+=cellRow(BASE-24,24,28,9,{fill:CYT2,rx:6,ry:6});
+    g+=cellRow(BASE-66,42,28,9,{rx:6,ry:9,nucY:28});
+  }else{ // plano
+    g+=cellRow(BASE-24,24,26,10,{fill:CYT2,rx:6,ry:7});      // basal
+    g+=cellRow(BASE-44,20,34,8,{rx:7,ry:6});                  // espinoso
+    g+=cellRow(BASE-60,16,42,6,{rx:8,ry:4});                  // granuloso
+    g+=cellRow(BASE-72,12,50,5,{rx:9,ry:3});                  // superficial
+    if(m==="queratinizado"){
+      g+=cellRow(BASE-84,12,60,4,{fill:KER,noNuc:true});
+      g+=cellRow(BASE-94,10,60,4,{fill:KER,noNuc:true});
+      g+=`<text x="${W-16}" y="${BASE-98}" text-anchor="end" font-family="Karla,sans-serif" font-size="9" fill="#A8603F" letter-spacing="1">ESTRATO CÓRNEO</text>`;
+    }
+  }
+  g+=basal();
+  return frame(g);
+}
+
+/* ============ GUARDADO ============ */
+const KEY="epitelios_bir_v1";
+let store={stats:{},current:null}, persist=true;
+const byLoc=l=>DATA.find(d=>d.l===l);
+
+function load(){
+  try{
+    const raw=localStorage.getItem(KEY);
+    if(raw){ const p=JSON.parse(raw); store={stats:p.stats||{}, current:p.current||null}; }
+    localStorage.setItem(KEY+"_probe","1"); localStorage.removeItem(KEY+"_probe");
+  }catch(e){ persist=false; }
+}
+function save(){ if(!persist) return; try{ localStorage.setItem(KEY,JSON.stringify(store)); }catch(e){ persist=false; } }
+function persistCurrent(nextIdx){
+  if(!store.current) return;
+  store.current.idx = nextIdx;
+  store.current.hits = hits;
+  store.current.errors = errors.map(e=>({l:e.it.l, given:e.given}));
+  save();
+}
+
+/* ============ ESTADO ============ */
+let deck=[], idx=0, hits=0, errors=[], sel={n:null,f:null,m:null}, answered=false;
+const $=id=>document.getElementById(id);
+
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function startRound(list,resume){
+  deck=list;
+  if(resume){ idx=resume.idx; hits=resume.hits; errors=resume.errors; }
+  else{
+    idx=0; hits=0; errors=[];
+    store.current={deck:list.map(x=>x.l), idx:0, hits:0, errors:[]};
+    save();
+  }
+  $("start").classList.add("hidden"); $("end").classList.add("hidden");
+  $("game").classList.remove("hidden");
+  loadItem();
+}
+function loadItem(){
+  answered=false; sel={n:null,f:null,m:null};
+  const it=deck[idx];
+  $("loc").textContent=it.l;
+  $("counter").textContent=(idx+1)+" / "+deck.length;
+  $("score").textContent=hits+(hits===1?" acierto":" aciertos");
+  $("fill").style.width=(idx/deck.length*100)+"%";
+  $("feedback").innerHTML="";
+  $("check").textContent="Comprobar"; $("check").disabled=true;
+  $("reset").disabled=false;
+  render();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function optBtn(o,gi,on,disabled){
+  const b=document.createElement("button");
+  b.className="opt"; b.type="button";
+  b.setAttribute("aria-pressed", on?"true":"false");
+  b.innerHTML=`<span>${o.t}</span>${o.s?`<small>${o.s}</small>`:""}`;
+  b.disabled=!!disabled;
+  b.onclick=()=>pick(gi,o.v);
+  return b;
+}
+function render(){
+  const o1=$("o1"),o2=$("o2"),o3=$("o3");
+  o1.innerHTML=""; o2.innerHTML=""; o3.innerHTML="";
+  OPT1.forEach(o=>o1.appendChild(optBtn(o,1,sel.n===o.v,answered)));
+
+  const esp = sel.n==="especial";
+  $("g2").classList.toggle("off", esp || !sel.n);
+  OPT2.forEach(o=>o2.appendChild(optBtn(o,2,sel.f===o.v, answered || esp || !sel.n)));
+  if(esp) o2.insertAdjacentHTML("beforeend",
+    `<p style="grid-column:1/-1;margin:0;font-size:12px;color:#6C5B78;font-style:italic">No aplica: la forma va incluida en el subtipo.</p>`);
+
+  const list = sel.n ? OPT3[sel.n] : [];
+  $("l3").textContent = sel.n ? L3[sel.n] : "Superficie";
+  $("g3").classList.toggle("off", !sel.n);
+  o3.className = "opts" + (sel.n==="especial" ? " one" : "");
+  list.forEach(o=>o3.appendChild(optBtn(o,3,sel.m===o.v,answered)));
+  if(!sel.n) o3.insertAdjacentHTML("beforeend",
+    `<p style="grid-column:1/-1;margin:0;font-size:12px;color:#6C5B78;font-style:italic">Elige primero la estratificación.</p>`);
+
+  $("svgbox").innerHTML=drawEpi(sel.n,sel.f,sel.m);
+  const done = sel.n && sel.m && (sel.n==="especial" || sel.f);
+  $("chain").innerHTML = sel.n ? fullName(sel.n,sel.f,sel.m) : `<span class="ph">Aún no has elegido nada.</span>`;
+  if(!answered) $("check").disabled=!done;
+}
+function pick(g,v){
+  if(answered) return;
+  if(g===1){ if(sel.n!==v){ sel.n=v; sel.f=null; sel.m=null; } }
+  if(g===2) sel.f = sel.f===v?null:v;
+  if(g===3) sel.m = sel.m===v?null:v;
+  render();
+}
+function check(){
+  const it=deck[idx];
+  const ok = sel.n===it.n && sel.m===it.m && (it.n==="especial" || sel.f===it.f);
+  answered=true;
+  if(ok) hits++; else errors.push({it, given:fullName(sel.n,sel.f,sel.m)});
+  const st = store.stats[it.l] || (store.stats[it.l]={ok:0,ko:0});
+  ok ? st.ok++ : st.ko++;
+  persistCurrent(idx+1);
+  $("score").textContent=hits+(hits===1?" acierto":" aciertos");
+  $("fill").style.width=((idx+1)/deck.length*100)+"%";
+
+  $("feedback").innerHTML=`<div class="fb ${ok?"ok":"bad"}">
+    <h3>${ok?"Correcto":"No es eso"}</h3>
+    ${ok?"":`<p style="font-size:13px;color:#6C5B78;margin-bottom:4px">Tu respuesta: ${fullName(sel.n,sel.f,sel.m)}</p>`}
+    <p class="sol">${fullName(it.n,it.f,it.m)}</p>
+    ${it.nota?`<p class="nota">${it.nota}</p>`:""}
+  </div>`;
+  // marcar el corte correcto
+  $("svgbox").innerHTML=drawEpi(it.n,it.f,it.m);
+  $("chain").innerHTML=fullName(it.n,it.f,it.m);
+  // marcar botones
+  render();
+  markButtons(it);
+  $("check").textContent = idx+1<deck.length ? "Siguiente" : "Ver resultado";
+  $("check").disabled=false;
+  $("reset").disabled=true;
+  $("feedback").scrollIntoView({behavior:"smooth",block:"center"});
+}
+function markButtons(it){
+  const map=[["o1",sel.n,it.n,OPT1],["o2",sel.f,it.f,OPT2],["o3",sel.m,it.m,(OPT3[it.n]||[])]];
+  map.forEach(([id,mine,right,opts])=>{
+    const btns=[...$(id).querySelectorAll(".opt")];
+    btns.forEach((b,i)=>{
+      const v=opts[i]&&opts[i].v;
+      if(!v) return;
+      if(v===right) b.classList.add("mark-ok");
+      else if(v===mine) b.classList.add("mark-bad");
+    });
+  });
+}
+function next(){
+  idx++;
+  if(idx<deck.length) loadItem(); else finish();
+}
+function finish(){
+  store.current=null; save(); paintStart();
+  $("game").classList.add("hidden");
+  $("end").classList.remove("hidden");
+  $("finalScore").innerHTML=hits+`<span>/${deck.length}</span>`;
+  const pct=Math.round(hits/deck.length*100);
+  $("finalMsg").textContent = pct>=90 ? "Dominado. Repasa solo los matices."
+    : pct>=70 ? "Bien, pero los fallos de abajo son los que caen en el BIR."
+    : "Toca volver a la tabla: repasa los fallos y repite la ronda.";
+  const ul=$("errlist"); ul.innerHTML="";
+  errors.forEach(e=>{
+    const li=document.createElement("li");
+    li.innerHTML=`<b>${e.it.l}</b>
+      <span class="yours">Tú: ${e.given}</span><br>
+      <span class="theirs">Correcto: ${fullName(e.it.n,e.it.f,e.it.m)}</span>
+      ${e.it.nota?`<div style="font-size:12px;color:#6C5B78;margin-top:4px">${e.it.nota}</div>`:""}`;
+    ul.appendChild(li);
+  });
+  $("redo").classList.toggle("hidden", errors.length===0);
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* ============ PANTALLA DE INICIO ============ */
+function failedItems(){
+  return Object.keys(store.stats)
+    .filter(l=>store.stats[l].ko>0 && byLoc(l))
+    .sort((a,b)=>(store.stats[b].ko-store.stats[b].ok)-(store.stats[a].ko-store.stats[a].ok))
+    .map(byLoc);
+}
+function paintStart(){
+  let ok=0,ko=0,fail=0;
+  Object.values(store.stats).forEach(s=>{ok+=s.ok;ko+=s.ko;if(s.ko>0)fail++;});
+  const tot=ok+ko;
+  $("stTotal").textContent=tot;
+  $("stPct").textContent = tot? Math.round(ok/tot*100)+"%" : "—";
+  $("stFail").textContent=fail;
+
+  const f=failedItems();
+  $("reviewBtn").disabled = f.length===0;
+  $("reviewBtn").textContent = f.length ? `Repasar mis fallos (${f.length})` : "Aún no tienes fallos guardados";
+
+  const c=store.current;
+  const valid = c && c.deck && c.idx < c.deck.length;
+  $("resumeBox").classList.toggle("hidden", !valid);
+  if(valid) $("resumeInfo").textContent=`Vas por la muestra ${c.idx+1} de ${c.deck.length}, con ${c.hits} aciertos.`;
+  $("noStore").classList.toggle("hidden", persist);
+}
+
+/* ============ EVENTOS ============ */
+document.querySelectorAll("[data-len]").forEach(b=>{
+  b.onclick=()=>{
+    const v=b.dataset.len;
+    const all=shuffle(DATA);
+    startRound(v==="all"?all:all.slice(0,Math.min(+v,all.length)));
+  };
+});
+$("resumeBtn").onclick=()=>{
+  const c=store.current; if(!c) return;
+  const list=c.deck.map(byLoc).filter(Boolean);
+  if(c.idx>=list.length){ store.current=null; save(); paintStart(); return; }
+  startRound(list,{
+    idx:c.idx, hits:c.hits||0,
+    errors:(c.errors||[]).map(e=>({it:byLoc(e.l),given:e.given})).filter(e=>e.it)
+  });
+};
+$("reviewBtn").onclick=()=>{ const f=failedItems(); if(f.length) startRound(shuffle(f).slice(0,30)); };
+$("clearBtn").onclick=()=>{
+  if(!confirm("Se borran las estadísticas y la ronda a medias. ¿Seguro?")) return;
+  store={stats:{},current:null};
+  try{ localStorage.removeItem(KEY); }catch(e){}
+  paintStart();
+};
+$("check").onclick=()=>{ answered ? next() : check(); };
+$("reset").onclick=()=>{ if(!answered){ sel={n:null,f:null,m:null}; render(); } };
+$("again").onclick=()=>{ paintStart(); $("end").classList.add("hidden"); $("start").classList.remove("hidden"); };
+$("redo").onclick=()=>{ startRound(shuffle(errors.map(e=>e.it))); };
+document.addEventListener("keydown",e=>{
+  if(e.key==="Enter" && !$("game").classList.contains("hidden") && !$("check").disabled){ e.preventDefault(); $("check").click(); }
+});
+
+/* ============ ARRANQUE ============ */
+load();
+paintStart();
+</script>
+</body>
+</html>

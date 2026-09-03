@@ -44,8 +44,8 @@ h1{font-family:'Fraunces',Georgia,serif;font-weight:800;font-size:30px;line-heig
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .btn.ghost{background:transparent;color:var(--hema);}
 .mini{display:block;width:100%;margin-top:12px;background:none;border:0;color:var(--ink-soft);font-family:inherit;font-size:13px;text-decoration:underline;cursor:pointer}
-.stats{display:flex;gap:8px;margin-top:16px}
-.stat{flex:1;background:rgba(126,90,166,.08);border-radius:10px;padding:10px;text-align:center}
+.stats{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.stat{flex:1 1 44%;background:rgba(126,90,166,.08);border-radius:10px;padding:10px;text-align:center}
 .stat b{display:block;font-family:'Fraunces',serif;font-size:22px;color:var(--hema)}
 .stat span{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
 .status{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:13px;color:var(--ink-soft)}
@@ -124,7 +124,8 @@ h2.muestra{font-family:'Fraunces',serif;font-size:23px;line-height:1.2;margin:2p
 
     <div class="stats">
       <div class="stat"><b id="stTotal">0</b><span>Respondidas</span></div>
-      <div class="stat"><b id="stPct">—</b><span>Acierto</span></div>
+      <div class="stat"><b id="stPct">—</b><span>Acierto global</span></div>
+      <div class="stat"><b id="stLast">—</b><span>Últimas 20</span></div>
       <div class="stat"><b id="stFail">0</b><span>Pendientes</span></div>
     </div>
     <div class="choices">
@@ -369,13 +370,16 @@ function buildPool(items){
 
 /* ============================= RONDA ============================= */
 let R=null;
+function runRound(pool){
+  R={q:pool,i:0,score:0,errs:[],answered:false,sel:null,doubt:false};
+  store.round=null;save();
+  show('game');paint();
+}
 function startRound(items,len){
   let pool=buildPool(items);
   if(!pool.length){alert('Con esa combinación no hay preguntas. Prueba con otro bloque o tipo.');return}
   if(len!=='all') pool=pool.slice(0,Math.min(len,pool.length));
-  R={q:pool,i:0,score:0,errs:[],answered:false,sel:null,doubt:false};
-  store.round=null;save();
-  show('game');paint();
+  runRound(pool);
 }
 function show(w){['start','game','end'].forEach(s=>$(s).classList.toggle('hidden',s!==w));window.scrollTo(0,0)}
 
@@ -418,11 +422,17 @@ function checkAnswer(){
     if(txt===q.ans)c.classList.add('good');
     else if(txt===R.sel)c.classList.add('bad');
   });
-  const st=store.stats[q.id]||(store.stats[q.id]={s:0,f:0,d:0});
-  st.s++; if(!good)st.f++; if(R.doubt)st.d++;
-  if(good&&!R.doubt&&st.f>0)st.f--;
+  const st=store.stats[q.id]||(store.stats[q.id]={s:0,e:0,d:0,pend:[]});
+  if(st.e===undefined)st.e=st.f||0;          // migración de partidas antiguas
+  if(!st.pend)st.pend=[];
+  st.s++;
+  if(!good){st.e++; if(!st.pend.includes(q.t))st.pend.push(q.t)}
+  else if(R.doubt){st.d=(st.d||0)+1; if(!st.pend.includes(q.t))st.pend.push(q.t)}
+  else st.pend=st.pend.filter(t=>t!==q.t);
+  if(!store.log)store.log=[];
+  store.log.push(good?1:0); if(store.log.length>200)store.log.shift();
   save();
-  if(good)R.score++; else R.errs.push({id:q.id,dado:R.sel,ans:q.ans});
+  if(good)R.score++; else R.errs.push({id:q.id,t:q.t,dado:R.sel,ans:q.ans});
   const fb=document.createElement('div');
   fb.className='fb '+(good?'ok':'no');
   fb.innerHTML=`<h3>${good?(R.doubt?'Bien, pero dudabas':'Correcto'):'No'}</h3>
@@ -454,12 +464,14 @@ function finish(){
 function render(){
   const ids=Object.keys(store.stats);
   const tot=ids.reduce((a,k)=>a+store.stats[k].s,0);
-  const fails=ids.filter(k=>store.stats[k].f>0||store.stats[k].d>0);
-  const wrong=ids.reduce((a,k)=>a+store.stats[k].f,0);
+  const wrong=ids.reduce((a,k)=>a+(store.stats[k].e!==undefined?store.stats[k].e:(store.stats[k].f||0)),0);
+  const pend=pending();
+  const log=(store.log||[]).slice(-20);
   $('stTotal').textContent=tot;
   $('stPct').textContent=tot?Math.round((tot-wrong)/tot*100)+'%':'—';
-  $('stFail').textContent=fails.length;
-  $('reviewBtn').disabled=!fails.length;
+  $('stLast').textContent=log.length?Math.round(log.reduce((a,b)=>a+b,0)/log.length*100)+'%':'—';
+  $('stFail').textContent=pend.length;
+  $('reviewBtn').disabled=!pend.length;
   $('noStore').classList.toggle('hidden',ok);
   $('resumeBox').classList.add('hidden');
   if(store.round&&store.round.q&&store.round.q.length){
@@ -468,6 +480,11 @@ function render(){
   }
 }
 function selected(){return DATA.filter(d=>blocks[d.b])}
+function pending(){const out=[];
+  Object.keys(store.stats).forEach(id=>{const st=store.stats[id];
+    if(!byId[id]||!st.pend)return;
+    st.pend.forEach(t=>out.push({id,t}))});
+  return out}
 
 document.querySelectorAll('#blocks .chip').forEach(b=>b.onclick=()=>{
   const k=b.dataset.b;const on=b.getAttribute('aria-pressed')==='true';
@@ -482,8 +499,9 @@ document.querySelectorAll('[data-len]').forEach(b=>b.onclick=()=>{
   const l=b.dataset.len;startRound(selected(),l==='all'?'all':parseInt(l,10));
 });
 $('reviewBtn').onclick=()=>{
-  const ids=Object.keys(store.stats).filter(k=>store.stats[k].f>0||store.stats[k].d>0);
-  startRound(DATA.filter(d=>ids.includes(d.id)),'all');
+  const qs=pending().map(x=>makeQ(byId[x.id],x.t)).filter(Boolean);
+  if(!qs.length){alert('No queda nada pendiente.');render();return}
+  runRound(shuffle(qs));
 };
 $('check').onclick=checkAnswer;
 $('doubtBtn').onclick=()=>{if(R.answered)return;R.doubt=!R.doubt;
@@ -494,9 +512,11 @@ $('quitBtn').onclick=()=>{
   show('start');render()};
 $('resumeBtn').onclick=()=>{R=Object.assign({answered:false,sel:null,doubt:false},store.round);
   store.round=null;save();show('game');paint()};
-$('redo').onclick=()=>{const ids=R.errs.map(e=>e.id);startRound(DATA.filter(d=>ids.includes(d.id)),'all')};
+$('redo').onclick=()=>{
+  const qs=R.errs.map(e=>makeQ(byId[e.id],e.t)).filter(Boolean);
+  if(qs.length)runRound(shuffle(qs))};
 $('again').onclick=()=>{show('start');render()};
-$('clearBtn').onclick=()=>{if(confirm('¿Borrar todo el progreso guardado?')){store={stats:{},round:null};save();render()}};
+$('clearBtn').onclick=()=>{if(confirm('¿Borrar todo el progreso guardado?')){store={stats:{},round:null,log:[]};save();render()}};
 $('exportBtn').onclick=()=>{
   const blob=new Blob([JSON.stringify(store)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);

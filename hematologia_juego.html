@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hematología · inclusiones, morfología y tinciones · BIR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --slide:#F6F1F4; --slide-2:#FFFBFD; --ink:#2A1F33; --ink-soft:#6C5B78;
+  --hema:#4B2A72; --hema-soft:#7E5AA6; --eos:#D46A8B; --eos-deep:#B23A63;
+  --ok:#2C7A5C; --ok-bg:#E4F1EA; --bad:#B32B34; --bad-bg:#FBE7E7;
+  --line:rgba(75,42,114,.16); --line-2:rgba(75,42,114,.32);
+  --shadow:0 1px 0 rgba(75,42,114,.06), 0 8px 24px -16px rgba(75,42,114,.5);
+  --r:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--slide);
+  background-image:radial-gradient(circle at 18% -10%, rgba(212,106,139,.16), transparent 55%),
+                   radial-gradient(circle at 92% 8%, rgba(126,90,166,.14), transparent 45%);
+  color:var(--ink);
+  font-family:'Karla',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+  font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;
+  padding:18px 14px 48px;
+}
+.wrap{max-width:640px;margin:0 auto}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--hema-soft);margin:0 0 4px;font-weight:700}
+h1{font-family:'Fraunces',Georgia,serif;font-weight:800;font-size:30px;line-height:1.1;margin:0 0 6px;color:var(--hema)}
+.sub{margin:0 0 18px;color:var(--ink-soft);font-size:15px}
+.card{background:var(--slide-2);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
+.tag{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--hema-soft);font-weight:700;margin:0 0 8px}
+.hidden{display:none !important}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button,.chip{font-family:inherit;font-size:14px;padding:9px 12px;border-radius:10px;border:1px solid var(--line-2);background:transparent;color:var(--ink-soft);cursor:pointer;flex:1 1 auto}
+.seg button[aria-pressed="true"],.chip[aria-pressed="true"]{background:var(--hema);border-color:var(--hema);color:#fff;font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{flex:1 1 45%}
+.choices{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.btn{font-family:inherit;font-size:15px;font-weight:700;padding:12px 14px;border-radius:12px;border:1px solid var(--hema);background:var(--hema);color:#fff;cursor:pointer;flex:1 1 auto}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--hema);}
+.mini{display:block;width:100%;margin-top:12px;background:none;border:0;color:var(--ink-soft);font-family:inherit;font-size:13px;text-decoration:underline;cursor:pointer}
+.stats{display:flex;gap:8px;margin-top:16px}
+.stat{flex:1;background:rgba(126,90,166,.08);border-radius:10px;padding:10px;text-align:center}
+.stat b{display:block;font-family:'Fraunces',serif;font-size:22px;color:var(--hema)}
+.stat span{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.status{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:13px;color:var(--ink-soft)}
+.track{flex:1;height:6px;background:rgba(75,42,114,.12);border-radius:99px;overflow:hidden}
+.fill{height:100%;width:0;background:var(--eos);transition:width .25s}
+.scope{display:flex;justify-content:center;padding:6px 0 2px}
+.scope svg{width:190px;height:190px;background:
+   radial-gradient(circle at 50% 50%, #FFF7FA 0%, #FBEEF4 70%, #F3E2EC 100%);
+   border-radius:50%;border:1px solid var(--line)}
+h2.muestra{font-family:'Fraunces',serif;font-size:23px;line-height:1.2;margin:2px 0 10px;color:var(--hema)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{font-family:inherit;text-align:left;font-size:15px;padding:12px 13px;border-radius:11px;border:1px solid var(--line-2);background:var(--slide-2);color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:10px}
+.opt[aria-pressed="true"]{border-color:var(--hema);box-shadow:0 0 0 2px rgba(75,42,114,.15)}
+.opt.good{background:var(--ok-bg);border-color:var(--ok);color:var(--ok);font-weight:700}
+.opt.bad{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.opt svg{width:40px;height:40px;flex:0 0 40px}
+.doubt{width:100%;margin-top:10px;font-family:inherit;font-size:13px;padding:10px;border-radius:11px;border:1px dashed var(--line-2);background:transparent;color:var(--ink-soft);cursor:pointer}
+.doubt[aria-pressed="true"]{background:rgba(212,106,139,.14);border-style:solid;border-color:var(--eos-deep);color:var(--eos-deep);font-weight:700}
+.doubt:disabled{opacity:.45}
+.actions{display:flex;gap:8px;margin-top:12px}
+.fb{border-radius:var(--r);padding:14px;margin-bottom:12px;border:1px solid}
+.fb.ok{background:var(--ok-bg);border-color:rgba(44,122,92,.35)}
+.fb.no{background:var(--bad-bg);border-color:rgba(179,43,52,.3)}
+.fb h3{font-family:'Fraunces',serif;font-size:18px;margin:0 0 6px}
+.fb.ok h3{color:var(--ok)} .fb.no h3{color:var(--bad)}
+.fb p{margin:5px 0;font-size:14.5px}
+.fb .k{font-weight:700;color:var(--hema)}
+.fir{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;background:var(--hema);color:#fff;border-radius:99px;padding:3px 9px;margin-top:6px}
+.errlist{list-style:none;padding:0;margin:8px 0 0}
+.errlist li{border-top:1px solid var(--line);padding:9px 0;font-size:14px}
+.errlist b{color:var(--hema)}
+.warn{font-size:13px;color:var(--eos-deep);background:rgba(212,106,139,.12);padding:10px;border-radius:10px;margin-top:12px}
+.resume{background:rgba(126,90,166,.1);border-radius:10px;padding:12px}
+.resume p{margin:0 0 8px;font-size:14px}
+.note{font-size:12.5px;color:var(--ink-soft);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">BIR · Hematología</p>
+  <h1>Inclusiones, morfología y tinciones</h1>
+  <p class="sub">Asociaciones de serie roja, serie blanca y tinciones. El frotis se dibuja para que reconozcas la forma, no solo el nombre.</p>
+
+  <!-- INICIO -->
+  <section id="start" class="card">
+    <div id="resumeBox" class="resume hidden">
+      <p><b>Tienes una ronda a medias.</b> <span id="resumeInfo"></span></p>
+      <button class="btn" id="resumeBtn">Continuar donde lo dejaste</button>
+    </div>
+
+    <p class="tag" style="margin-top:16px">Bloques</p>
+    <div class="chips" id="blocks">
+      <button class="chip" data-b="inc" aria-pressed="true" type="button">Inclusiones eritrocitarias</button>
+      <button class="chip" data-b="poi" aria-pressed="true" type="button">Poiquilocitosis</button>
+      <button class="chip" data-b="leu" aria-pressed="true" type="button">Serie blanca</button>
+      <button class="chip" data-b="tin" aria-pressed="true" type="button">Tinciones</button>
+    </div>
+
+    <p class="tag" style="margin-top:16px">Tipo de pregunta</p>
+    <div class="seg" id="modes">
+      <button data-m="mix" aria-pressed="true" type="button">Mixto</button>
+      <button data-m="img" aria-pressed="false" type="button">Imagen → nombre</button>
+      <button data-m="pat" aria-pressed="false" type="button">Hallazgo → patología</button>
+      <button data-m="inv" aria-pressed="false" type="button">Patología → hallazgo</button>
+      <button data-m="nat" aria-pressed="false" type="button">Naturaleza / composición</button>
+    </div>
+
+    <p class="tag" style="margin-top:16px">Nueva ronda</p>
+    <div class="choices">
+      <button class="btn" data-len="10">10</button>
+      <button class="btn" data-len="20">20</button>
+      <button class="btn" data-len="30">30</button>
+      <button class="btn ghost" data-len="all">Todas</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><b id="stTotal">0</b><span>Respondidas</span></div>
+      <div class="stat"><b id="stPct">—</b><span>Acierto</span></div>
+      <div class="stat"><b id="stFail">0</b><span>Pendientes</span></div>
+    </div>
+    <div class="choices">
+      <button class="btn ghost" id="reviewBtn" style="flex:1 1 100%" disabled>Repasar mis fallos y dudas</button>
+    </div>
+    <div class="choices">
+      <button class="btn ghost" id="exportBtn" style="flex:1 1 45%">Guardar copia</button>
+      <button class="btn ghost" id="importBtn" style="flex:1 1 45%">Restaurar copia</button>
+    </div>
+    <input type="file" id="importFile" accept="application/json,.json" class="hidden">
+    <button class="mini" id="clearBtn">Borrar todo el progreso guardado</button>
+    <p class="warn hidden" id="noStore">Ahora mismo el progreso no se está guardando. Abre el archivo descargado desde el navegador (no en vista previa) para que se conserve.</p>
+  </section>
+
+  <!-- JUEGO -->
+  <section id="game" class="hidden">
+    <div class="status">
+      <span id="counter">1 / 20</span>
+      <div class="track"><div class="fill" id="fill"></div></div>
+      <span id="score">0 aciertos</span>
+    </div>
+
+    <div class="card">
+      <p class="tag" id="tagline">Frotis</p>
+      <div class="scope" id="scope"></div>
+      <h2 class="muestra" id="stem">—</h2>
+    </div>
+
+    <div id="feedback"></div>
+
+    <div class="opts" id="opts"></div>
+
+    <button class="doubt" id="doubtBtn" type="button" aria-pressed="false" disabled>He dudado entre dos opciones</button>
+    <div class="actions">
+      <button class="btn ghost" id="quitBtn">Pausar y salir</button>
+      <button class="btn" id="check" disabled>Comprobar</button>
+    </div>
+  </section>
+
+  <!-- FIN -->
+  <section id="end" class="card hidden">
+    <p class="tag">Ronda terminada</p>
+    <h2 class="muestra" id="finalScore">—</h2>
+    <p id="finalMsg" class="sub"></p>
+    <ul class="errlist" id="errlist"></ul>
+    <div class="choices">
+      <button class="btn" id="redo">Repetir solo los fallos</button>
+      <button class="btn ghost" id="again">Volver al inicio</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ============================= DIBUJO ============================= */
+const C={eos:'#D96E90',eosD:'#B23A63',pale:'#FDF4F8',hem:'#4B2A72',hemS:'#8B68B0',
+         blue:'#3F6FB8',blueL:'#7FA3D8',cyto:'#F7EAF3',cytoD:'#E3D2E8',ink:'#2A1F33',
+         lila:'#A87CC4',gris:'#8FA3B8',rojo:'#C0392B'};
+
+function rnd(seed){let s=seed;return()=>{s=(s*9301+49297)%233280;return s/233280}}
+function dots(n,seed,rad,col,size){const r=rnd(seed);let o='';for(let i=0;i<n;i++){
+  const a=r()*Math.PI*2,d=Math.sqrt(r())*rad;
+  o+=`<circle cx="${(60+Math.cos(a)*d).toFixed(1)}" cy="${(60+Math.sin(a)*d).toFixed(1)}" r="${size}" fill="${col}"/>`}
+  return o}
+function star(n,rIn,rOut,jit,seed,fill,stroke){const r=rnd(seed);let p=[];
+  for(let i=0;i<n*2;i++){const a=Math.PI*i/n;
+    let rr=(i%2?rOut+(jit?(r()-.5)*jit:0):rIn);
+    p.push(`${(60+Math.cos(a)*rr).toFixed(1)},${(60+Math.sin(a)*rr).toFixed(1)}`)}
+  return `<polygon points="${p.join(' ')}" fill="${fill}" stroke="${stroke}" stroke-width="1.5" stroke-linejoin="round"/>`}
+const cell=(r=34,f=C.eos,s=C.eosD)=>`<circle cx="60" cy="60" r="${r}" fill="${f}" stroke="${s}" stroke-width="1.5"/>`;
+const pallor=(r=16)=>`<circle cx="60" cy="60" r="${r}" fill="${C.pale}"/>`;
+const rbc=()=>cell()+pallor();
+/* leucocito genérico: citoplasma + núcleo por lóbulos */
+function wbc(lobes,nucCol=C.hemS,cyto=C.cyto,r=38){
+  let o=`<circle cx="60" cy="60" r="${r}" fill="${cyto}" stroke="${C.cytoD}" stroke-width="1.5"/>`;
+  lobes.forEach(l=>{o+=`<ellipse cx="${l[0]}" cy="${l[1]}" rx="${l[2]}" ry="${l[3]}" fill="${nucCol}"${l[4]?` transform="rotate(${l[4]} ${l[0]} ${l[1]})"`:''}/>`});
+  return o}
+const link=(x1,y1,x2,y2,w=5)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${C.hemS}" stroke-width="${w}"/>`;
+
+const DRAW={
+ /* --- inclusiones --- */
+ howell:()=>rbc()+`<circle cx="76" cy="48" r="7.5" fill="${C.hem}"/>`,
+ heinz:()=>rbc()+`<circle cx="82" cy="55" r="6" fill="${C.hemS}" stroke="${C.hem}"/><circle cx="46" cy="83" r="5.5" fill="${C.hemS}" stroke="${C.hem}"/><circle cx="40" cy="45" r="5" fill="${C.hemS}" stroke="${C.hem}"/>`,
+ cabot:()=>rbc()+`<circle cx="60" cy="60" r="22" fill="none" stroke="${C.hem}" stroke-width="2.6"/><path d="M48 46 C 66 40, 66 56, 48 50" fill="none" stroke="${C.hem}" stroke-width="2.2"/>`,
+ punteado:()=>cell()+pallor(12)+dots(24,7,27,C.hem,2.1),
+ pappen:()=>rbc()+`<circle cx="76" cy="52" r="3.4" fill="${C.blue}"/><circle cx="83" cy="58" r="3" fill="${C.blue}"/><circle cx="76" cy="64" r="3.2" fill="${C.blue}"/><circle cx="69" cy="56" r="2.8" fill="${C.blue}"/>`,
+ policro:()=>cell(34,'#A98BC6','#7E5AA6')+`<circle cx="60" cy="60" r="20" fill="rgba(255,255,255,.12)"/>`,
+ hbh:()=>cell(34,'#C6C1E0','#7E7AB8')+dots(18,11,26,'#5B6BB5',3.6),
+ parasito:()=>rbc()+`<circle cx="72" cy="52" r="8.5" fill="none" stroke="${C.hem}" stroke-width="3"/><circle cx="78" cy="46" r="3.6" fill="${C.hem}"/><circle cx="46" cy="74" r="7" fill="none" stroke="${C.hem}" stroke-width="2.6"/>`,
+ /* --- poiquilocitosis --- */
+ esferocito:()=>cell(28,C.eosD,'#8E2748'),
+ eliptocito:()=>`<ellipse cx="60" cy="60" rx="42" ry="19" fill="${C.eos}" stroke="${C.eosD}" stroke-width="1.5"/><ellipse cx="60" cy="60" rx="22" ry="7" fill="${C.pale}"/>`,
+ estomatocito:()=>cell()+`<rect x="55" y="44" width="10" height="32" rx="5" fill="${C.pale}"/>`,
+ drepanocito:()=>`<path d="M28 96 C 18 58, 42 22, 84 22 C 60 34, 44 62, 50 96 Z" fill="${C.eos}" stroke="${C.eosD}" stroke-width="1.5" stroke-linejoin="round"/>`,
+ dianocito:()=>cell()+pallor(20)+`<circle cx="60" cy="60" r="9" fill="${C.eos}"/>`,
+ esquistocito:()=>`<polygon points="26,78 60,30 82,74 60,66" fill="${C.eos}" stroke="${C.eosD}" stroke-width="1.5" stroke-linejoin="round"/><polygon points="86,90 104,62 108,92" fill="${C.eos}" stroke="${C.eosD}" stroke-width="1.5"/>`,
+ queratocito:()=>cell(32)+`<circle cx="60" cy="26" r="15" fill="#FBEEF4"/><polygon points="46,36 38,10 54,30" fill="${C.eos}" stroke="${C.eosD}" stroke-width="1.5" stroke-linejoin="round"/><polygon points="74,36 82,10 66,30" fill="${C.eos}" stroke="${C.eosD}" stroke-width="1.5" stroke-linejoin="round"/>`,
+ acantocito:()=>star(9,25,39,19,8,C.eos,C.eosD),
+ dacriocito:()=>`<path d="M60 16 C 76 44, 94 56, 94 72 C 94 90, 78 102, 60 102 C 42 102, 26 90, 26 72 C 26 56, 44 44, 60 16 Z" fill="${C.eos}" stroke="${C.eosD}" stroke-width="1.5"/><ellipse cx="60" cy="76" rx="13" ry="11" fill="${C.pale}"/>`,
+ equinocito:()=>star(16,29,38,0,5,C.eos,C.eosD)+pallor(11),
+ leptocito:()=>`<circle cx="60" cy="60" r="34" fill="${C.pale}" stroke="${C.eos}" stroke-width="7"/>`,
+ degmacito:()=>cell(34)+pallor(13)+`<circle cx="88" cy="44" r="17" fill="#FBEEF4"/>`,
+ rouleaux:()=>{let o='';for(let i=0;i<5;i++){o+=`<circle cx="${26+i*17}" cy="${44+i*8}" r="22" fill="${C.eos}" stroke="${C.eosD}" stroke-width="1.4" opacity=".93"/>`}return o},
+ microesf:()=>`<circle cx="42" cy="58" r="27" fill="${C.eos}" stroke="${C.eosD}" stroke-width="1.5"/><circle cx="42" cy="58" r="12" fill="${C.pale}"/><circle cx="88" cy="72" r="14" fill="${C.eosD}" stroke="#8E2748" stroke-width="1.5"/>`,
+ macrocito:()=>`<ellipse cx="56" cy="56" rx="42" ry="35" fill="${C.eos}" stroke="${C.eosD}" stroke-width="1.5"/><ellipse cx="56" cy="56" rx="14" ry="10" fill="${C.pale}"/><circle cx="90" cy="96" r="12" fill="#F2DCE5" stroke="#E0BACB" stroke-width="1.5"/>`,
+ /* --- serie blanca --- */
+ pelger:()=>wbc([[46,60,14,12],[76,60,14,12]])+link(50,60,72,60,7),
+ alder:()=>wbc([[48,52,12,10],[72,50,12,10],[62,74,12,10]])+dots(22,13,30,C.lila,3.2),
+ mayheg:()=>wbc([[50,54,13,11],[72,64,13,11]],C.hemS,C.cyto,34)+dots(10,17,26,'#5B4B9E',2.6)+`<circle cx="92" cy="88" r="14" fill="#C9A8DE" stroke="${C.hemS}" stroke-width="1.5"/>`,
+ hiperseg:()=>wbc([[36,62,10,9],[52,44,10,9],[70,42,10,9],[84,56,10,9],[78,76,10,9],[54,80,10,9]])+link(40,60,50,48,5)+link(56,44,68,43,5)+link(74,45,82,54,5)+link(82,62,79,72,5)+link(72,78,60,80,5),
+ dohle:()=>wbc([[48,54,12,10],[70,52,12,10],[62,76,12,10]])+`<ellipse cx="60" cy="34" rx="13" ry="6" fill="#9FB4C9" stroke="#7D95AE"/>`,
+ auer:()=>`<circle cx="60" cy="60" r="38" fill="${C.cyto}" stroke="${C.cytoD}" stroke-width="1.5"/><circle cx="58" cy="56" r="24" fill="${C.hemS}"/><rect x="62" y="82" width="28" height="6" rx="3" fill="${C.rojo}" transform="rotate(-30 76 85)"/>`,
+ russell:()=>`<circle cx="60" cy="60" r="38" fill="#CBB6E0" stroke="${C.hemS}" stroke-width="1.5"/><circle cx="44" cy="52" r="18" fill="${C.hem}"/><circle cx="80" cy="72" r="9" fill="#F2A0B8" stroke="${C.eosD}"/><circle cx="66" cy="88" r="7" fill="#F2A0B8" stroke="${C.eosD}"/><circle cx="88" cy="52" r="6" fill="#F2A0B8" stroke="${C.eosD}"/>`,
+ chediak:()=>wbc([[50,54,12,10],[74,62,12,10]])+`<circle cx="62" cy="82" r="10" fill="#7E5AA6" stroke="${C.hem}"/><circle cx="84" cy="42" r="8.5" fill="#7E5AA6" stroke="${C.hem}"/><circle cx="38" cy="76" r="7.5" fill="#7E5AA6" stroke="${C.hem}"/>`,
+ sezary:()=>`<circle cx="60" cy="60" r="38" fill="${C.cyto}" stroke="${C.cytoD}" stroke-width="1.5"/><path d="M60 28 C 76 28, 88 40, 84 52 C 92 58, 86 72, 76 74 C 78 86, 62 94, 52 86 C 40 92, 30 78, 36 68 C 26 60, 32 42, 44 40 C 46 30, 54 28, 60 28 Z" fill="${C.hem}"/><path d="M46 44 C 58 52, 54 66, 66 70 M70 44 C 62 56, 74 62, 72 74" stroke="#7E5AA6" stroke-width="2.4" fill="none"/>`,
+ rieder:()=>`<circle cx="60" cy="60" r="38" fill="${C.cyto}" stroke="${C.cytoD}" stroke-width="1.5"/><path d="M60 26 A 30 30 0 1 1 59.9 26 L 60 60 Z" fill="${C.hem}"/><path d="M60 26 A 30 30 0 0 1 84 74 L 60 60 Z" fill="${C.hem}"/><path d="M60 60 L 88 40" stroke="${C.cyto}" stroke-width="9"/>`,
+ turk:()=>`<circle cx="60" cy="60" r="40" fill="#8FA9CE" stroke="#5D7CA8" stroke-width="1.5"/><circle cx="58" cy="58" r="26" fill="${C.hem}"/>`,
+ reed:()=>`<circle cx="60" cy="60" r="42" fill="${C.cyto}" stroke="${C.cytoD}" stroke-width="1.5"/><circle cx="42" cy="58" r="20" fill="${C.hemS}"/><circle cx="78" cy="62" r="20" fill="${C.hemS}"/><circle cx="42" cy="58" r="9" fill="${C.hem}"/><circle cx="78" cy="62" r="9" fill="${C.hem}"/>`,
+ /* --- tinciones (icono de portaobjetos) --- */
+ slide:(c1,c2,extra='')=>`<rect x="24" y="20" width="72" height="80" rx="6" fill="#FFFFFF" stroke="${C.cytoD}" stroke-width="1.5"/><rect x="32" y="34" width="56" height="52" rx="4" fill="${c1}"/>${extra||`<circle cx="52" cy="54" r="8" fill="${c2}"/><circle cx="72" cy="70" r="6" fill="${c2}"/>`}`
+};
+const T=(a,b,e)=>()=>DRAW.slide(a,b,e);
+DRAW.t_wright=T('#F3D9E4',C.hem); DRAW.t_giemsa=T('#E7D3EC',C.hem);
+DRAW.t_may=T('#F6DCE6',C.eosD); DRAW.t_prusia=T('#DCE7F6','#2C5CA8');
+DRAW.t_cresilo=T('#DCE9F2','#3A78A8'); DRAW.t_pas=T('#F7DCE2','#C0397B');
+DRAW.t_mpo=T('#EADFF5','#4B2A72'); DRAW.t_esterasa=T('#E3E9DC','#5B7A3A');
+DRAW.t_fal=T('#F0E6D6','#8A6A2A');
+
+function svg(key,size){
+  const f=DRAW[key]; if(!f) return '';
+  return `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">${f()}</svg>`}
+
+/* ============================= DATOS ============================= */
+/* b: bloque · n: nombre · d: dibujo · nat: naturaleza/composición
+   p: patología más característica · o: otras asociaciones · x: dato clave · fir */
+const DATA=[
+/* --- INCLUSIONES ERITROCITARIAS --- */
+{id:'i1',b:'inc',n:'Cuerpos de Howell-Jolly',d:'howell',nat:'Restos nucleares (DNA)',p:'Hipoesplenismo / post-esplenectomía',o:'Anemia megaloblástica, anemia hemolítica',x:'Aparecen porque falta el filtro esplénico.',fir:'FIR 2005 · 2016'},
+{id:'i2',b:'inc',n:'Cuerpos de Heinz',d:'heinz',nat:'Hemoglobina desnaturalizada precipitada',p:'Déficit de G6PDH',o:'Hb inestables, fármacos oxidantes',x:'Se ven con azul de cresilo brillante (supravital). Van con degmacitos.',fir:'FIR 2005 · 2008 · 2010'},
+{id:'i3',b:'inc',n:'Anillos de Cabot',d:'cabot',nat:'Restos del huso mitótico',p:'Anemia megaloblástica',o:'SMD, anemia perniciosa, saturnismo',x:'Anillo o figura en 8.',fir:'FIR 2005'},
+{id:'i4',b:'inc',n:'Punteado basófilo',d:'punteado',nat:'Agregados ribosómicos (RNA precipitado)',p:'Intoxicación por plomo (saturnismo)',o:'Talasemia, anemias sideroblásticas, SMD',x:'Punteado fino y difuso por toda la célula.',fir:'FIR 2005'},
+{id:'i5',b:'inc',n:'Cuerpos de Pappenheimer',d:'pappen',nat:'Grumos de hemosiderina (hierro)',p:'Anemia sideroblástica',o:'Sobrecarga férrica, post-esplenectomía, megaloblástica',x:'Azul de Prusia (Perls). Agrupados, no dispersos: eso los separa del punteado basófilo.',fir:''},
+{id:'i6',b:'inc',n:'Basofilia difusa (policromasia)',d:'policro',nat:'RNA de reticulocitos',p:'Anemia hemolítica (regeneración activa)',o:'Cualquier respuesta medular intensa',x:'Es el reticulocito visto con tinción normal.',fir:''},
+{id:'i7',b:'inc',n:'Precipitados de Hb H',d:'hbh',nat:'Tetrámeros de cadenas β (Hb H, β4)',p:'Enfermedad por Hb H (α-talasemia, α-/--)',o:'—',x:'Imagen "en pelota de golf" con azul de cresilo.',fir:'FIR 2007'},
+{id:'i8',b:'inc',n:'Parásitos intraeritrocitarios',d:'parasito',nat:'Plasmodium / Babesia',p:'Paludismo y babesiosis',o:'—',x:'Babesia: sin hemozoína y con tétradas; Plasmodium: anillo con hemozoína.',fir:''},
+/* --- POIQUILOCITOSIS --- */
+{id:'p1',b:'poi',n:'Esferocitos',d:'esferocito',nat:'Esféricos, sin palidez central',p:'Esferocitosis hereditaria',o:'Anemia hemolítica inmunitaria, quemaduras extensas',x:'Pérdida de superficie de membrana.',fir:'FIR 2023'},
+{id:'p2',b:'poi',n:'Eliptocitos / ovalocitos',d:'eliptocito',nat:'Elipsoidea u ovalada',p:'Eliptocitosis hereditaria',o:'Anemia ferropénica, talasemia mayor',x:'',fir:''},
+{id:'p3',b:'poi',n:'Estomatocitos',d:'estomatocito',nat:'Hendidura central alargada ("boca")',p:'Estomatocitosis hereditaria',o:'Alcoholismo, hepatopatías, xerocitosis, déficit de Rh',x:'',fir:''},
+{id:'p4',b:'poi',n:'Drepanocitos',d:'drepanocito',nat:'En hoz / falciforme',p:'Anemia drepanocítica (Hb S)',o:'Talasemia β-drepanocítica',x:'',fir:'FIR 2016'},
+{id:'p5',b:'poi',n:'Dianocitos (codocitos)',d:'dianocito',nat:'En diana: palidez anular con centro teñido',p:'Hemoglobinopatía C',o:'Talasemias, hepatopatías, post-esplenectomía, Hb S, déficit de G6PDH',x:'Exceso de membrana respecto al contenido. En la Hb S también hay dianocitos, pero la célula que define es el drepanocito: el dianocito manda en la Hb C.',fir:''},
+{id:'p6',b:'poi',n:'Esquistocitos',d:'esquistocito',nat:'Fragmentados (rotura intravascular)',p:'Anemia hemolítica microangiopática (PTT, SHU, CID)',o:'Prótesis valvulares, quemaduras extensas',x:'',fir:'FIR 2016 · 2021'},
+{id:'p7',b:'poi',n:'Queratocitos',d:'queratocito',nat:'Con prolongaciones en cuernos',p:'CID y prótesis valvulares',o:'Se consideran una variante de esquistocito',x:'',fir:''},
+{id:'p8',b:'poi',n:'Acantocitos',d:'acantocito',nat:'Espículas irregulares en número, tamaño y distribución',p:'Abetalipoproteinemia',o:'Hepatopatía grave, neuroacantocitosis, síndrome de McLeod',x:'Irregulares = acantocito; regulares = equinocito.',fir:'FIR 2022'},
+{id:'p9',b:'poi',n:'Dacriocitos',d:'dacriocito',nat:'En lágrima',p:'Mielofibrosis primaria',o:'Mieloptisis, talasemia, anemia megaloblástica',x:'',fir:'FIR 2008 · 2019'},
+{id:'p10',b:'poi',n:'Equinocitos',d:'equinocito',nat:'Espículas cortas, regulares y equidistantes',p:'Uremia',o:'Déficit de piruvato cinasa',x:'"En erizo": la regularidad es la clave frente al acantocito.',fir:'FIR 2016'},
+{id:'p11',b:'poi',n:'Leptocitos',d:'leptocito',nat:'Delgados e hipocrómicos, Hb periférica',p:'Talasemias',o:'Anemias megaloblásticas',x:'',fir:''},
+{id:'p12',b:'poi',n:'Degmacitos (bite cells)',d:'degmacito',nat:'Con una mordedura en el borde',p:'Déficit de G6PDH',o:'Hb inestables',x:'El bazo retira el cuerpo de Heinz y deja el mordisco.',fir:''},
+{id:'p13',b:'poi',n:'Rouleaux',d:'rouleaux',nat:'Apilados en pila de monedas',p:'Mieloma múltiple',o:'Disproteinemias, macroglobulinemia de Waldenström',x:'',fir:''},
+{id:'p14',b:'poi',n:'Microesferocitos',d:'microesf',nat:'Pequeños y sin palidez central',p:'Quemaduras extensas',o:'Anemia hemolítica inmunitaria',x:'En quemaduras van junto a esquistocitos.',fir:''},
+{id:'p15',b:'poi',n:'Macrocitos ovales',d:'macrocito',nat:'Grandes (VCM > 100 fL)',p:'Anemia megaloblástica (B12/folato)',o:'Hepatopatía, hipotiroidismo, reticulocitosis',x:'Con hipersegmentación de neutrófilos.',fir:''},
+/* --- SERIE BLANCA --- */
+{id:'l1',b:'leu',n:'Anomalía de Pelger-Huët',d:'pelger',nat:'Hiposegmentación nuclear (bilobulado, "anteojos")',p:'Congénita; pseudo-Pelger en SMD',o:'—',x:'Función del neutrófilo conservada.',fir:'FIR 2009'},
+{id:'l2',b:'leu',n:'Anomalía de Alder-Reilly',d:'alder',nat:'Gránulos lila de mucopolisacáridos',p:'Mucopolisacaridosis',o:'Congénita o adquirida',x:'Función conservada.',fir:''},
+{id:'l3',b:'leu',n:'Anomalía de May-Hegglin',d:'mayheg',nat:'Gránulos basófilos + plaquetas gigantes',p:'Trombocitopenia con plaquetas gigantes',o:'—',x:'Es la que asocia alteración plaquetaria.',fir:''},
+{id:'l4',b:'leu',n:'Hipersegmentación nuclear',d:'hiperseg',nat:'Neutrófilos con más de 5 lóbulos',p:'Anemia megaloblástica (B12/folato)',o:'—',x:'',fir:''},
+{id:'l5',b:'leu',n:'Cuerpos de Döhle',d:'dohle',nat:'Fragmentos de RER rico en ribosomas',p:'Infecciones graves',o:'Quemaduras, embarazo, citotóxicos',x:'Inclusión azul grisácea en la periferia del citoplasma.',fir:'FIR 2020'},
+{id:'l6',b:'leu',n:'LAD 1',d:'',nat:'Déficit de CD18 (β2-integrina)',p:'Infecciones bacterianas recurrentes sin pus',o:'Retraso en caída del cordón umbilical',x:'Falla la adhesión firme del neutrófilo.',fir:''},
+{id:'l7',b:'leu',n:'LAD 2',d:'',nat:'Déficit de fucosiltransferasa',p:'Infecciones recurrentes con retraso mental',o:'—',x:'Falla el ligando de selectina (rodamiento).',fir:''},
+{id:'l8',b:'leu',n:'Déficit de mieloperoxidasa',d:'',nat:'MPO ausente en neutrófilos y monocitos',p:'Candidiasis en diabéticos',o:'Habitualmente asintomático',x:'',fir:''},
+{id:'l9',b:'leu',n:'Enfermedad granulomatosa crónica',d:'',nat:'Déficit de NADPH oxidasa',p:'Infecciones por catalasa-positivos (S. aureus, Aspergillus)',o:'—',x:'Diagnóstico con test de DHR.',fir:''},
+{id:'l10',b:'leu',n:'Bastones de Auer',d:'auer',nat:'Fusión de gránulos primarios azurófilos',p:'Leucemia mieloide aguda (patognomónicos)',o:'—',x:'',fir:'FIR 2014 · 2016'},
+{id:'l11',b:'leu',n:'Cuerpos de Russell',d:'russell',nat:'Inmunoglobulina acumulada en el RER',p:'Mieloma múltiple',o:'—',x:'Inclusiones eosinófilas en células plasmáticas.',fir:''},
+{id:'l12',b:'leu',n:'Síndrome de Chédiak-Higashi',d:'chediak',nat:'Gránulos gigantes por fallo del transporte a lisosomas',p:'Albinismo parcial con infecciones de repetición',o:'—',x:'Gen LYST, autosómico recesivo.',fir:''},
+{id:'l13',b:'leu',n:'Linfocitos de Sézary',d:'sezary',nat:'Núcleo cerebriforme',p:'Síndrome de Sézary (linfoma T cutáneo)',o:'—',x:'',fir:''},
+{id:'l14',b:'leu',n:'Linfocitos de Rieder',d:'rieder',nat:'Núcleo lobulado o hendido',p:'LLC y leucemias linfoblásticas',o:'—',x:'',fir:''},
+{id:'l15',b:'leu',n:'Células de Türk (virocitos)',d:'turk',nat:'Linfocito activado grande, citoplasma muy basófilo',p:'Infección vírica (EBV, CMV)',o:'—',x:'',fir:''},
+{id:'l16',b:'leu',n:'Células de Reed-Sternberg',d:'reed',nat:'Binucleada con grandes nucléolos ("ojos de búho")',p:'Linfoma de Hodgkin clásico',o:'—',x:'',fir:''},
+/* --- TINCIONES --- */
+{id:'t1',b:'tin',n:'Wright',d:'t_wright',nat:'Eosina + azul de metileno',p:'Frotis de sangre periférica (policrómica)',o:'—',x:'Policrómica = eosina + azul de metileno.',fir:'FIR 2004'},
+{id:'t2',b:'tin',n:'Wright-Giemsa (Romanowsky)',d:'t_giemsa',nat:'Eosina + azul de metileno + azur',p:'Frotis de sangre y de médula ósea',o:'—',x:'La más usada en médula ósea.',fir:''},
+{id:'t3',b:'tin',n:'May-Grünwald',d:'t_may',nat:'Eosina + azul de metileno',p:'Alternativa a Wright, combinable con Giemsa',o:'—',x:'También policrómica.',fir:'FIR 2004'},
+{id:'t4',b:'tin',n:'Azul de Prusia (Perls)',d:'t_prusia',nat:'Ferrocianuro potásico + HCl',p:'Hierro: cuerpos de Pappenheimer y sideroblastos',o:'—',x:'',fir:''},
+{id:'t5',b:'tin',n:'Azul de cresilo brillante',d:'t_cresilo',nat:'Tinción supravital',p:'Reticulocitos, Hb H y cuerpos de Heinz',o:'—',x:'Supravital: tiñe la célula viva.',fir:''},
+{id:'t6',b:'tin',n:'PAS',d:'t_pas',nat:'Ácido peryódico + reactivo de Schiff',p:'Glucógeno: blastos PAS+ en la LLA',o:'Eritroleucemia',x:'',fir:''},
+{id:'t7',b:'tin',n:'Mieloperoxidasa (MPO)',d:'t_mpo',nat:'Reacción histoquímica',p:'Diferencia LMA (MPO+) de LLA (MPO−)',o:'—',x:'',fir:''},
+{id:'t8',b:'tin',n:'Esterasas (α-naftil acetato)',d:'t_esterasa',nat:'α-naftil acetato esterasa',p:'Estirpe monocítica (ANAE+)',o:'—',x:'Separa monocítico de granulocítico.',fir:''},
+{id:'t9',b:'tin',n:'Fosfatasa alcalina leucocitaria (FAL)',d:'t_fal',nat:'Reacción histoquímica',p:'Baja en LMC, alta en reacción leucemoide',o:'—',x:'',fir:''}
+];
+
+/* ============================= ESTADO ============================= */
+const KEY='hema_bir_v1';
+let store={stats:{},round:null};
+let ok=true;
+try{const raw=localStorage.getItem(KEY); if(raw) store=JSON.parse(raw);}catch(e){ok=false}
+if(!store.stats) store.stats={};
+function save(){ if(!ok) return; try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){ok=false;render()} }
+
+const $=id=>document.getElementById(id);
+const byId=Object.fromEntries(DATA.map(d=>[d.id,d]));
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function pick(arr,n,exclude){const p=shuffle(arr.filter(v=>v&&v!==exclude&&v!=='—'));const out=[];
+  for(const v of p){if(!out.includes(v))out.push(v); if(out.length>=n)break} return out}
+
+let blocks={inc:true,poi:true,leu:true,tin:true};
+let mode='mix';
+
+/* ------------- generación de preguntas ------------- */
+function makeQ(item,type){
+  const pool=DATA.filter(d=>d.b===item.b);
+  if(type==='img'){
+    if(!item.d||item.b==='tin') return null;
+    return {id:item.id,t:'img',tag:'Frotis',draw:item.d,stem:'¿Qué estás viendo?',
+      ans:item.n,opts:[item.n,...pick(pool.map(d=>d.n),3,item.n)],mini:true};
+  }
+  if(type==='pat'){
+    const q=item.b==='tin'?'¿Para qué se usa principalmente?':'¿Con qué se asocia de forma más característica?';
+    return {id:item.id,t:'pat',tag:item.b==='tin'?'Tinción':'Hallazgo',draw:item.d,stem:item.n+' · '+q,
+      ans:item.p,opts:[item.p,...pick(pool.map(d=>d.p),3,item.p)]};
+  }
+  if(type==='inv'){
+    return {id:item.id,t:'inv',tag:item.b==='tin'?'¿Qué tinción pido?':'¿Qué esperas encontrar?',draw:'',
+      stem:item.p,ans:item.n,opts:[item.n,...pick(pool.map(d=>d.n),3,item.n)],mini:true};
+  }
+  if(type==='nat'){
+    const q=item.b==='tin'?'¿Qué componentes lleva?':(item.b==='poi'?'¿Cómo se describe su morfología?':'¿Cuál es su naturaleza?');
+    return {id:item.id,t:'nat',tag:'Composición',draw:'',stem:item.n+' · '+q,
+      ans:item.nat,opts:[item.nat,...pick(pool.map(d=>d.nat),3,item.nat)]};
+  }
+  return null;
+}
+function buildPool(items){
+  const types=mode==='mix'?['img','pat','inv','nat']:[mode];
+  const out=[];
+  items.forEach(it=>{
+    const avail=types.map(t=>makeQ(it,t)).filter(q=>q&&q.opts.length>=3);
+    if(!avail.length) return;
+    if(mode==='mix') out.push(avail[Math.floor(Math.random()*avail.length)]);
+    else avail.forEach(q=>out.push(q));
+  });
+  return shuffle(out);
+}
+
+/* ============================= RONDA ============================= */
+let R=null;
+function startRound(items,len){
+  let pool=buildPool(items);
+  if(!pool.length){alert('Con esa combinación no hay preguntas. Prueba con otro bloque o tipo.');return}
+  if(len!=='all') pool=pool.slice(0,Math.min(len,pool.length));
+  R={q:pool,i:0,score:0,errs:[],answered:false,sel:null,doubt:false};
+  store.round=null;save();
+  show('game');paint();
+}
+function show(w){['start','game','end'].forEach(s=>$(s).classList.toggle('hidden',s!==w));window.scrollTo(0,0)}
+
+function paint(){
+  const q=R.q[R.i];
+  $('counter').textContent=`${R.i+1} / ${R.q.length}`;
+  $('fill').style.width=(R.i/R.q.length*100)+'%';
+  $('score').textContent=R.score+' aciertos';
+  $('tagline').textContent=q.tag;
+  $('scope').innerHTML=q.draw?svg(q.draw):'';
+  $('scope').classList.toggle('hidden',!q.draw);
+  $('stem').textContent=q.stem;
+  $('feedback').innerHTML='';
+  R.answered=false;R.sel=null;R.doubt=false;
+  const d=$('doubtBtn');d.setAttribute('aria-pressed','false');d.disabled=true;d.textContent='He dudado entre dos opciones';
+  $('check').disabled=true;$('check').textContent='Comprobar';
+  const box=$('opts');box.innerHTML='';
+  shuffle(q.opts).forEach(o=>{
+    const b=document.createElement('button');
+    b.className='opt';b.type='button';b.setAttribute('aria-pressed','false');
+    const it=q.mini?DATA.find(x=>x.n===o):null;
+    b.innerHTML=(it&&it.d?svg(it.d):'')+`<span>${o}</span>`;
+    b.onclick=()=>{if(R.answered)return;
+      [...box.children].forEach(c=>c.setAttribute('aria-pressed','false'));
+      b.setAttribute('aria-pressed','true');R.sel=o;$('check').disabled=false;$('doubtBtn').disabled=false};
+    box.appendChild(b);
+  });
+}
+
+function checkAnswer(){
+  const q=R.q[R.i];
+  if(R.answered){R.i++;
+    if(R.i>=R.q.length){finish()}else{paint()}
+    return}
+  R.answered=true;
+  const good=R.sel===q.ans;
+  const it=byId[q.id];
+  [...$('opts').children].forEach(c=>{
+    const txt=c.querySelector('span').textContent;
+    if(txt===q.ans)c.classList.add('good');
+    else if(txt===R.sel)c.classList.add('bad');
+  });
+  const st=store.stats[q.id]||(store.stats[q.id]={s:0,f:0,d:0});
+  st.s++; if(!good)st.f++; if(R.doubt)st.d++;
+  if(good&&!R.doubt&&st.f>0)st.f--;
+  save();
+  if(good)R.score++; else R.errs.push({id:q.id,dado:R.sel,ans:q.ans});
+  const fb=document.createElement('div');
+  fb.className='fb '+(good?'ok':'no');
+  fb.innerHTML=`<h3>${good?(R.doubt?'Bien, pero dudabas':'Correcto'):'No'}</h3>
+    <p><span class="k">${it.n}</span> — ${it.nat}</p>
+    <p><span class="k">Se asocia a:</span> ${it.p}${it.o&&it.o!=='—'?'. <span style="color:var(--ink-soft)">Otras: '+it.o+'</span>':''}</p>
+    ${it.x?`<p style="color:var(--ink-soft)">${it.x}</p>`:''}
+    ${it.fir?`<span class="fir">${it.fir}</span>`:''}`;
+  $('feedback').innerHTML='';$('feedback').appendChild(fb);
+  $('check').textContent=(R.i+1>=R.q.length)?'Ver resultado':'Siguiente';
+  $('doubtBtn').disabled=true;
+  $('feedback').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function finish(){
+  $('fill').style.width='100%';
+  const pct=Math.round(R.score/R.q.length*100);
+  $('finalScore').textContent=`${R.score} de ${R.q.length} · ${pct}%`;
+  $('finalMsg').textContent=pct>=90?'Estas asociaciones las tienes.':pct>=70?'Bien, repasa los fallos antes de cerrar.':'Vuelve a la tabla antes de repetir: hay asociaciones que aún no están fijadas.';
+  const ul=$('errlist');ul.innerHTML='';
+  R.errs.forEach(e=>{const it=byId[e.id];const li=document.createElement('li');
+    li.innerHTML=`<b>${it.n}</b> → ${it.p}<br><span style="color:var(--ink-soft)">Marcaste: ${e.dado}</span>`;ul.appendChild(li)});
+  if(!R.errs.length)ul.innerHTML='<li style="color:var(--ink-soft)">Sin fallos en esta ronda.</li>';
+  $('redo').disabled=!R.errs.length;
+  store.round=null;save();
+  show('end');render();
+}
+
+/* ============================= INICIO / UI ============================= */
+function render(){
+  const ids=Object.keys(store.stats);
+  const tot=ids.reduce((a,k)=>a+store.stats[k].s,0);
+  const fails=ids.filter(k=>store.stats[k].f>0||store.stats[k].d>0);
+  const wrong=ids.reduce((a,k)=>a+store.stats[k].f,0);
+  $('stTotal').textContent=tot;
+  $('stPct').textContent=tot?Math.round((tot-wrong)/tot*100)+'%':'—';
+  $('stFail').textContent=fails.length;
+  $('reviewBtn').disabled=!fails.length;
+  $('noStore').classList.toggle('hidden',ok);
+  $('resumeBox').classList.add('hidden');
+  if(store.round&&store.round.q&&store.round.q.length){
+    $('resumeBox').classList.remove('hidden');
+    $('resumeInfo').textContent=`Pregunta ${store.round.i+1} de ${store.round.q.length}.`;
+  }
+}
+function selected(){return DATA.filter(d=>blocks[d.b])}
+
+document.querySelectorAll('#blocks .chip').forEach(b=>b.onclick=()=>{
+  const k=b.dataset.b;const on=b.getAttribute('aria-pressed')==='true';
+  if(on&&Object.values(blocks).filter(Boolean).length===1)return;
+  blocks[k]=!on;b.setAttribute('aria-pressed',String(!on));
+});
+document.querySelectorAll('#modes button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#modes button').forEach(x=>x.setAttribute('aria-pressed','false'));
+  b.setAttribute('aria-pressed','true');mode=b.dataset.m;
+});
+document.querySelectorAll('[data-len]').forEach(b=>b.onclick=()=>{
+  const l=b.dataset.len;startRound(selected(),l==='all'?'all':parseInt(l,10));
+});
+$('reviewBtn').onclick=()=>{
+  const ids=Object.keys(store.stats).filter(k=>store.stats[k].f>0||store.stats[k].d>0);
+  startRound(DATA.filter(d=>ids.includes(d.id)),'all');
+};
+$('check').onclick=checkAnswer;
+$('doubtBtn').onclick=()=>{if(R.answered)return;R.doubt=!R.doubt;
+  $('doubtBtn').setAttribute('aria-pressed',String(R.doubt));
+  $('doubtBtn').textContent=R.doubt?'Marcada como dudosa':'He dudado entre dos opciones'};
+$('quitBtn').onclick=()=>{
+  if(R&&R.i<R.q.length){store.round={q:R.q,i:R.i,score:R.score,errs:R.errs};save()}
+  show('start');render()};
+$('resumeBtn').onclick=()=>{R=Object.assign({answered:false,sel:null,doubt:false},store.round);
+  store.round=null;save();show('game');paint()};
+$('redo').onclick=()=>{const ids=R.errs.map(e=>e.id);startRound(DATA.filter(d=>ids.includes(d.id)),'all')};
+$('again').onclick=()=>{show('start');render()};
+$('clearBtn').onclick=()=>{if(confirm('¿Borrar todo el progreso guardado?')){store={stats:{},round:null};save();render()}};
+$('exportBtn').onclick=()=>{
+  const blob=new Blob([JSON.stringify(store)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='hematologia_progreso_'+new Date().toISOString().slice(0,10)+'.json';a.click()};
+$('importBtn').onclick=()=>$('importFile').click();
+$('importFile').onchange=e=>{const f=e.target.files[0];if(!f)return;
+  const rd=new FileReader();rd.onload=()=>{try{const d=JSON.parse(rd.result);
+    if(d&&d.stats){store=d;save();render();alert('Copia restaurada.')}else alert('Ese archivo no es válido.')}
+    catch(err){alert('No se pudo leer el archivo.')}};rd.readAsText(f)};
+
+render();
+</script>
+</body>
+</html>

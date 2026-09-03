@@ -268,13 +268,13 @@ const DATA=[
 {id:'i4',b:'inc',n:'Punteado basófilo',d:'punteado',nat:'Agregados ribosómicos (RNA precipitado)',p:'Intoxicación por plomo (saturnismo)',o:'Talasemia, anemias sideroblásticas, SMD',x:'Punteado fino y difuso por toda la célula.',fir:'FIR 2005'},
 {id:'i5',b:'inc',n:'Cuerpos de Pappenheimer',d:'pappen',nat:'Grumos de hemosiderina (hierro)',p:'Anemia sideroblástica',o:'Sobrecarga férrica, post-esplenectomía, megaloblástica',x:'Azul de Prusia (Perls). Agrupados, no dispersos: eso los separa del punteado basófilo.',fir:''},
 {id:'i6',b:'inc',n:'Basofilia difusa (policromasia)',d:'policro',nat:'RNA de reticulocitos',p:'Anemia hemolítica (regeneración activa)',o:'Cualquier respuesta medular intensa',x:'Es el reticulocito visto con tinción normal.',fir:''},
-{id:'i7',b:'inc',n:'Precipitados de Hb H',d:'hbh',nat:'Tetrámeros de cadenas β (Hb H, β4)',p:'Enfermedad por Hb H (α-talasemia, α-/--)',o:'—',x:'Imagen "en pelota de golf" con azul de cresilo.',fir:'FIR 2007'},
-{id:'i8',b:'inc',n:'Parásitos intraeritrocitarios',d:'parasito',nat:'Plasmodium / Babesia',p:'Paludismo y babesiosis',o:'—',x:'Babesia: sin hemozoína y con tétradas; Plasmodium: anillo con hemozoína.',fir:''},
+{id:'i7',b:'inc',n:'Precipitados de Hb H',d:'hbh',a:'Inclusiones múltiples "en pelota de golf" con azul de cresilo',pa:'α-talasemia con genotipo α-/--',nat:'Tetrámeros de cadenas β (β4)',p:'Enfermedad por Hb H (α-talasemia, α-/--)',o:'—',x:'Las cuatro cadenas β sobran porque faltan tres genes α.',fir:'FIR 2007'},
+{id:'i8',b:'inc',n:'Parásitos intraeritrocitarios',d:'parasito',a:'Formas anulares en el interior del hematíe',nat:'Plasmodium / Babesia',p:'Paludismo y babesiosis',o:'—',x:'Babesia: sin hemozoína y con tétradas; Plasmodium: anillo con hemozoína.',fir:''},
 /* --- POIQUILOCITOSIS --- */
-{id:'p1',b:'poi',n:'Esferocitos',d:'esferocito',nat:'Esféricos, sin palidez central',p:'Esferocitosis hereditaria',o:'Anemia hemolítica inmunitaria, quemaduras extensas',x:'Pérdida de superficie de membrana.',fir:'FIR 2023'},
-{id:'p2',b:'poi',n:'Eliptocitos / ovalocitos',d:'eliptocito',nat:'Elipsoidea u ovalada',p:'Eliptocitosis hereditaria',o:'Anemia ferropénica, talasemia mayor',x:'',fir:''},
-{id:'p3',b:'poi',n:'Estomatocitos',d:'estomatocito',nat:'Hendidura central alargada ("boca")',p:'Estomatocitosis hereditaria',o:'Alcoholismo, hepatopatías, xerocitosis, déficit de Rh',x:'',fir:''},
-{id:'p4',b:'poi',n:'Drepanocitos',d:'drepanocito',nat:'En hoz / falciforme',p:'Anemia drepanocítica (Hb S)',o:'Talasemia β-drepanocítica',x:'',fir:'FIR 2016'},
+{id:'p1',b:'poi',n:'Esferocitos',d:'esferocito',a:'Hematíe redondo y denso, sin palidez central',pa:'Defecto hereditario de proteínas de membrana (espectrina, anquirina), Coombs negativo',nat:'Esféricos, sin palidez central',p:'Esferocitosis hereditaria',o:'Anemia hemolítica inmunitaria, quemaduras extensas',x:'Pérdida de superficie de membrana.',fir:'FIR 2023'},
+{id:'p2',b:'poi',n:'Eliptocitos / ovalocitos',d:'eliptocito',a:'Hematíe alargado, de eje mayor marcado',pa:'Defecto hereditario de espectrina, casi siempre asintomático',nat:'Elipsoidea u ovalada',p:'Eliptocitosis hereditaria',o:'Anemia ferropénica, talasemia mayor',x:'',fir:''},
+{id:'p3',b:'poi',n:'Estomatocitos',d:'estomatocito',a:'Hematíe con la palidez central en forma de hendidura',pa:'Defecto hereditario de la permeabilidad de membrana al sodio y al potasio',nat:'Hendidura central alargada ("boca")',p:'Estomatocitosis hereditaria',o:'Alcoholismo, hepatopatías, xerocitosis, déficit de Rh',x:'',fir:''},
+{id:'p4',b:'poi',n:'Drepanocitos',d:'drepanocito',a:'Hematíe en hoz, rígido y alargado',pa:'Hemoglobinopatía con crisis vasooclusivas y autoesplenectomía',nat:'En hoz / falciforme',p:'Anemia drepanocítica (Hb S)',o:'Talasemia β-drepanocítica',x:'',fir:'FIR 2016'},
 {id:'p5',b:'poi',n:'Dianocitos (codocitos)',d:'dianocito',nat:'En diana: palidez anular con centro teñido',p:'Hemoglobinopatía C',o:'Talasemias, hepatopatías, post-esplenectomía, Hb S, déficit de G6PDH',x:'Exceso de membrana respecto al contenido. En la Hb S también hay dianocitos, pero la célula que define es el drepanocito: el dianocito manda en la Hb C.',fir:''},
 {id:'p6',b:'poi',n:'Esquistocitos',d:'esquistocito',nat:'Fragmentados (rotura intravascular)',p:'Anemia hemolítica microangiopática (PTT, SHU, CID)',o:'Prótesis valvulares, quemaduras extensas',x:'',fir:'FIR 2016 · 2021'},
 {id:'p7',b:'poi',n:'Queratocitos',d:'queratocito',nat:'Con prolongaciones en cuernos',p:'CID y prótesis valvulares',o:'Se consideran una variante de esquistocito',x:'',fir:''},
@@ -287,7 +287,7 @@ const DATA=[
 {id:'p14',b:'poi',n:'Microesferocitos',d:'microesf',nat:'Pequeños y sin palidez central',p:'Quemaduras extensas',o:'Anemia hemolítica inmunitaria',x:'En quemaduras van junto a esquistocitos.',fir:''},
 {id:'p15',b:'poi',n:'Macrocitos ovales',d:'macrocito',nat:'Grandes (VCM > 100 fL)',p:'Anemia megaloblástica (B12/folato)',o:'Hepatopatía, hipotiroidismo, reticulocitosis',x:'Con hipersegmentación de neutrófilos.',fir:''},
 /* --- SERIE BLANCA --- */
-{id:'l1',b:'leu',n:'Anomalía de Pelger-Huët',d:'pelger',nat:'Hiposegmentación nuclear (bilobulado, "anteojos")',p:'Congénita; pseudo-Pelger en SMD',o:'—',x:'Función del neutrófilo conservada.',fir:'FIR 2009'},
+{id:'l1',b:'leu',n:'Anomalía de Pelger-Huët',d:'pelger',nat:'Hiposegmentación nuclear (bilobulado, "anteojos")',p:'Congénita; forma adquirida en los SMD',o:'—',x:'La forma adquirida se llama pseudo-Pelger. Función del neutrófilo conservada.',fir:'FIR 2009'},
 {id:'l2',b:'leu',n:'Anomalía de Alder-Reilly',d:'alder',nat:'Gránulos lila de mucopolisacáridos',p:'Mucopolisacaridosis',o:'Congénita o adquirida',x:'Función conservada.',fir:''},
 {id:'l3',b:'leu',n:'Anomalía de May-Hegglin',d:'mayheg',nat:'Gránulos basófilos + plaquetas gigantes',p:'Trombocitopenia con plaquetas gigantes',o:'—',x:'Es la que asocia alteración plaquetaria.',fir:''},
 {id:'l4',b:'leu',n:'Hipersegmentación nuclear',d:'hiperseg',nat:'Neutrófilos con más de 5 lóbulos',p:'Anemia megaloblástica (B12/folato)',o:'—',x:'',fir:''},
@@ -299,7 +299,7 @@ const DATA=[
 {id:'l10',b:'leu',n:'Bastones de Auer',d:'auer',nat:'Fusión de gránulos primarios azurófilos',p:'Leucemia mieloide aguda (patognomónicos)',o:'—',x:'',fir:'FIR 2014 · 2016'},
 {id:'l11',b:'leu',n:'Cuerpos de Russell',d:'russell',nat:'Inmunoglobulina acumulada en el RER',p:'Mieloma múltiple',o:'—',x:'Inclusiones eosinófilas en células plasmáticas.',fir:''},
 {id:'l12',b:'leu',n:'Síndrome de Chédiak-Higashi',d:'chediak',nat:'Gránulos gigantes por fallo del transporte a lisosomas',p:'Albinismo parcial con infecciones de repetición',o:'—',x:'Gen LYST, autosómico recesivo.',fir:''},
-{id:'l13',b:'leu',n:'Linfocitos de Sézary',d:'sezary',nat:'Núcleo cerebriforme',p:'Síndrome de Sézary (linfoma T cutáneo)',o:'—',x:'',fir:''},
+{id:'l13',b:'leu',n:'Linfocitos de Sézary',d:'sezary',a:'Linfocito T de núcleo cerebriforme',pa:'Linfoma T cutáneo con eritrodermia y células circulantes',nat:'Núcleo cerebriforme',p:'Síndrome de Sézary (linfoma T cutáneo)',o:'—',x:'',fir:''},
 {id:'l14',b:'leu',n:'Linfocitos de Rieder',d:'rieder',nat:'Núcleo lobulado o hendido',p:'LLC y leucemias linfoblásticas',o:'—',x:'',fir:''},
 {id:'l15',b:'leu',n:'Células de Türk (virocitos)',d:'turk',nat:'Linfocito activado grande, citoplasma muy basófilo',p:'Infección vírica (EBV, CMV)',o:'—',x:'',fir:''},
 {id:'l16',b:'leu',n:'Células de Reed-Sternberg',d:'reed',nat:'Binucleada con grandes nucléolos ("ojos de búho")',p:'Linfoma de Hodgkin clásico',o:'—',x:'',fir:''},
@@ -310,8 +310,8 @@ const DATA=[
 {id:'t4',b:'tin',n:'Azul de Prusia (Perls)',d:'t_prusia',nat:'Ferrocianuro potásico + HCl',p:'Hierro: cuerpos de Pappenheimer y sideroblastos',o:'—',x:'',fir:''},
 {id:'t5',b:'tin',n:'Azul de cresilo brillante',d:'t_cresilo',nat:'Tinción supravital',p:'Reticulocitos, Hb H y cuerpos de Heinz',o:'—',x:'Supravital: tiñe la célula viva.',fir:''},
 {id:'t6',b:'tin',n:'PAS',d:'t_pas',nat:'Ácido peryódico + reactivo de Schiff',p:'Glucógeno: blastos PAS+ en la LLA',o:'Eritroleucemia',x:'',fir:''},
-{id:'t7',b:'tin',n:'Mieloperoxidasa (MPO)',d:'t_mpo',nat:'Reacción histoquímica',p:'Diferencia LMA (MPO+) de LLA (MPO−)',o:'—',x:'',fir:''},
-{id:'t8',b:'tin',n:'Esterasas (α-naftil acetato)',d:'t_esterasa',nat:'α-naftil acetato esterasa',p:'Estirpe monocítica (ANAE+)',o:'—',x:'Separa monocítico de granulocítico.',fir:''},
+{id:'t7',b:'tin',n:'Mieloperoxidasa (MPO)',d:'t_mpo',nat:'Reacción histoquímica',p:'Diferencia la leucemia mieloide aguda de la linfoblástica aguda',o:'—',x:'LMA positiva, LLA negativa.',fir:''},
+{id:'t8',b:'tin',n:'Esterasas inespecíficas',d:'t_esterasa',nat:'α-naftil acetato como sustrato',p:'Estirpe monocítica',o:'—',x:'Monocitos ANAE positivos: separa el componente monocítico del granulocítico.',fir:''},
 {id:'t9',b:'tin',n:'Fosfatasa alcalina leucocitaria (FAL)',d:'t_fal',nat:'Reacción histoquímica',p:'Baja en LMC, alta en reacción leucemoide',o:'—',x:'',fir:''}
 ];
 
@@ -338,18 +338,19 @@ function makeQ(item,type){
   if(type==='img'){
     if(!item.d||item.b==='tin') return null;
     return {id:item.id,t:'img',tag:'Frotis',draw:item.d,stem:'¿Qué estás viendo?',
-      ans:item.n,opts:[item.n,...pick(pool.map(d=>d.n),3,item.n)],mini:true};
+      ans:item.n,opts:[item.n,...pick(pool.map(d=>d.n),3,item.n)]};
   }
   if(type==='pat'){
     const q=item.b==='tin'?'¿Para qué se usa principalmente?':'¿Con qué se asocia de forma más característica?';
-    return {id:item.id,t:'pat',tag:item.b==='tin'?'Tinción':'Hallazgo',draw:item.d,stem:item.n+' · '+q,
+    return {id:item.id,t:'pat',tag:item.b==='tin'?'Tinción':'Hallazgo',draw:item.d,stem:(item.a||item.n)+' · '+q,
       ans:item.p,opts:[item.p,...pick(pool.map(d=>d.p),3,item.p)]};
   }
   if(type==='inv'){
     return {id:item.id,t:'inv',tag:item.b==='tin'?'¿Qué tinción pido?':'¿Qué esperas encontrar?',draw:'',
-      stem:item.p,ans:item.n,opts:[item.n,...pick(pool.map(d=>d.n),3,item.n)],mini:true};
+      stem:(item.pa||item.p),ans:item.n,opts:[item.n,...pick(pool.map(d=>d.n),3,item.n)],mini:true};
   }
   if(type==='nat'){
+    if(item.b==='poi') return null;
     const q=item.b==='tin'?'¿Qué componentes lleva?':(item.b==='poi'?'¿Cómo se describe su morfología?':'¿Cuál es su naturaleza?');
     return {id:item.id,t:'nat',tag:'Composición',draw:'',stem:item.n+' · '+q,
       ans:item.nat,opts:[item.nat,...pick(pool.map(d=>d.nat),3,item.nat)]};

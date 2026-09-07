@@ -163,6 +163,29 @@ letter-spacing:.02em;text-transform:uppercase}
 color:var(--muted);border-radius:99px;box-shadow:none}
 .scope button.on{background:var(--navy);color:#FFF7EA;border-color:var(--navy);font-weight:600}
 @media(prefers-color-scheme:dark){.scope button.on{color:#241A12;background:var(--navy)}}
+@media(min-width:900px){
+body.sesion .wrap,body.sesion .nav .inner{max-width:1060px}
+body.sesion .card{padding:22px 26px;border-radius:18px}
+body.sesion .qnum{font-size:13px}
+body.sesion .qtext{font-size:22px;margin:9px 0 18px}
+body.sesion .opt{font-size:18px;padding:15px 17px;margin-bottom:11px}
+body.sesion .opt .k{flex:0 0 29px;height:29px;font-size:14.5px}
+body.sesion .verdict{font-size:17px}
+body.sesion .just{padding:16px 20px}
+body.sesion .just p{font-size:17px}
+body.sesion .just h3,body.sesion .wrongs h3{font-size:12.5px}
+body.sesion .wrongs p{font-size:16.5px}
+body.sesion .tbl table{font-size:15.5px}
+body.sesion .tbl th{font-size:14px}
+body.sesion .fichabox{font-size:15px;padding:13px 16px}
+body.sesion .ask h3{font-size:16px}
+body.sesion .ask p{font-size:13.5px}
+body.sesion .tag-b{font-size:15.5px;padding:15px 12px}
+body.sesion .grade button{font-size:15px;padding:15px 4px}
+body.sesion .grade small{font-size:11.5px}
+body.sesion .btn-main{font-size:17px}
+body.sesion .meta{font-size:13.5px}
+}
 .blq{display:flex;align-items:center;gap:9px;margin:-4px 0 14px}
 .blq .bl-lab{font-size:12.5px;color:var(--muted);flex:0 0 auto}
 .blq select{flex:1;min-width:0;font:inherit;font-size:13px;padding:8px 12px;border:1px solid var(--line);
@@ -337,27 +360,38 @@ function drawBlq(){const b=S.cfg.bloque||'';
 function drawScope(){const s=S.cfg.scope||'todo';
   document.getElementById('scope').innerHTML=SCOPES.map(x=>
     '<button class="'+(x[0]===s?'on':'')+'" onclick="setScope(\''+x[0]+'\')">'+x[1]+'</button>').join('')}
+function hash32(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function shuffleDia(L){const d=iso(today());
+  return L.map(q=>[hash32(q.id+d),q]).sort((a,b)=>a[0]-b[0]).map(x=>x[1])}
 function newCards(){return pool().filter(q=>!S.cards[q.id])}
 function dueList(){const t=iso(today());
   return pool().filter(q=>{const c=S.cards[q.id];return c&&c.due<=t}).sort((a,b)=>S.cards[a.id].due<S.cards[b.id].due?-1:1)}
 function lateList(){const t=iso(today());return pool().filter(q=>{const c=S.cards[q.id];return c&&c.due<t})}
 
 // ---- SM-2 ----
+function dueCount(ds){let n=0;for(const k in S.cards){const c=S.cards[k];if(c&&c.due===ds)n++}return n}
 function schedule(c,g){
   const cap=limit();
   if(g===1){c.ef=Math.max(1.3,(c.ef||2.5)-0.2);c.reps=0;c.lapses=(c.lapses||0)+1;c.iv=0;
     c.due=iso(today());return 0}
   c.reps=(c.reps||0)+1;
   let iv;
-  if(c.reps===1) iv=(g===2?1:g===3?1:3);
-  else if(c.reps===2) iv=(g===2?Math.max(2,Math.round((c.iv||1)*1.2)):g===3?6:9);
+  if(c.reps===1) iv=(g===2?1:g===3?2:4);
+  else if(c.reps===2) iv=(g===2?2:g===3?4:7);
+  else if(c.reps===3) iv=(g===2?Math.max(3,Math.round((c.iv||1)*1.2)):g===3?8:12);
   else{
     const ef=c.ef||2.5;
     iv=Math.round((c.iv||1)*(g===2?1.2:g===3?ef:ef*1.3));
   }
   if(g===2)c.ef=Math.max(1.3,(c.ef||2.5)-0.15);
   if(g===4)c.ef=Math.min(3.0,(c.ef||2.5)+0.15);
+  iv=Math.min(iv,35); // techo: ninguna tarjeta desaparece mas de 35 dias
   iv=Math.max(1,iv);
+  // reparto de carga: a partir de 4 dias, elige el dia menos cargado de los tres candidatos
+  if(iv>=4){let best=iv,bn=dueCount(iso(addDays(today(),iv)));
+    [iv-1,iv+1].forEach(k=>{if(k<1)return;if(cap>=1&&k>cap)return;
+      const q=dueCount(iso(addDays(today(),k)));if(q<bn){bn=q;best=k}});
+    iv=best}
   if(cap>=1){ if(iv>cap) iv=Math.max(1,Math.min(iv,cap)); }
   else iv=1;
   // compresión final: en el último mes ningún intervalo pasa de 1/3 de lo que queda
@@ -375,6 +409,7 @@ function go(v){
   [...document.querySelectorAll('#tabs button')].forEach((b,k)=>
     b.classList.toggle('on',(v==='home'&&k===0)||(v==='paper'&&k===1)||(v==='stats'&&k===2)));
   document.getElementById('tabs').classList.toggle('hide',v==='sess');
+  document.body.classList.toggle('sesion',v==='sess');
   if(v==='home')drawHome();if(v==='stats')drawStats();if(v==='paper')drawPaper();
   window.scrollTo(0,0);
 }
@@ -424,7 +459,7 @@ let free=false;
 let kind={};
 function startSession(){
   free=false;
-  const nw=newCards().slice(0,restaN());
+  const nw=shuffleDia(newCards()).slice(0,restaN());
   const rv=dueList().slice(0,restaR());
   kind={};
   nw.forEach(q=>kind[q.id]='n');

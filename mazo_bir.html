@@ -158,8 +158,13 @@ letter-spacing:.02em;text-transform:uppercase}
 .tbl td:first-child{font-weight:600}
 .pill-duda{background:var(--warnbg);color:var(--warn);border:1px solid var(--warn)}
 .pill-ficha{background:var(--greenbg);color:var(--green);border:1px solid var(--green)}
-.scope{display:flex;gap:6px;margin:0 0 14px}
-.scope button{flex:1;padding:9px 4px;font-size:12.5px;border:1px solid var(--line);background:var(--tile);
+.scope{display:flex;gap:6px;margin:0 0 14px;flex-wrap:wrap}
+.ttsbar{display:flex;gap:8px;align-items:center;margin:0 0 12px}
+.ttsbar button{padding:9px 14px;font-size:13.5px;background:var(--tile);font-weight:600;color:var(--navy)}
+.ttsbar button.on{background:linear-gradient(180deg,var(--navy2),var(--navy));color:#FFF7EA;border-color:transparent}
+.ttsbar select{font:inherit;font-size:12.5px;color:var(--muted);background:var(--card);
+border:1px solid var(--line);border-radius:12px;padding:9px 8px}
+.scope button{flex:1 1 62px;padding:9px 3px;font-size:12px;border:1px solid var(--line);background:var(--tile);
 color:var(--muted);border-radius:99px;box-shadow:none}
 .scope button.on{background:var(--navy);color:#FFF7EA;border-color:var(--navy);font-weight:600}
 @media(prefers-color-scheme:dark){.scope button.on{color:#241A12;background:var(--navy)}}
@@ -310,7 +315,7 @@ const LET=['1','2','3','4'];
 const TAGS={1:{lab:'No lo sabía',c:'--t1'},2:{lab:'Se me fue',c:'--t2'},
 3:{lab:'Dudé entre dos',c:'--t3'},4:{lab:'Fallo tonto',c:'--t4'}};
 const KEY='bir_mazo_v2';
-const DEF={cards:{},paper:{},day:{d:'',nw:0,rv:0,ids:{}},cfg:{nw:15,rv:40,exam:'2027-01-23',scope:'todo',bloque:''}};
+const DEF={cards:{},paper:{},day:{d:'',nw:0,rv:0,ids:{}},cfg:{nw:15,rv:40,exam:'2027-01-23',scope:'todo',bloque:'',ttsRate:1}};
 let S=DEF;
 try{const raw=localStorage.getItem(KEY);if(raw)S=Object.assign({},DEF,JSON.parse(raw))}catch(e){}
 S.cards=S.cards||{};S.paper=S.paper||{};S.cfg=Object.assign({},DEF.cfg,S.cfg||{});
@@ -331,12 +336,14 @@ function daysTo(s){return Math.round((new Date(s+'T00:00:00')-today())/86400000)
 function limit(){return daysTo(S.cfg.exam)-1}
 function card(id){return S.cards[id]}
 function dayRec(){const t=iso(today());
-  if(S.day.d!==t){S.day={d:t,nw:0,rv:0,ids:{}};save()}
+  if(S.day.d!==t){S.day={d:t,nw:0,rv:0,ids:{}};
+    if(S.cfg.scope==='nuevo')S.cfg.scope='todo';save()}
   return S.day}
 function restaN(){return Math.max(0,S.cfg.nw-dayRec().nw)}
 function restaR(){return Math.max(0,S.cfg.rv-dayRec().rv)}
-const SCOPES=[['todo','Todo'],['fall','Falladas'],['duda','Dudas'],['ficha','Fichas']];
+const SCOPES=[['todo','Todo'],['nuevo','Nuevas'],['fall','Falladas'],['duda','Dudas'],['ficha','Fichas']];
 function scoped(){const s=S.cfg.scope||'todo';
+  if(s==='nuevo')return DATA.filter(q=>!S.cards[q.id]);
   if(s==='fall')return DATA.filter(q=>!q.origen&&q.tipo!=='ficha');
   if(s==='duda')return DATA.filter(q=>q.origen==='duda');
   if(s==='ficha')return DATA.filter(q=>q.tipo==='ficha');
@@ -400,9 +407,89 @@ function schedule(c,g){
   return iv;
 }
 
+// ---- lectura en voz alta ----
+const TTS_OK=(typeof window!=='undefined'&&'speechSynthesis'in window);
+let ttsVoice=null,ttsOn=false;
+function ttsPick(){if(!TTS_OK)return;const vs=speechSynthesis.getVoices()||[];
+  const es=vs.filter(v=>/^es/i.test(v.lang||''));
+  ttsVoice=es.find(v=>/es[-_]ES/i.test(v.lang)&&/google|natural|premium|enhanced|siri|monica|mónica/i.test(v.name))
+    ||es.find(v=>/es[-_]ES/i.test(v.lang))||es[0]||null}
+if(TTS_OK){ttsPick();speechSynthesis.onvoiceschanged=ttsPick}
+const TTS_R=[
+  [/<[^>]+>/g,' '],[/\*+/g,''],[/[«»“”"]/g,''],
+  [/PaCO₂/g,'presión de CO2'],[/HCO₃⁻/g,'bicarbonato'],[/NH₄⁺/g,'amonio'],[/NH₃/g,'amoniaco'],
+  [/NO₃⁻/g,'nitrato'],[/NO₂⁻/g,'nitrito'],[/SO₄²⁻/g,'sulfato'],[/H₂O/g,'agua'],[/H₂S/g,'ácido sulfhídrico'],
+  [/CO₂/g,'CO2'],[/O₂/g,'oxígeno'],[/N₂/g,'nitrógeno'],[/H₂/g,'hidrógeno'],
+  [/Ca²⁺/g,'calcio'],[/Mg²⁺/g,'magnesio'],[/Na⁺/g,'sodio'],[/K⁺/g,'potasio'],[/Cl⁻/g,'cloro'],
+  [/Fe²⁺/g,'hierro dos'],[/Fe³⁺/g,'hierro tres'],[/Cu²⁺/g,'cobre dos'],[/Cu⁺/g,'cobre uno'],
+  [/NAD⁺/g,'NAD'],[/H⁺/g,'hidrogeniones'],
+  [/\bH₀\b/g,'hache cero'],[/\bH₁\b/g,'hache uno'],[/\bH²/g,'hache cuadrado'],[/\bh²/g,'hache cuadrado'],[/\br²/g,'erre cuadrado'],
+  [/\bIg([GMAED])\b/g,'inmunoglobulina $1'],[/\bIL[-‑](\d+)/g,'interleucina $1'],
+  [/\bIFN[-‑]?/g,'interferón '],[/\bTGF[-‑]?/g,'TGF '],[/\bTNF[-‑]?/g,'TNF '],
+  [/α/g,'alfa'],[/β/g,'beta'],[/γ/g,'gamma'],[/δ/g,'delta'],[/ε/g,'épsilon'],[/ζ/g,'zeta'],
+  [/κ/g,'kappa'],[/λ/g,'lambda'],[/μ/g,'micro'],[/σ/g,'sigma'],[/τ/g,'tau'],[/χ/g,'chi'],[/ω/g,'omega'],[/π/g,'pi'],
+  [/\s*[→⇒]\s*/g,' lleva a '],[/\s*←\s*/g,' viene de '],
+  [/(\d)\s*['′]/g,'$1 prima'],
+  [/([A-Za-z0-9])⁺/g,'$1 positivo'],[/([A-Za-z0-9])⁻/g,'$1 negativo'],
+  [/\(\s*\+\s*\)/g,' positivo '],[/\(\s*[-−]\s*\)/g,' negativo '],
+  [/([A-Za-z0-9])\+([A-Za-z0-9])/g,'$1 más $2'],[/([A-Za-z0-9])\+/g,'$1 positivo'],
+  [/([A-Za-z])−/g,'$1 negativo'],[/\s*−\s*/g,' menos '],
+  [/[₀]/g,'0'],[/[₁]/g,'1'],[/[₂]/g,'2'],[/[₃]/g,'3'],[/[₄]/g,'4'],[/[₅]/g,'5'],
+  [/[⁰]/g,'0'],[/[²]/g,'2'],[/[³]/g,'3'],
+  [/\s*[·•]\s*/g,', '],[/\s*[—–]\s*/g,', '],
+  [/\s*=\s*/g,' igual a '],[/\s*≈\s*/g,' aproximadamente '],[/~/g,' aproximadamente '],
+  [/\s*>\s*/g,' mayor que '],[/\s*<\s*/g,' menor que '],[/\s*×\s*/g,' por '],
+  [/%/g,' por ciento'],[/\s*\/\s*/g,' y '],
+  [/(\d+)[-‑](\d+)[-‑](\d+)/g,'$1, $2, $3'],[/(\d)\s*[-‑]\s*(\d)/g,'$1 a $2'],
+  [/(\w)\s\+(?=[\s).,;])/g,'$1 positivo'],
+  [/\b(tipo|clase|fase|grado|nivel|pol|polimerasa)\s+IV\b/gi,'$1 cuatro'],
+  [/\b(tipo|clase|fase|grado|nivel|pol|polimerasa)\s+III\b/gi,'$1 tres'],
+  [/\b(tipo|clase|fase|grado|nivel|pol|polimerasa)\s+II\b/gi,'$1 dos'],
+  [/\b(tipo|clase|fase|grado|nivel|pol|polimerasa)\s+I\b/gi,'$1 uno'],
+  [/ lleva a el /g,' lleva al '],[/ lleva a los /g,' lleva a los '],
+  [/\s{2,}/g,' ']
+];
+function ttsClean(s){let t=String(s||'');TTS_R.forEach(r=>{t=t.replace(r[0],r[1])});return t.trim()}
+function ttsParts(){
+  if(!cur)return[];
+  const P=[],esFicha=(cur.tipo==='ficha');
+  if(!esFicha&&cur.opciones&&cur.opciones.length&&cur.correcta!=null)
+    P.push('Respuesta correcta, la '+LET[cur.correcta]+'. '+cur.opciones[cur.correcta]);
+  (cur.just||[]).forEach(x=>P.push(x));
+  if(cur.mal&&cur.mal.length){P.push('Por qué fallan las demás.');cur.mal.forEach(x=>P.push(x))}
+  return P.map(ttsClean).filter(x=>x.length>1);
+}
+function ttsBtn(){const b=document.getElementById('ttsb');if(!b)return;
+  b.textContent=ttsOn?'\u23F9 Parar':'\uD83D\uDD0A Escuchar';b.classList.toggle('on',ttsOn)}
+function ttsStop(){if(!TTS_OK)return;ttsOn=false;try{speechSynthesis.cancel()}catch(e){}ttsBtn()}
+function ttsRate(v){S.cfg.ttsRate=Number(v)||1;save();if(ttsOn){ttsStop();ttsPlay()}}
+function ttsPlay(){
+  if(!TTS_OK)return;
+  if(ttsOn){ttsStop();return}
+  const parts=ttsParts();if(!parts.length)return;
+  try{speechSynthesis.cancel()}catch(e){}
+  if(!ttsVoice)ttsPick();
+  ttsOn=true;ttsBtn();
+  const rt=Number(S.cfg.ttsRate||1);
+  parts.forEach((p,i)=>{const u=new SpeechSynthesisUtterance(p);
+    u.lang='es-ES';if(ttsVoice)u.voice=ttsVoice;u.rate=rt;
+    if(i===parts.length-1)u.onend=()=>{ttsOn=false;ttsBtn()};
+    u.onerror=()=>{ttsOn=false;ttsBtn()};
+    speechSynthesis.speak(u)});
+}
+function ttsBar(){
+  if(!TTS_OK)return '';
+  const r=Number(S.cfg.ttsRate||1);
+  const op=[[0.8,'lenta'],[1,'normal'],[1.2,'rápida'],[1.45,'muy rápida']].map(x=>
+    '<option value="'+x[0]+'"'+(Math.abs(x[0]-r)<0.01?' selected':'')+'>'+x[1]+'</option>').join('');
+  return '<div class="ttsbar"><button id="ttsb" onclick="ttsPlay()">\uD83D\uDD0A Escuchar</button>'+
+    '<select onchange="ttsRate(this.value)" aria-label="velocidad">'+op+'</select></div>';
+}
+
 // ---- pantallas ----
 let view='home';
 function go(v){
+  if(typeof ttsStop==='function')ttsStop();
   view=v;['home','sess','done','paper','stats'].forEach(x=>document.getElementById(x).classList.add('hide'));
   document.getElementById(v).classList.remove('hide');
   document.getElementById('nav').classList.add('hide');
@@ -433,9 +520,13 @@ function drawHome(){
   else gf.classList.add('hide');
   const dr=dayRec();
   const hechoHoy=(dr.nw||dr.rv)?('Hoy llevas '+dr.nw+' nuevas y '+dr.rv+' repasos. '):'';
-  document.getElementById('homehint').textContent=tot?
+  let aviso='';
+  if(S.cfg.scope==='nuevo'){const td=iso(today());
+    const oc=DATA.filter(q=>{const c=S.cards[q.id];return c&&c.due<=td}).length;
+    aviso=oc?(' Filtro Nuevas activo: '+oc+' repasos ocultos, pasan a mañana.'):''}
+  document.getElementById('homehint').textContent=(tot?
     (hechoHoy+'Quedan '+newCards().length+' sin estrenar en esta selección.'):
-    (hechoHoy+'Cupo diario completo. Vuelve mañana, o sube los límites en Datos.');
+    (hechoHoy+'Cupo diario completo. Vuelve mañana, o sube los límites en Datos.'))+aviso;
   // previsión
   const t=today(),cnt=[];
   for(let k=0;k<7;k++){const s=iso(addDays(t,k));
@@ -483,6 +574,7 @@ function startFree(){
 function nextCard(){
   if(!queue.length){if(free){free=false;document.getElementById('nav').classList.add('hide');go('home');return}
     finish();return}
+  ttsStop();
   cur=queue.shift();stepAns=false;stepTag=false;
   const c=card(cur.id),isNew=!c;
   document.getElementById('prog').style.width=((total-queue.length-1)/total*100)+'%';
@@ -586,7 +678,7 @@ function tablasHTML(q){
       '</table></div>'}).join('');
 }
 function showJust(ok,t){
-  let h='';
+  let h=ttsBar();
   const esFicha=(cur.tipo==='ficha');
   if(esFicha){
     h+='<div class="fichabox">Ficha de repaso · sin opciones de test</div>';
@@ -623,6 +715,7 @@ function grade(g){
   nextCard();
 }
 function pauseSession(){
+  ttsStop();
   free=false;queue=[];cur=null;
   document.getElementById('nav').classList.add('hide');
   go('home');

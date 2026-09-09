@@ -315,7 +315,7 @@ const LET=['1','2','3','4'];
 const TAGS={1:{lab:'No lo sabía',c:'--t1'},2:{lab:'Se me fue',c:'--t2'},
 3:{lab:'Dudé entre dos',c:'--t3'},4:{lab:'Fallo tonto',c:'--t4'}};
 const KEY='bir_mazo_v2';
-const DEF={cards:{},paper:{},day:{d:'',nw:0,rv:0,ids:{}},cfg:{nw:15,rv:40,exam:'2027-01-23',scope:'todo',bloque:'',ttsRate:1}};
+const DEF={cards:{},paper:{},day:{d:'',nw:0,rv:0,ids:{}},cfg:{nw:15,rv:40,exam:'2027-01-23',scope:'todo',bloque:'',ttsRate:1},ses:null};
 let S=DEF;
 try{const raw=localStorage.getItem(KEY);if(raw)S=Object.assign({},DEF,JSON.parse(raw))}catch(e){}
 S.cards=S.cards||{};S.paper=S.paper||{};S.cfg=Object.assign({},DEF.cfg,S.cfg||{});
@@ -409,7 +409,7 @@ function schedule(c,g){
 
 // ---- lectura en voz alta ----
 const TTS_OK=(typeof window!=='undefined'&&'speechSynthesis'in window);
-let ttsVoice=null,ttsOn=false;
+let ttsVoice=null,ttsOn=false,ttsEpoch=0,ttsWatch=null;
 function ttsPick(){if(!TTS_OK)return;const vs=speechSynthesis.getVoices()||[];
   const es=vs.filter(v=>/^es/i.test(v.lang||''));
   ttsVoice=es.find(v=>/es[-_]ES/i.test(v.lang)&&/google|natural|premium|enhanced|siri|monica|mónica/i.test(v.name))
@@ -470,22 +470,55 @@ function ttsParts(){
 }
 function ttsBtn(){const b=document.getElementById('ttsb');if(!b)return;
   b.textContent=ttsOn?'\u23F9 Parar':'\uD83D\uDD0A Escuchar';b.classList.toggle('on',ttsOn)}
-function ttsStop(){if(!TTS_OK)return;ttsOn=false;try{speechSynthesis.cancel()}catch(e){}ttsBtn()}
-function ttsRate(v){S.cfg.ttsRate=Number(v)||1;save();if(ttsOn){ttsStop();ttsPlay()}}
+// trozos cortos: evita que el navegador corte las frases largas
+function ttsChunks(){
+  const out=[];
+  ttsParts().forEach(p=>{
+    const fr=p.match(/[^.;:!?]+[.;:!?]*\s*/g)||[p];
+    let buf='';
+    fr.forEach(f=>{if((buf+f).length>180&&buf.trim()){out.push(buf.trim());buf=f}else buf+=f});
+    if(buf.trim())out.push(buf.trim());
+  });
+  return out.filter(x=>x.length>1);
+}
+// red de seguridad: si el motor ya no habla, el botón vuelve solo a su sitio
+function ttsSync(){
+  if(!TTS_OK)return;
+  try{if(ttsOn&&!speechSynthesis.speaking&&!speechSynthesis.pending){ttsOn=false;ttsBtn();
+    if(ttsWatch){clearInterval(ttsWatch);ttsWatch=null}}}catch(e){}
+}
+function ttsKill(){try{speechSynthesis.cancel()}catch(e){}}
+function ttsStop(){
+  if(!TTS_OK)return;
+  ttsEpoch++;ttsOn=false;
+  if(ttsWatch){clearInterval(ttsWatch);ttsWatch=null}
+  ttsKill();setTimeout(ttsKill,80);setTimeout(ttsKill,400);
+  ttsBtn();
+}
+function ttsRate(v){S.cfg.ttsRate=Number(v)||1;save();ttsStop()}
 function ttsPlay(){
   if(!TTS_OK)return;
-  if(ttsOn){ttsStop();return}
-  const parts=ttsParts();if(!parts.length)return;
-  try{speechSynthesis.cancel()}catch(e){}
+  // si suena algo, sea de donde sea, este botón siempre lo para
+  let son=false;try{son=speechSynthesis.speaking||speechSynthesis.pending}catch(e){}
+  if(ttsOn||son){ttsStop();return}
+  const parts=ttsChunks();if(!parts.length)return;
   if(!ttsVoice)ttsPick();
+  const ep=++ttsEpoch,rt=Number(S.cfg.ttsRate||1);
   ttsOn=true;ttsBtn();
-  const rt=Number(S.cfg.ttsRate||1);
-  parts.forEach((p,i)=>{const u=new SpeechSynthesisUtterance(p);
-    u.lang='es-ES';if(ttsVoice)u.voice=ttsVoice;u.rate=rt;
-    if(i===parts.length-1)u.onend=()=>{ttsOn=false;ttsBtn()};
-    u.onerror=()=>{ttsOn=false;ttsBtn()};
-    speechSynthesis.speak(u)});
+  setTimeout(()=>{
+    if(ep!==ttsEpoch)return;
+    parts.forEach((t,i)=>{const u=new SpeechSynthesisUtterance(t);
+      u.lang='es-ES';if(ttsVoice)u.voice=ttsVoice;u.rate=rt;
+      if(i===parts.length-1)u.onend=()=>{if(ep===ttsEpoch){ttsOn=false;ttsBtn()}};
+      u.onerror=()=>{if(ep===ttsEpoch){ttsOn=false;ttsBtn()}};
+      try{speechSynthesis.speak(u)}catch(e){}});
+    if(ttsWatch)clearInterval(ttsWatch);
+    ttsWatch=setInterval(ttsSync,1000);
+  },140);
 }
+if(TTS_OK){ttsKill();
+  window.addEventListener('pagehide',ttsKill);
+  window.addEventListener('beforeunload',ttsKill);}
 function ttsBar(){
   if(!TTS_OK)return '';
   const r=Number(S.cfg.ttsRate||1);
@@ -580,6 +613,12 @@ function startFree(){
   go('sess');document.getElementById('nav').classList.remove('hide');
   nextCard();
 }
+function sesSave(){
+  if(view==='sess'&&cur)S.ses={ids:queue.map(q=>q.id),cur:cur.id,free:free,
+    total:total,kind:kind,gcount:gcount};
+  else S.ses=null;
+  save();
+}
 function nextCard(){
   if(!queue.length){if(free){free=false;document.getElementById('nav').classList.add('hide');go('home');return}
     finish();return}
@@ -589,6 +628,7 @@ function nextCard(){
   document.getElementById('prog').style.width=((total-queue.length-1)/total*100)+'%';
   document.getElementById('pos').textContent=(total-queue.length)+' de '+total;
   document.getElementById('left').textContent=queue.length+' por delante';
+  sesSave();
   const esFicha=(cur.tipo==='ficha');
   const qnum=document.getElementById('qt').previousElementSibling;
   document.getElementById('qex').textContent=esFicha?'—':cur.examen;
@@ -725,11 +765,12 @@ function grade(g){
 }
 function pauseSession(){
   ttsStop();
-  free=false;queue=[];cur=null;
+  free=false;queue=[];cur=null;S.ses=null;save();
   document.getElementById('nav').classList.add('hide');
   go('home');
 }
 function finish(){
+  S.ses=null;save();
   go('done');
   const n=Object.values(gcount).reduce((a,b)=>a+b,0);
   document.getElementById('dnum').textContent=n;
@@ -825,6 +866,21 @@ function wipe(){
   if(!confirm('Se borra todo el progreso y no se puede deshacer. ¿Seguro?'))return;
   S=JSON.parse(JSON.stringify(DEF));save();go('home');
 }
-drawHome();
+function boot(){
+  const s=S.ses;
+  if(s&&s.cur){
+    const by={};DATA.forEach(q=>by[q.id]=q);
+    const c=by[s.cur];
+    if(c){
+      queue=(s.ids||[]).map(i=>by[i]).filter(Boolean);
+      queue.unshift(c);
+      free=!!s.free;total=s.total||queue.length;kind=s.kind||{};gcount=s.gcount||{};
+      go('sess');document.getElementById('nav').classList.remove('hide');
+      nextCard();return;
+    }
+  }
+  S.ses=null;drawHome();
+}
+boot();
 </script>
 </body></html>

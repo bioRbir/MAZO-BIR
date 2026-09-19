@@ -699,6 +699,10 @@ function rotItems(q){const L=[];(q.tablas||[]).forEach(tb=>{const h=tb.h||[];
 function rotPick(q){const L=rotItems(q);if(!L.length)return[];
   const k=L.length>=9?3:2,c=S.cards[q.id],sv=(c&&c.seen)||0,st=(sv*k)%L.length,out=[];
   for(let i=0;i<Math.min(k,L.length);i++)out.push(L[(st+i)%L.length]);return out}
+// repaso libre: filas al azar cada vez, sin tocar el contador que usa el modo estudio
+function rotRandom(q){const L=rotItems(q).slice();if(!L.length)return[];
+  const k=L.length>=9?3:2;for(let i=L.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=L[i];L[i]=L[j];L[j]=t}
+  return L.slice(0,Math.min(k,L.length))}
 function rotAsk(){return '<div class="rotq"><h3 style="margin:0 0 8px">Pregunta rápida</h3>'+
   curRot.map(x=>'<p style="margin:6px 0">'+(x.t?'<span class="hint">'+x.t+' · </span>':'')+'<b>'+x.k+'</b> → ¿'+(x.q||'…')+'?</p>').join('')+
   '<p class="hint" style="margin:10px 0 12px">Contesta de memoria y destapa: verás las respuestas y la ficha entera.</p></div>'}
@@ -724,7 +728,8 @@ function modeFree(){
     cur.opciones.forEach((t,k)=>{const b=document.createElement('button');b.className='opt';b.disabled=true;
       b.innerHTML='<span class="k">'+LET[k]+'</span><span>'+t+'</span>';box.appendChild(b)})}
   const r=document.getElementById('reveal');
-  r.innerHTML='<p class="hint" style="margin:0 0 12px">Repaso libre: solo lectura, no cambia ninguna fecha ni gasta cupo.</p>';
+  curRot=(cur.tipo==='ficha')?rotRandom(cur):[];
+  r.innerHTML=(curRot.length?rotAsk():'')+'<p class="hint" style="margin:0 0 12px">Repaso libre: solo lectura, no cambia ninguna fecha ni gasta cupo.</p>';
   r.classList.remove('hide');
   document.getElementById('navin').innerHTML='<button class="btn-main" onclick="freeReveal()">Mostrar respuesta</button>';
 }

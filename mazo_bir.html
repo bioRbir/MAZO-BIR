@@ -413,9 +413,13 @@ function rawIvs(c){
   if(c.rl){b=Math.max(2,c.iv||2);d=Math.round(b*0.7);f=Math.round(b*1.3)+1}  // tras «Otra vez»
   else if(r===1){d=2;b=3;f=5}
   else if(r===2){d=4;b=6;f=9}
-  else if(r===3){b=12;d=Math.round(cur*1.2);f=16}
-  else{b=Math.round(cur*ef);d=Math.round(cur*1.2);f=Math.round(cur*ef*1.3)}
-  b=Math.min(b,40);f=Math.min(Math.max(f,b+1),45);d=Math.max(1,Math.min(d,b-1));
+  // 3ª repetición: Bien = doble del intervalo actual, máximo 12 (6 → 12; 2 → 4)
+  else if(r===3){b=Math.max(3,Math.min(12,Math.round(cur*2)))}
+  else{b=Math.max(cur+2,Math.round(cur*ef))}
+  if(r>=3){d=Math.max(Math.round(cur*1.2),Math.round(b*0.6));f=Math.round(b*1.3)}
+  // Difícil nunca por debajo del 50% de Bien ni Fácil por encima del 150%: botones proporcionados
+  b=Math.min(b,40);f=Math.min(Math.max(f,b+1),45,Math.max(b+1,Math.round(b*1.5)));
+  d=Math.max(1,Math.min(Math.max(d,Math.round(b*0.5)),b-1));
   return [d,b,f];
 }
 function schedule(c,g){

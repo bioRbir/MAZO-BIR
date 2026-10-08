@@ -244,6 +244,7 @@ padding:18px 18px 14px;box-shadow:0 18px 40px rgba(0,0,0,.35)}
   <div class="card">
     <h2>Estado del mazo</h2>
     <table id="deckstate"></table>
+    <p class="hint">Aprendiendo: menos de 3 aciertos, aún en los primeros repasos. Jóvenes: intervalo de menos de 21 días. Maduras: 21 días o más.</p>
     <h2 style="margin-top:14px">Dificultad por colores</h2>
     <table id="colstate"></table>
     <p class="hint">Roja: 2 o más «Otra vez», o te cuesta mucho. Naranja: 1 «Otra vez» o intervalo corto. Amarilla: en camino. Verde: consolidada, sin fallos.</p>
@@ -635,7 +636,7 @@ function drawHome(){
   document.getElementById('fchint').textContent=nxt?('En total '+nxt+' repasos programados esta semana.'):'Sin repasos programados aún.';
   const st={nuevas:newCards().length,aprendiendo:0,jóvenes:0,maduras:0};
   pool().forEach(q=>{const c=S.cards[q.id];if(!c)return;
-    if(c.iv<1)st.aprendiendo++;else if(c.iv<21)st['jóvenes']++;else st.maduras++});
+    if((c.reps||0)<3)st.aprendiendo++;else if(c.iv<21)st['jóvenes']++;else st.maduras++});
   document.getElementById('deckstate').innerHTML=Object.keys(st).map(k=>
     '<tr><td>'+k.charAt(0).toUpperCase()+k.slice(1)+'</td><td>'+st[k]+'</td></tr>').join('');
   const cc={roja:0,naranja:0,amarilla:0,verde:0},colhex={roja:'#b8433a',naranja:'#d9822b',amarilla:'#e2c044',verde:'#4f8a5b'};

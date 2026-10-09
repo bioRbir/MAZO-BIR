@@ -765,10 +765,15 @@ function fichaMap(){if(FMAP)return FMAP;FMAP={};
 function slugFicha(txt){return 'f-'+txt.trim().toLowerCase()
   .normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'-')}
 // Enlaza las fichas: por su id (f-xxx) o por su nombre ("ficha de ejes hormonales").
-function linkFichas(t,q){const F=fichaMap();
-  t=String(t).replace(/\bf-[a-z0-9]+(?:-[a-z0-9]+)*\b/gi,function(id){
-    const k=id.toLowerCase();
-    return (F[k]&&k!==q.id)?'<a class="xref" onclick="verRef(\''+k+'\')">'+id+'</a>':id});
+let IDMAP=null;
+function idMap(){if(IDMAP)return IDMAP;IDMAP={};DATA.forEach(x=>{IDMAP[x.id.toLowerCase()]=x.id});return IDMAP}
+function linkFichas(t,q){const F=fichaMap(),I=idMap();
+  // Enlaza cualquier id de tarjeta o ficha (simuf5-19, 2018-125, f-cd…), solo fuera de las etiquetas HTML
+  t=String(t).split(/(<[^>]+>)/).map(function(seg){
+    if(seg.charAt(0)==='<')return seg;
+    return seg.replace(/\b(?:f|simu\d*|simuf\d+|20\d\d|fisio)-[a-z0-9]+(?:-[a-z0-9]+)*\b/gi,function(id){
+      const k=I[id.toLowerCase()];
+      return (k&&k!==q.id)?'<a class="xref" onclick="verRef(\''+k+'\')">'+id+'</a>':id})}).join('');
   return t.replace(/(fichas?\s+(?:de|del)\s+)([a-zA-Zaaeeiioouunn]+(?:\s+[a-zA-Zaaeeiioouunn]+){0,2})/g,
     function(all,pre,nom){
       for(let n=3;n>=1;n--){const trozo=nom.split(/\s+/).slice(0,n).join(' ');

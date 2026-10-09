@@ -271,7 +271,7 @@ box-shadow:0 8px 20px rgba(0,0,0,.28)}
     <p class="hint">Aprendiendo: menos de 3 aciertos, aún en los primeros repasos. Jóvenes: intervalo de menos de 21 días. Maduras: 21 días o más.</p>
     <h2 style="margin-top:14px">Dificultad por colores</h2>
     <table id="colstate"></table>
-    <p class="hint">Color = cómo te va ahora: Otra vez +2 · Difícil +1 · Bien −1 · Fácil −2. Roja: 2 o más. Naranja: 1. Amarilla: 0 con intervalo corto. Verde: 0 con 21 días o más. Puntos (solo para el aprobado): Otra vez −2 · Difícil 0 · Bien +1 · Fácil +2. Aprobado: solo en verde, con 5 puntos y acertada tras 30 días sin verla (rentabilidad baja: 4 y 21). Amarilla: en camino. Verde: consolidada, sin fallos.</p>
+    <p class="hint">Color = cómo te va ahora: Otra vez +2 · Difícil +1 · Bien −1 · Fácil −2. Roja: 2 o más. Naranja: 1. Amarilla: 0 con intervalo corto. Verde: 0 con 21 días o más. Puntos (solo para el aprobado): Otra vez −2 · Difícil 0 · Bien +1 · Fácil +2. Aprobado: solo en verde, con 5 puntos y acertada tras 25 días sin verla (rentabilidad baja: 4 y 21). Amarilla: en camino. Verde: consolidada, sin fallos.</p>
   </div>
 </div>
 
@@ -449,8 +449,8 @@ function colorOf(c){if(!c||!c.reps&&!c.lapses)return '';
   if(d>=2)return 'roja'; if(d===1)return 'naranja';
   // en el último mes los intervalos se acortan por el examen: ahí no cuenta el intervalo
   if((c.iv||0)<21&&limit()>30)return 'amarilla'; return 'verde'}
-// APROBADO: 5 puntos y acertada tras 30 días sin verla (rentabilidad baja: 4 y 21). Lo pulsas tú.
-function umbral(q){return (q&&q.rent==='baja')?{p:4,d:21}:{p:5,d:30}}
+// APROBADO: 5 puntos y acertada tras 25 días sin verla (rentabilidad baja: 4 y 21). Lo pulsas tú.
+function umbral(q){return (q&&q.rent==='baja')?{p:4,d:21}:{p:5,d:25}}
 function cumpleAprob(q,c){if(!c||c.aprob||c.lect)return false;const u=umbral(q);
   return pts(c)>=u.p&&(c.ult||0)>=u.d&&dif(c)===0}
 function fueraRot(id){const c=S.cards[id];return !!(c&&(c.susp||c.aprob||c.lect))}
@@ -1183,7 +1183,7 @@ function drawAprob(){
   const L=DATA.filter(q=>cumpleAprob(q,S.cards[q.id]));
   bx.innerHTML=L.length?('<ul class="res">'+L.map(q=>filaRef(q,pts(S.cards[q.id])+' pts',B('aprobarId',q.id,'Aprobar'))).join('')+'</ul>'+
     '<p class="hint">Cumplen el aprobado y no las has aprobado aún. También te lo ofrece la app justo al acertarlas.</p>'):
-    '<p class="hint" style="margin:0">Ninguna todavía. Una tarjeta está lista cuando está en verde, tiene 5 puntos y la aciertas tras 30 días sin verla (rentabilidad baja: 4 puntos y 21 días).</p>';
+    '<p class="hint" style="margin:0">Ninguna todavía. Una tarjeta está lista cuando está en verde, tiene 5 puntos y la aciertas tras 25 días sin verla (rentabilidad baja: 4 puntos y 21 días).</p>';
   const A=DATA.filter(q=>{const c=S.cards[q.id];return c&&(c.aprob||c.lect)});
   ba.innerHTML=A.length?('<ul class="res">'+A.map(q=>{const c=S.cards[q.id];
     return filaRef(q,c.aprob?('aprobada el '+c.aprob):('en lectura \u00b7 vuelve el '+c.ldue),B('devolver',q.id,'Devolver'))}).join('')+'</ul>'+

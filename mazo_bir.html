@@ -583,7 +583,7 @@ function ttsParts(){
   if(!cur)return[];
   const P=[],esFicha=(cur.tipo==='ficha');
   if(!esFicha&&cur.opciones&&cur.opciones.length&&cur.correcta!=null)
-    P.push('Respuesta correcta, la '+LET[cur.correcta]+'. '+cur.opciones[cur.correcta]);
+    P.push('Respuesta correcta, la '+LET[cur.correcta]+'. '+cur.opciones[cur.correcta]+cubreTTS(cur));
   if(esFicha&&curRot&&curRot.length){P.push('Respuestas rápidas.');curRot.forEach(x=>P.push(String(x.k)+': '+x.tts+'.'))}
   (cur.just||[]).forEach(x=>P.push(x));
   if(cur.mal&&cur.mal.length){P.push('Por qué fallan las demás.');cur.mal.forEach(x=>P.push(x))}
@@ -765,6 +765,20 @@ function fichaMap(){if(FMAP)return FMAP;FMAP={};
 function slugFicha(txt){return 'f-'+txt.trim().toLowerCase()
   .normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'-')}
 // Enlaza las fichas: por su id (f-xxx) o por su nombre ("ficha de ejes hormonales").
+// Respuestas que remiten a otras opciones («Todas son ciertas», «Con las técnicas 2 y 3»): devuelve esas opciones
+function cubre(q){if(!q||q.correcta==null||!q.opciones)return [];
+  const t=q.opciones[q.correcta]||'';let k=[];
+  if(/^\s*tod[ao]s/i.test(t))k=q.opciones.map((x,i)=>i).filter(i=>i!==q.correcta);
+  else{const m=t.match(/\b([1-4])\b(?:\s*,\s*[1-4]\b)*\s*(?:y|e)\s*(?:la\s+)?([1-4])\b/i);
+    if(m)k=(t.match(/\b[1-4]\b/g)||[]).map(x=>+x-1).filter(i=>i!==q.correcta&&i<q.opciones.length)}
+  return k}
+function cubreHTML(q){const k=cubre(q);if(!k.length)return '';
+  return '<div style="font-weight:600;margin-top:4px">'+k.map(i=>'\u2192 '+LET[i]+'. '+q.opciones[i]).join('<br>')+'</div>'}
+function cubreTTS(q){const k=cubre(q);return k.length?(' Es decir: '+k.map(i=>q.opciones[i]).join(' Y ')):''}
+// Negrita para las etiquetas de inicio (REGLA BASE., TRUCO:) y para la respuesta tras «PIENSA:»
+function negritas(x){x=String(x);
+  if(/^SI LEES/.test(x))return x.replace(/^SI LEES/,'<b>SI LEES</b>').replace(/PIENSA:\s*([^.;]+)/,'<b>PIENSA: $1</b>');
+  return x.replace(/^((?:REGLA BASE|REGLA DE EXAMEN|TRUCO|ERROR TÍPICO|POR QUÉ|AVISO)[^.:]*?[.:])/,'<b>$1</b>')}
 let IDMAP=null;
 function idMap(){if(IDMAP)return IDMAP;IDMAP={};DATA.forEach(x=>{IDMAP[x.id.toLowerCase()]=x.id});return IDMAP}
 function linkFichas(t,q){const F=fichaMap(),I=idMap();
@@ -794,7 +808,7 @@ function verRef(id){const q=DATA.find(x=>x.id===id);if(!q)return;
     '<span class="pill">'+(q.bloque||'').toLowerCase()+'</span></div>'+
     '<div class="qtext">'+q.enunciado+'</div>';
   if(q.opciones&&q.opciones.length&&q.correcta!=null)
-    h+='<div class="verdict v-ok">Correcta: '+LET[q.correcta]+'. '+q.opciones[q.correcta]+'</div>';
+    h+='<div class="verdict v-ok">Correcta: '+LET[q.correcta]+'. '+q.opciones[q.correcta]+cubreHTML(q)+'</div>';
   if(q.just&&q.just.length)h+='<div class="just"><h3>'+(esF?'Regla base':'Idea clave')+'</h3><p>'+
     q.just[0]+'</p>'+(esF?tablasHTML(q):'')+'</div>';
   h+='<p class="refno">'+(c?'Ya la tienes en el mazo.':'Todavía no te ha salido: no se marca como vista.')+'</p>'+
@@ -990,12 +1004,12 @@ function showJust(ok,t){
   } else if(ok===null||ok===true||ok===false){
     h+='<div class="verdict '+(ok===false?'v-ko':'v-ok')+'">Respuesta correcta: '+
       LET[cur.correcta]+'. '+cur.opciones[cur.correcta]+
-      (t?' <span class="pill">'+TAGS[t].lab.toLowerCase()+'</span>':'')+'</div>';
+      (t?' <span class="pill">'+TAGS[t].lab.toLowerCase()+'</span>':'')+cubreHTML(cur)+'</div>';
   }
   // La justificacion va plegada: primero los distractores, que es lo que se lee en diagonal.
   // En las fichas no se pliega: ahi la justificacion y las tablas SON el contenido.
   const jh='<div class="just'+(esFicha?'':' hide')+'" id="justbox"><h3>'+(esFicha?'Contenido':'Justificación')+'</h3>'+
-    cur.just.map(x=>'<p>'+linkFichas(linkRefs(x,cur),cur)+'</p>').join('')+tablasHTML(cur)+'</div>';
+    cur.just.map(x=>'<p>'+negritas(linkFichas(linkRefs(x,cur),cur))+'</p>').join('')+tablasHTML(cur)+'</div>';
   if(esFicha){h+=jh}
   else{
     if(cur.mal&&cur.mal.length)h+='<div class="wrongs"><h3>Por qué fallan las demás</h3>'+

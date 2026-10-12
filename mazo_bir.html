@@ -400,6 +400,9 @@ S.rw=S.rw||{};
   S.ptv=2;save()})();
 (function(){if(S.ptv!==2)return;for(const k in S.cards){const c=S.cards[k];if(!c||c.pt==null||S.rw[k])continue;
   c.pt=Math.max(-2,c.pt+(c.lapses||0))}S.ptv=3;save()})();
+// arreglo (12-oct): las nuevas falladas el primer día recibían −2 por un fallo de cálculo; se les devuelve
+(function(){if(S.ptfix)return;for(const k in S.cards){const c=S.cards[k];
+  if(c&&c.pt!=null&&c.pt<0&&(c.reps||0)<=3&&!S.rw[k])c.pt=c.reps||0}S.ptfix=1;save()})();
 (function(){if(S.difv===1)return;for(const k in S.cards){const c=S.cards[k];if(!c)continue;
   c.dif=S.rw[k]?0:Math.max(0,Math.round((2.5-(c.ef||2.5))/0.15))}S.difv=1;save()})();
 (function(){let ch=false;
@@ -1083,8 +1086,10 @@ function grade(g){
   const id=cur.id;
   S.cards[id]=S.cards[id]||{ef:2.5,iv:0,reps:0,lapses:0,due:iso(today())};
   const C=S.cards[id],prev=C.iv||0;
-  // fallar la primera vez que sale es aprender, no olvidar: no resta puntos (sí la pone en rojo)
-  const primera=!(C.seen||0)&&!(C.reps||0);
+  // mientras una tarjeta nueva no se ha acertado ni una vez, fallarla es aprender, no olvidar:
+  // «Otra vez» no resta puntos (sí la pone en rojo). Vale para todas las vueltas de ese primer día.
+  const primera=!(C.reps||0);
+  if(C.pt==null)C.pt=primera?0:pts(C);   // las nuevas nacen con 0 puntos (antes caían al cálculo antiguo: −2 por fallo)
   if(!(primera&&g===1))C.pt=Math.max(-2,pts(C)+PTS[g-1]);
   // el Difícil de la repetición en la misma sesión tras «Otra vez» es parte del mismo fallo: no suma rojo
   if(!(C.rl&&g===2))C.dif=Math.min(6,Math.max(0,dif(C)+DIF[g-1]));

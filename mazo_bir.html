@@ -257,6 +257,7 @@ box-shadow:0 8px 20px rgba(0,0,0,.28)}
     <button class="btn-main" id="goStudy" onclick="startSession()">Estudiar</button>
     <button class="btn-sec hide" id="goFree" onclick="startFree()"></button>
     <button class="btn-sec hide" id="goLect" onclick="startLectura()"></button>
+    <button class="btn-sec" id="goFrz" onclick="congelar()"></button>
     <p class="hint" id="homehint"></p>
   </div>
   <div class="card">
@@ -744,12 +745,30 @@ function go(v){
   window.scrollTo(0,0);
 }
 
+// DÍA CONGELADO (20-oct, petición suya): una vez cada 7 días puede «parar el reloj» un día.
+// Todas las fechas pendientes (repasos, atrasadas y lecturas) se corren +1 día: mañana tiene
+// lo que tenía hoy y nada se acumula. Ese día no entran nuevas. No toca puntos ni intervalos.
+function frzLast(){return (S.frz&&S.frz.last)||''}
+function frzHoy(){return frzLast()===iso(today())}
+function frzDisp(){const l=frzLast();if(!l)return 0;
+  const dd=Math.round((today()-new Date(l+'T00:00:00'))/864e5);return Math.max(0,7-dd)}
+function congelar(){
+  if(frzHoy())return;const fal=frzDisp();
+  if(fal>0){alert('Ya congelaste un día hace poco. Podrás volver a hacerlo dentro de '+fal+(fal===1?' día.':' días.'));return}
+  if(!confirm('¿Congelar hoy?\n\nTodo lo que te toca hoy pasa a mañana, y todo lo de los próximos días se corre un día. No se acumula nada.\n\nSolo se puede una vez cada 7 días.'))return;
+  const t=iso(today()),lim=iso(addDays(new Date(S.cfg.exam+'T00:00:00'),-1));
+  for(const k in S.cards){const c=S.cards[k];if(!c)continue;
+    if(c.due&&!c.aprob&&!c.susp){let d=c.due<t?t:c.due;const n=iso(addDays(new Date(d+'T00:00:00'),1));c.due=(n>lim&&d<=lim)?d:n}
+    if(c.lect&&c.ldue){let d=c.ldue<t?t:c.ldue;c.ldue=iso(addDays(new Date(d+'T00:00:00'),1))}}
+  S.frz={last:t,n:((S.frz&&S.frz.n)||0)+1};S.ses=null;
+  const lg=logHoy();lg.frz=1;save();drawHome();
+}
 function drawHome(){
   drawScope();drawBlq();drawFlt();
   const d=daysTo(S.cfg.exam);
   document.getElementById('hsub').textContent=DATA.length+' tarjetas · '+
     (d>0?'faltan '+d+' días para el examen':'examen pasado');
-  const nw=Math.min(newCards().length,restaN());
+  const nw=frzHoy()?0:Math.min(newCards().length,restaN());
   const rv=Math.min(dueList().length,restaR());
   document.getElementById('dNew').textContent=nw;
   document.getElementById('dRev').textContent=rv;
@@ -757,6 +776,10 @@ function drawHome(){
   const tot=nw+rv;
   document.getElementById('goStudy').textContent=tot?('Estudiar · '+tot+' tarjetas'):'Nada pendiente hoy';
   document.getElementById('goStudy').disabled=!tot;
+  const fz=document.getElementById('goFrz');
+  if(frzHoy()){fz.textContent='\u2744 Hoy está congelado · descansa, mañana sigues';fz.disabled=true}
+  else{const fal=frzDisp();fz.disabled=fal>0;
+    fz.textContent=fal>0?('\u2744 Congelar un día · disponible en '+fal+(fal===1?' día':' días')):'\u2744 Congelar hoy (1 vez por semana)'}
   const gl=document.getElementById('goLect'),nl=lectHoy().length;
   if(nl){gl.classList.remove('hide');gl.textContent='\uD83D\uDCD6 Lectura \u00b7 '+nl+(nl===1?' ficha':' fichas')+' para releer'}else gl.classList.add('hide');
   const gf=document.getElementById('goFree'),psel=pool().length+lectEnFiltro().length;
@@ -876,7 +899,7 @@ let free=false;
 let kind={};
 function startSession(){
   free=false;lect=false;
-  const nw=shuffleDia(newCards()).slice(0,restaN());
+  const nw=frzHoy()?[]:shuffleDia(newCards()).slice(0,restaN());
   const rv=dueList().slice(0,restaR());
   kind={};
   nw.forEach(q=>kind[q.id]='n');

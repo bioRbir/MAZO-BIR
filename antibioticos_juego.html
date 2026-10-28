@@ -69,6 +69,9 @@ svg.bug{width:100%;max-width:420px;height:auto;margin:0 auto;display:block}
 .opt[aria-pressed="true"]{border-color:var(--hema);background:rgba(75,42,114,.07);box-shadow:inset 0 0 0 1px var(--hema)}
 .opt.ok{border-color:var(--ok);background:var(--ok-bg)}
 .opt.bad{border-color:var(--bad);background:var(--bad-bg)}
+.opt.miss{border:2px dashed var(--ok);background:transparent}
+.opts.multi{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+.opts.multi .opt{text-align:center;padding:10px 8px;font-weight:600}
 .opt[disabled]{cursor:default}
 .dud{font:inherit;font-weight:700;padding:10px 14px;border-radius:12px;border:1.5px dashed var(--amber);background:transparent;color:var(--amber);cursor:pointer}
 .dud[aria-pressed="true"]{background:var(--amber-bg);border-style:solid}
@@ -128,6 +131,14 @@ summary{cursor:pointer;font-weight:700;color:var(--hema)}
     </div>
 
     <div class="card">
+      <h3>Pasarle las falladas a Claude</h3>
+      <p class="foot" style="text-align:left;margin:0">«Copiar» y lo pegas en el chat (funciona en todas partes). «Descargar» baja un .json (solo desde GitHub Pages).</p>
+      <div class="row"><button class="btn eos small" id="bCopyF">Copiar falladas</button><button class="btn ghost small" id="bDownF">Descargar falladas</button></div>
+      <textarea id="fOut" readonly hidden style="width:100%;min-height:120px;font:12px ui-monospace,monospace;border:1px solid var(--line-2);border-radius:10px;padding:8px"></textarea>
+      <div id="msgF" class="foot" hidden></div>
+    </div>
+
+    <div class="card">
       <h3>Copia de seguridad</h3>
       <div class="row"><button class="btn ghost small" id="bExport">Guardar copia</button><label class="btn ghost small" for="fImport" style="text-align:center">Restaurar copia</label><input type="file" id="fImport" accept=".json,application/json" hidden><button class="btn ghost small" id="bReset">Borrar progreso</button></div>
       <div id="msg" class="foot" hidden></div>
@@ -170,9 +181,9 @@ summary{cursor:pointer;font-weight:700;color:var(--hema)}
 </div>
 
 <script>
-const VERSION=1, KEY='antib_bir_v1';
+const VERSION=2, KEY='antib_bir_v1';
 const BLOCKS={pared:'Pared y β-lactamasas',tb:'Micobacterias',r30:'Ribosoma 30S',r50:'Ribosoma 50S',nuc:'ADN y ARN',fol:'Ácido fólico',mem:'Membrana'};
-const TYPES={fam:'Fármaco → familia',dia:'Fármaco → diana',inv:'Pista → fármaco',efe:'¿Mata o frena?',res:'Fármaco → resistencia'};
+const TYPES={fam:'Fármaco → familia',dia:'Fármaco → diana',inv:'Pista → fármaco',efe:'¿Mata o frena?',res:'Fármaco → resistencia',fill:'Rellena el grupo'};
 const BIRH={"pen":["2006-88","2007-92","2008-113","2009-115","2011-88","2014-108","2014-119","2015-98","2016-91","2016-98","2017-191","2019-109","2019-115","2020-145","2020-162","2021-184","2024-165","2024-167","2024-172","2025-170"],"amx":["2004-218","2005-15","2008-78","2008-113","2018-193"],"clx":["2019-108","2020-145","2021-167","2021-171","2024-166","2025-169"],"pip":["2025-177"],"cro":["2020-145","2024-163","2024-172","2025-177"],"caz":["2021-167","2022-164"],"cpt":["2020-145","2024-166"],"imi":["2005-15","2017-191","2019-106","2019-123","2020-145","2020-154","2020-156","2021-167","2021-168","2021-173","2021-181","2022-164","2022-179","2022-180","2023-166","2023-179","2023-180","2024-164","2025-169","2025-170","2025-177","2025-182"],"atm":["2017-191","2019-123","2021-168","2022-180","2024-164","2025-182"],"clv":["2004-218","2005-15","2008-113","2022-164","2022-179","2023-166","2024-164","2025-177"],"avi":["2021-167","2021-168","2022-164","2025-169"],"van":["2000-258","2003-103","2004-202","2006-88","2019-108","2020-141","2020-144","2021-171","2021-173","2022-163","2022-167","2023-170","2023-172","2024-172","2025-168","2025-177"],"fos":["2011-87"],"inh":["2005-14","2008-113","2010-101","2011-97","2013-186","2019-125"],"rif":["2000-197","2001-203","2007-119","2009-115","2010-100","2016-99","2016-100","2017-179","2019-125"],"gen":["2001-222","2005-13","2010-101","2012-107","2014-109","2014-112","2016-100","2017-182","2019-112"],"str":["2000-258","2009-115","2016-120"],"dox":["2000-258","2002-79","2007-97","2008-113","2009-115","2010-100","2012-107","2014-111","2015-100","2016-91","2017-179","2017-182","2024-163","2025-174"],"ery":["2000-197","2001-222","2002-79","2011-87","2014-112","2015-97","2015-100","2016-99","2016-100","2017-179","2019-112","2025-168"],"cli":[],"azi":[],"chl":["2000-258","2016-91","2018-193"],"lzd":["2024-167"],"cip":["2000-197","2001-203","2002-84","2003-103","2004-203","2005-251","2009-103","2009-115","2010-100","2010-101","2011-87","2011-88","2013-184","2013-185","2014-111","2014-112","2015-100","2016-100","2017-179","2019-112","2020-156","2021-180","2023-178","2023-197","2024-163","2024-164","2025-210"],"mtz":["2000-197","2010-151","2016-99","2025-177"],"smx":["2020-159","2021-197","2024-172","2024-181"],"tmp":["2018-193","2020-159","2024-172"],"col":["2001-222","2002-79","2003-119","2010-101","2012-107","2021-180","2023-182"],"dap":["2024-163","2025-177"]};
 
 // id permanente · b bloque · n nombre · fam familia · dg diana corta (opción) · dl diana explicada · dt dibujo · efe · esp espectro · res resistencia · cl pista para la pregunta inversa · x dato clave · why porqué · k clave del banco
@@ -207,6 +218,29 @@ const DATA=[
 {id:'a28',b:'mem',n:'Colistina',fam:'Polimixinas',dg:'LPS de la membrana externa',dt:'memext',dl:'Se une al lípido A del LPS y desorganiza las membranas como un detergente.',efe:'Bactericida',esp:'Solo Gram−; último recurso frente a multirresistentes.',res:'Modificación del lípido A (gen mcr-1, en plásmido).',cl:'Detergente catiónico, último recurso frente a Gram− multirresistentes.',x:'Resistentes intrínsecos: Proteus, Serratia, Providencia, Burkholderia. RAM: nefro y neurotoxicidad.',why:'Es catiónica y se pega al LPS (cargado negativamente): solo los Gram− tienen LPS.',k:'col'},
 {id:'a29',b:'mem',n:'Daptomicina',fam:'Lipopéptidos',dg:'Membrana citoplasmática',dt:'mem',dl:'Se inserta en la membrana citoplasmática con ayuda del Ca²⁺ y la despolariza.',efe:'Bactericida',esp:'Solo Gram+, incluidos SARM y ERV.',res:'Cambios en la carga de la membrana (gen mprF).',cl:'Despolariza la membrana de los Gram+ y no sirve para la neumonía.',x:'El surfactante pulmonar la inactiva. RAM: miopatía (vigilar la CK).',why:'Necesita llegar a la membrana citoplasmática; en los Gram− se lo impide la membrana externa.',k:'dap'}
 ];
+
+// Tarjetas de «Rellena el grupo»: una diana o una familia y hay que marcar todos los que van dentro
+const FILL=[
+{id:'f01',b:'pared',kind:'dia',n:'Pared (peptidoglucano)',dt:'pared',m:['Penicilina G','Amoxicilina','Cloxacilina','Piperacilina','Cefazolina','Ceftriaxona','Ceftazidima','Ceftarolina','Imipenem','Meropenem','Aztreonam','Vancomicina','Teicoplanina','Fosfomicina','Bacitracina','Cicloserina'],near:['Daptomicina','Colistina','Gentamicina','Clindamicina','Linezolid','Doxiciclina'],x:'β-lactámicos → PBP · glicopéptidos → D-Ala-D-Ala · fosfomicina → MurA · bacitracina → bactoprenol · cicloserina → D-Ala.',why:'Todo lo que acaba en -cilina, cef-, -penem y el monobactam es β-lactámico y va a la pared. Ojo: vanco- y fosfo-micina también son de pared aunque se llamen «-micina».'},
+{id:'f02',b:'r30',kind:'dia',n:'Ribosoma 30S',dt:'r30',m:['Gentamicina','Amikacina','Tobramicina','Estreptomicina','Doxiciclina','Minociclina','Tigeciclina','Espectinomicina'],near:['Eritromicina','Azitromicina','Clindamicina','Cloranfenicol','Linezolid','Vancomicina','Daptomicina'],x:'TRUCO: «A·T a los 30» → Aminoglucósidos y Tetraciclinas (más tigeciclina y espectinomicina).',why:'Solo dos familias grandes van a la 30S. Todo lo demás que toca el ribosoma va a la 50S.'},
+{id:'f03',b:'r50',kind:'dia',n:'Ribosoma 50S',dt:'r50',m:['Cloranfenicol','Clindamicina','Eritromicina','Azitromicina','Claritromicina','Linezolid','Tedizolid','Quinupristina-dalfopristina','Lefamulina'],near:['Gentamicina','Amikacina','Doxiciclina','Tigeciclina','Estreptomicina','Vancomicina'],x:'TRUCO: «CLEL a los 50» → Cloranfenicol, Lincosamidas, Eritromicina y macrólidos, Linezolid (más estreptograminas y lefamulina).',why:'La 50S es la subunidad grande: le caben más familias. Si no es AMG ni tetraciclina y frena el ribosoma, es 50S.'},
+{id:'f04',b:'nuc',kind:'dia',n:'Ácidos nucleicos (ADN y ARN)',dt:'girasa',m:['Ciprofloxacino','Levofloxacino','Moxifloxacino','Ácido nalidíxico','Rifampicina','Rifabutina','Metronidazol','Tinidazol','Fidaxomicina'],near:['Trimetoprim','Sulfametoxazol','Linezolid','Isoniazida','Clindamicina','Tedizolid'],x:'Quinolonas → ADN-girasa / topo IV · rifamicinas y fidaxomicina → ARN polimerasa · metronidazol → rompe el ADN.',why:'Las sulfamidas y el trimetoprim acaban afectando al ADN (sin folato no hay bases), pero su diana es la vía del folato, no el ADN.'},
+{id:'f05',b:'mem',kind:'dia',n:'Membranas',dt:'mem',m:['Colistina','Polimixina B','Daptomicina'],near:['Vancomicina','Teicoplanina','Fosfomicina','Bacitracina','Linezolid','Gentamicina'],x:'Polimixinas (colistina) → LPS, solo Gram− · daptomicina → membrana de los Gram+, con Ca²⁺.',why:'Solo tres. Los glicopéptidos van a la pared, aunque también sean moléculas grandes de superficie.'},
+{id:'f06',b:'fol',kind:'dia',n:'Vía del ácido fólico',dt:'folato',m:['Sulfametoxazol','Sulfadiazina','Trimetoprim'],near:['Metronidazol','Ciprofloxacino','Rifampicina','Isoniazida','Pirazinamida'],x:'Sulfamidas → dihidropteroato sintetasa (1.er paso) · trimetoprim → dihidrofolato reductasa (2.º paso).',why:'Dos pasos seguidos de la misma vía: por eso se dan juntos (cotrimoxazol) y son sinérgicos.'},
+{id:'f07',b:'tb',kind:'dia',n:'Antituberculosos de 1.ª línea',dt:'micob',m:['Rifampicina','Isoniazida','Pirazinamida','Etambutol'],ex:['Rifabutina','Moxifloxacino','Levofloxacino','Ciprofloxacino','Estreptomicina','Amikacina','Linezolid','Tedizolid'],near:['Vancomicina','Doxiciclina','Metronidazol','Clindamicina','Colistina','Cloranfenicol'],x:'TRUCO: RIPE → Rifampicina, Isoniazida, Pirazinamida, Etambutol.',why:'Isoniazida y pirazinamida → ácidos micólicos · etambutol → arabinogalactano · rifampicina → ARN polimerasa.'},
+{id:'f10',b:'pared',kind:'fam',n:'Penicilinas',dt:'pared',m:['Penicilina G','Penicilina V','Amoxicilina','Ampicilina','Cloxacilina','Piperacilina','Ticarcilina'],near:['Cefazolina','Ceftriaxona','Imipenem','Aztreonam','Ácido clavulánico','Vancomicina'],x:'TRUCO: -cilina = penicilina.',why:'El sufijo las delata todas. El clavulánico va con la amoxicilina pero no es penicilina: es un inhibidor de β-lactamasa.'},
+{id:'f11',b:'pared',kind:'fam',n:'Cefalosporinas',dt:'pared',m:['Cefazolina','Cefalexina','Cefuroxima','Cefoxitina','Ceftriaxona','Cefotaxima','Ceftazidima','Cefepime','Ceftarolina'],near:['Amoxicilina','Piperacilina','Imipenem','Meropenem','Aztreonam','Tazobactam'],x:'TRUCO: cef- = cefalosporina. 1.ª cefazolina · 3.ª ceftriaxona/ceftazidima · 4.ª cefepime · 5.ª ceftarolina (SARM).',why:'Todas empiezan por cef-. Ninguna cubre enterococo ni Listeria.'},
+{id:'f12',b:'pared',kind:'fam',n:'Carbapenemes',dt:'pared',m:['Imipenem','Meropenem','Ertapenem'],near:['Aztreonam','Cefepime','Piperacilina','Tazobactam','Ceftazidima'],x:'TRUCO: -penem = carbapenem.',why:'El aztreonam también es β-lactámico, pero monobactam.'},
+{id:'f13',b:'pared',kind:'fam',n:'Inhibidores de β-lactamasa',dt:'blact',m:['Ácido clavulánico','Sulbactam','Tazobactam','Avibactam','Relebactam','Vaborbactam'],near:['Aztreonam','Imipenem','Ceftazidima','Ertapenem','Piperacilina'],x:'TRUCO: -bactam = inhibidor (más el clavulánico). ✕ AzTREONAM no: es un monobactam, un antibiótico.',why:'Clásicos (clavulánico, sulbactam, tazobactam) frente a clase A; nuevos (avibactam, relebactam, vaborbactam) también frente a KPC. Ninguno frena las metalo-β-lactamasas.'},
+{id:'f14',b:'pared',kind:'fam',n:'Glicopéptidos',dt:'pared',m:['Vancomicina','Teicoplanina'],near:['Daptomicina','Fosfomicina','Linezolid','Colistina','Gentamicina'],x:'Vancomicina y teicoplanina (-planina) → D-Ala-D-Ala.',why:'«-micina» no dice la familia: vanco- es glicopéptido, genta- es aminoglucósido, fosfo- va por libre.'},
+{id:'f15',b:'r30',kind:'fam',n:'Aminoglucósidos',dt:'r30',m:['Gentamicina','Amikacina','Tobramicina','Estreptomicina','Neomicina'],near:['Eritromicina','Azitromicina','Vancomicina','Clindamicina','Doxiciclina','Daptomicina'],x:'Genta-, amika-, tobra-, estrepto-, neo-: apréndete el prefijo, el «-micina» no ayuda.',why:'Los únicos inhibidores del ribosoma que son bactericidas.'},
+{id:'f16',b:'r30',kind:'fam',n:'Tetraciclinas',dt:'r30',m:['Tetraciclina','Doxiciclina','Minociclina','Tigeciclina'],near:['Gentamicina','Cloranfenicol','Eritromicina','Amoxicilina','Ciprofloxacino'],x:'TRUCO: -ciclina = tetraciclina (la tigeciclina es una glicilciclina).',why:'También 30S, como los aminoglucósidos, pero bacteriostáticas.'},
+{id:'f17',b:'r50',kind:'fam',n:'Macrólidos',dt:'r50',m:['Eritromicina','Claritromicina','Azitromicina','Espiramicina'],near:['Clindamicina','Gentamicina','Vancomicina','Estreptomicina','Daptomicina'],x:'TRUCO: -tromicina = macrólido (más eritromicina y espiramicina).',why:'La clindamicina comparte sitio y resistencia (MLSB) pero es una lincosamida.'},
+{id:'f18',b:'nuc',kind:'fam',n:'Quinolonas',dt:'girasa',m:['Ciprofloxacino','Levofloxacino','Moxifloxacino','Ácido nalidíxico'],near:['Metronidazol','Rifampicina','Trimetoprim','Linezolid','Tinidazol'],x:'TRUCO: -floxacino = fluoroquinolona; el ácido nalidíxico es la quinolona original.',why:'Todas bloquean la ADN-girasa y la topoisomerasa IV.'},
+{id:'f19',b:'r50',kind:'fam',n:'Oxazolidinonas',dt:'r50',m:['Linezolid','Tedizolid'],near:['Metronidazol','Tinidazol','Daptomicina','Cloranfenicol','Clindamicina'],x:'TRUCO: -zolid = oxazolidinona. ✕ -nidazol = nitroimidazol (metronidazol), que va al ADN.',why:'Se parecen al oído, pero no tienen nada que ver: unas frenan la 50S y los otros rompen el ADN de los anaerobios.'}
+];
+const NAMEGROUP={};FILL.filter(f=>f.kind==='dia').forEach(f=>f.m.forEach(n=>{NAMEGROUP[n]=f.n}));
+const ALLNAMES=[...new Set(FILL.flatMap(f=>f.m.concat(f.near)))];
 const FAMS=[...new Set(DATA.map(d=>d.fam))];
 const DGS=[...new Set(DATA.map(d=>d.dg))];
 const CONF={'Aminoglucósidos':['Tetraciclinas','Macrólidos','Glicopéptidos'],'Tetraciclinas':['Aminoglucósidos','Macrólidos','Anfenicoles'],'Macrólidos':['Lincosamidas','Aminoglucósidos','Tetraciclinas'],'Lincosamidas':['Macrólidos','Aminoglucósidos','Glicopéptidos'],'Glicopéptidos':['Lipopéptidos','Aminoglucósidos','Fosfonatos'],'Fosfonatos':['Glicopéptidos','Aminoglucósidos','Polimixinas'],'Lipopéptidos':['Glicopéptidos','Polimixinas','Oxazolidinonas'],'Anfenicoles':['Macrólidos','Tetraciclinas','Oxazolidinonas'],'Oxazolidinonas':['Macrólidos','Anfenicoles','Lipopéptidos'],'Penicilinas':['Cefalosporinas','Carbapenemes','Monobactam'],'Cefalosporinas':['Penicilinas','Carbapenemes','Monobactam'],'Carbapenemes':['Cefalosporinas','Penicilinas','Monobactam'],'Monobactam':['Carbapenemes','Cefalosporinas','Inhibidores de β-lactamasa'],'Inhibidores de β-lactamasa':['Penicilinas','Carbapenemes','Monobactam'],'Quinolonas':['Nitroimidazoles','Rifamicinas','Sulfamidas'],'Nitroimidazoles':['Quinolonas','Rifamicinas','Diaminopirimidinas'],'Rifamicinas':['Quinolonas','Antituberculosos','Aminoglucósidos'],'Antituberculosos':['Rifamicinas','Aminoglucósidos','Glicopéptidos'],'Sulfamidas':['Diaminopirimidinas','Quinolonas','Nitroimidazoles'],'Diaminopirimidinas':['Sulfamidas','Quinolonas','Nitroimidazoles'],'Polimixinas':['Lipopéptidos','Glicopéptidos','Aminoglucósidos']};
@@ -215,7 +249,8 @@ const RG={a19:'erm',a20:'erm',a21:'erm',a01:'blac',a02:'blac',a04:'blac',a05:'bl
 const W={1:100,2:62,3:36,4:18,5:8};
 const $=id=>document.getElementById(id);
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
-const byId=Object.fromEntries(DATA.map(d=>[d.id,d]));
+const ALL=[...DATA,...FILL];
+const byId=Object.fromEntries(ALL.map(d=>[d.id,d]));
 
 // ---------- almacenamiento ----------
 let canStore=true;
@@ -239,6 +274,8 @@ function st(id){return S.items[id]||(S.items[id]={lvl:1,s:0,e:0,d:0,last:0,bad:f
 
 // ---------- preguntas ----------
 function applicable(d,t){
+  if(d.m)return t==='fill';
+  if(t==='fill')return false;
   if(t==='efe')return !!d.efe;
   if(t==='res')return !!d.res;
   return true;
@@ -247,6 +284,11 @@ function pick(pool,n,ex){return shuffle([...new Set(pool)].filter(x=>!ex.include
 function makeQ(d,t){
   if(!applicable(d,t))return null;
   let prompt,answer,opts,sub='';
+  if(t==='fill'){
+    const k=Math.min(d.m.length,6);const mem=shuffle(d.m).slice(0,k);
+    const nd=Math.max(4,10-k);const ex=[...d.m,...(d.ex||[]),...(d.kind==='dia'?FILL.filter(f=>f.b===d.b).flatMap(f=>f.m):[])];let o=pick(d.near,Math.min(nd,4),ex);o=o.concat(pick(ALLNAMES,nd-o.length,[...ex,...o]));
+    return{id:d.id,t,multi:true,prompt:d.n,sub:d.kind==='dia'?'Marca TODOS los que actúan aquí (pueden ser varios)':'Marca TODOS los de esta familia (pueden ser varios)',answer:mem,opts:shuffle([...mem,...o])};
+  }
   if(t==='fam'){prompt=d.n;sub='¿De qué familia es?';answer=d.fam;
     let o=pick(CONF[d.fam]||[],3,[d.fam]);if(o.length<3)o=o.concat(pick(FAMS,3-o.length,[d.fam,...o]));opts=shuffle([answer,...o]);}
   else if(t==='dia'){prompt=d.n;sub='¿Dónde actúa?';answer=d.dg;
@@ -267,7 +309,7 @@ function weight(d){
   w+=Math.min(30,(Date.now()-s.last)/864e5*3);return w+Math.random()*12;
 }
 function buildRound(){
-  const p=S.prefs;const pool=DATA.filter(d=>p.blocks.includes(d.b)&&typesFor(d,p.type).length);
+  const p=S.prefs;const pool=ALL.filter(d=>p.blocks.includes(d.b)&&typesFor(d,p.type).length);
   if(!pool.length)return null;
   const size=p.size==='all'?pool.length:Math.min(p.size,pool.length*(p.type==='mix'?2:1));
   const ranked=pool.map(d=>({d,w:weight(d)})).sort((a,b)=>b.w-a.w);
@@ -290,7 +332,7 @@ function pendRound(){
 function show(w){['home','game','end'].forEach(x=>$(x).hidden=x!==w);window.scrollTo(0,0)}
 function chips(el,items,isOn,onClick){el.innerHTML='';items.forEach(([k,l])=>{const b=document.createElement('button');b.className='chip';b.id='c-'+el.id+'-'+k;b.textContent=l;b.setAttribute('aria-pressed',isOn(k));b.onclick=()=>{onClick(k);renderHome()};el.appendChild(b)})}
 function renderHome(){
-  $('ver').textContent=`Versión ${VERSION} · ${DATA.length} tarjetas`;
+  $('ver').textContent=`Versión ${VERSION} · ${DATA.length} fármacos · ${FILL.length} grupos para rellenar`;
   $('noStore').hidden=canStore;
   const p=S.prefs;
   chips($('fBlocks'),Object.entries(BLOCKS),k=>p.blocks.includes(k),k=>{p.blocks=p.blocks.includes(k)?p.blocks.filter(x=>x!==k):[...p.blocks,k];if(!p.blocks.length)p.blocks=[k];save()});
@@ -316,7 +358,10 @@ function ask(){
   $('qType').textContent=TYPES[t];
   $('qPrompt').innerHTML=esc(Q.prompt)+`<small>${esc(Q.sub)}</small>`;
   const o=$('qOpts');o.innerHTML='';o.className='opts'+(Q.opts.every(x=>x.length<34)?' two':'');
-  Q.opts.forEach((v,i)=>{const b=document.createElement('button');b.className='opt';b.id='o'+i;b.textContent=v;b.setAttribute('aria-pressed','false');
+  if(Q.multi){sel=[];o.className='opts multi';
+    Q.opts.forEach((v,i)=>{const b=document.createElement('button');b.className='opt';b.id='o'+i;b.textContent=v;b.setAttribute('aria-pressed','false');
+      b.onclick=()=>{if(answered)return;sel=sel.includes(v)?sel.filter(x=>x!==v):[...sel,v];b.setAttribute('aria-pressed',sel.includes(v));$('bCheck').disabled=!sel.length};o.appendChild(b)});
+  }else Q.opts.forEach((v,i)=>{const b=document.createElement('button');b.className='opt';b.id='o'+i;b.textContent=v;b.setAttribute('aria-pressed','false');
     b.onclick=()=>{if(answered)return;sel=v;o.querySelectorAll('.opt').forEach(x=>x.setAttribute('aria-pressed',x===b));$('bCheck').disabled=false};o.appendChild(b)});
   $('bDud').setAttribute('aria-pressed','false');$('bDud').disabled=false;
   $('bCheck').hidden=false;$('bCheck').disabled=true;$('bNext').hidden=true;$('qFb').hidden=true;
@@ -333,17 +378,32 @@ function chosenInfo(v){
   return'';
 }
 function check(){
-  if(sel==null||answered)return;answered=true;
-  const d=byId[Q.id];const ok=sel===Q.answer;const s=st(d.id);const before=s.lvl;
+  if(sel==null||answered||(Q.multi&&!sel.length))return;answered=true;
+  const d=byId[Q.id];const ok=Q.multi?(sel.length===Q.answer.length&&sel.every(x=>Q.answer.includes(x))):sel===Q.answer;const s=st(d.id);const before=s.lvl;
   s.s++;s.last=Date.now();
   if(!ok){s.e++;s.lvl=1;s.bad=true;s.dud=false}
   else if(dud){s.d++;s.bad=false;s.dud=true}
   else{s.lvl=Math.min(5,s.lvl+1);s.bad=false;s.dud=false}
   if(!ok||dud){if(!s.pend.includes(Q.t))s.pend.push(Q.t)}else s.pend=s.pend.filter(x=>x!==Q.t);
   S.hist.push(ok&&!dud);S.hist=S.hist.slice(-20);
-  const r=S.round;r.res.push({id:d.id,t:Q.t,ok,dud,sel,ans:Q.answer});r.i++;save();
-  document.querySelectorAll('#qOpts .opt').forEach(b=>{b.disabled=true;if(b.textContent===Q.answer)b.classList.add('ok');else if(b.textContent===sel)b.classList.add('bad')});
+  const r=S.round;r.res.push({id:d.id,t:Q.t,ok,dud,sel,ans:Q.answer});r.i++;
+  S.log=(S.log||[]).concat([{id:d.id,t:Q.t,ok,dud,sel,ans:Q.answer,ts:Date.now()}]).slice(-400);save();
+  if(Q.multi){document.querySelectorAll('#qOpts .opt').forEach(b=>{b.disabled=true;const v=b.textContent,inA=Q.answer.includes(v),inS=sel.includes(v);
+      if(inA&&inS)b.classList.add('ok');else if(inS)b.classList.add('bad');else if(inA)b.classList.add('miss')});}
+  else document.querySelectorAll('#qOpts .opt').forEach(b=>{b.disabled=true;if(b.textContent===Q.answer)b.classList.add('ok');else if(b.textContent===sel)b.classList.add('bad')});
   $('bDud').disabled=true;lit(d.dt);
+  if(Q.multi){const miss=Q.answer.filter(x=>!sel.includes(x)),extra=sel.filter(x=>!Q.answer.includes(x));
+    const ritmoF=s.lvl<=2?'sale a menudo':s.lvl===3?'ritmo medio':'casi dominada';
+    const fbm=$('qFb');fbm.hidden=false;fbm.className='fb '+(!ok?'bad':dud?'mid':'ok');
+    fbm.innerHTML=`<div class="t">${!ok?'No del todo':dud?'Bien, pero dudabas':'Correcto, todos'}</div>
+    <p><b>${esc(d.n)}:</b> ${esc(d.m.join(', '))}.</p>
+    ${miss.length?`<p>Te faltaron: <b>${esc(miss.join(', '))}</b></p>`:''}
+    ${extra.length?`<p>Sobraban: ${extra.map(x=>`<b>${esc(x)}</b>${NAMEGROUP[x]&&NAMEGROUP[x]!==d.n?' ('+esc(NAMEGROUP[x])+')':''}`).join(', ')}</p>`:''}
+    <p>${esc(d.x)}</p>
+    <p class="lvl">Nivel ${before} → ${s.lvl} · ${ritmoF}</p>
+    <details><summary>¿Por qué?</summary><p style="margin:6px 0">${esc(d.why)}</p></details>`;
+    $('bCheck').hidden=true;$('bNext').hidden=false;$('bNext').focus();
+    $('gOk').textContent=r.res.filter(x=>x.ok).length;$('gP').style.width=(100*r.i/r.qs.length)+'%';return;}
   const ritmo=s.lvl<=2?'sale a menudo':s.lvl===3?'ritmo medio':'casi dominada';
   const hits=BIRH[d.k]||[];const years=[...new Set(hits.map(h=>h.split('-')[0]))];
   const birTxt=hits.length?`BIR · aparece en ${hits.length} pregunta${hits.length>1?'s':''}: ${hits.slice(-6).join(' · ')}${hits.length>6?' …':''}`:'BIR · no aparece por su nombre en el banco 2000–2025';
@@ -365,12 +425,24 @@ function finish(){
   $('eScore').textContent=`${ok} de ${n} · ${pct} %`;
   $('eMsg').textContent=pct>=90?'Dominado. Sube de nivel o cambia de bloque.':pct>=70?'Bien. Repasa los fallos antes de seguir.':'Vuelve a la tabla del documento y repite la ronda.';
   const f=r.res.filter(x=>!x.ok||x.dud);
-  $('eFails').innerHTML=f.length?f.map(x=>{const d=byId[x.id];return `<li><b>${esc(d.n)}</b> · ${esc(TYPES[x.t])}${x.ok?' · <span style="color:var(--amber)">dudada</span>':`<br><span class="m">Marcaste: ${esc(x.sel)}</span>`}<br><span class="c">${esc(x.ans)}</span></li>`}).join(''):'<li>Sin fallos ni dudas. 👏</li>';
+  $('eFails').innerHTML=f.length?f.map(x=>{const d=byId[x.id];return `<li><b>${esc(d.n)}</b> · ${esc(TYPES[x.t])}${x.ok?' · <span style="color:var(--amber)">dudada</span>':`<br><span class="m">Marcaste: ${esc([].concat(x.sel).join(', '))}</span>`}<br><span class="c">${esc([].concat(x.ans).join(', '))}</span></li>`}).join(''):'<li>Sin fallos ni dudas. 👏</li>';
   $('bRetry').disabled=!f.length;
   $('bRetry').onclick=()=>startRound(shuffle(f.map(x=>({id:x.id,t:x.t}))),'fallos');
   S.round=null;save();show('end');
 }
 // ---------- copia ----------
+function fallosJSON(){
+  const f=x=>new Date(x).toLocaleString('es-ES',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  const resp=(S.log||[]).filter(x=>!x.ok||x.dud).map(x=>{const d=byId[x.id];return{fecha:f(x.ts),elemento:d?d.n:x.id,tipo:TYPES[x.t]||x.t,resultado:x.ok?'acertada dudando':'fallada',marcada:[].concat(x.sel).join(', '),correcta:[].concat(x.ans).join(', ')}});
+  const pend=Object.entries(S.items).filter(([id,s])=>byId[id]&&(s.pend||[]).length).map(([id,s])=>({elemento:byId[id].n,pendiente:s.pend.map(t=>TYPES[t]||t).join(', '),nivel:s.lvl,veces:s.s,fallos:s.e,dudas:s.d}));
+  const tot=(S.log||[]).length,ok=(S.log||[]).filter(x=>x.ok&&!x.dud).length;
+  return JSON.stringify({juego:'Antibióticos · Juego BIR',version:VERSION,exportado:f(Date.now()),respuestas_registradas:tot,acertadas_sin_duda:ok,falladas_y_dudadas:resp,pendientes_por_elemento:pend},null,1);
+}
+function flashF(t){const m=$('msgF');m.textContent=t;m.hidden=false;setTimeout(()=>m.hidden=true,5000)}
+$('bCopyF').onclick=()=>{const txt=fallosJSON();const ta=$('fOut');ta.value=txt;
+  const fallback=()=>{ta.hidden=false;ta.focus();ta.select();flashF('Está seleccionado: mantén pulsado y «Copiar».')};
+  try{navigator.clipboard.writeText(txt).then(()=>{ta.hidden=true;flashF('Copiado. Pégalo en el chat con Claude.')},fallback)}catch(e){fallback()}};
+$('bDownF').onclick=()=>{try{const blob=new Blob([fallosJSON()],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`antibioticos_falladas_${new Date().toISOString().slice(0,10)}.json`;document.body.appendChild(a);a.click();a.remove();flashF('Si no se ha descargado nada, usa «Copiar falladas».')}catch(e){flashF('Aquí no se puede descargar: usa «Copiar falladas».')}};
 function flash(t){const m=$('msg');m.textContent=t;m.hidden=false;setTimeout(()=>m.hidden=true,4000)}
 $('bExport').onclick=()=>{
   try{const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const a=document.createElement('a');const d=new Date();

@@ -236,14 +236,70 @@ color:var(--navy2);font-weight:600}
 .okcopia{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);z-index:60;
 background:var(--navy);color:#FFF7EA;padding:10px 16px;border-radius:999px;font-size:13px;
 box-shadow:0 8px 20px rgba(0,0,0,.28)}
+
+/* calendario de cuenta atrás (7-nov) */
+header .wrap.hrow{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.cal{display:flex;gap:10px;line-height:1}
+.cal .mes{width:118px}
+.cal .mt{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#E3CDAE;margin:0 0 3px;
+font-family:Georgia,"Iowan Old Style","Times New Roman",serif}
+.cal .g{display:grid;grid-template-columns:repeat(7,1fr);gap:1px}
+.cal .g span{font-size:9.5px;height:14px;display:flex;align-items:center;justify-content:center;color:#F4E4CB;border-radius:3px}
+.cal .g span.h{color:#B79A78;font-weight:700;font-size:8.5px}
+.cal .g span.p{color:rgba(227,205,174,.38);background:linear-gradient(135deg,transparent 46%,rgba(227,205,174,.45) 47%,rgba(227,205,174,.45) 53%,transparent 54%)}
+.cal .g span.q{background:rgba(255,215,154,.10)}
+.cal .g span.hoy{background:#F0C68F;color:#3A2410;font-weight:800;box-shadow:0 0 0 1px #FFE2B8}
+.cal .g span.ex{background:#C4714E;color:#fff;font-weight:800}
+.cal .g span.tr{color:rgba(227,205,174,.22)}
+.calq{font-size:11px;color:#E3CDAE;margin:4px 0 0;text-align:right}
+@media(max-width:700px){.cal .mes{width:104px}.cal{gap:7px}}
+/* sesión: cabecera fina y la pregunta arriba */
+body.sesion .scene svg.sc{display:none!important}
+body.sesion .scene{padding-bottom:10px}
+body.sesion .scene::after{height:10px}
+body.sesion header{padding-bottom:6px;margin-bottom:10px}
+body.sesion header .wrap{padding-top:5px}
+body.sesion header h1{font-size:15px}
+body.sesion header p#hsub,body.sesion .cal,body.sesion .calq{display:none}
+#sess:not(.hide){display:flex;flex-direction:column}
+#sess .sprog{order:2;padding:10px 14px}
+#sess .sprog .bar{margin:2px 0 3px;height:6px}
+#sess .sprog .btn-sec{margin-top:6px;padding:8px 12px;font-size:13px}
+/* simulacros como hojas */
+.hojas{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:12px}
+.hoja{position:relative;padding:0;border-radius:4px 10px 10px 4px;background:#FBF4E6;border:1px solid #E2D0B6;color:#3A2E24;
+min-height:138px;text-align:center;overflow:hidden;box-shadow:3px 3px 0 #E8DAC2,6px 6px 0 #D9C7A8,0 6px 14px rgba(40,24,10,.25)}
+.hoja::before{content:"";position:absolute;left:0;top:0;bottom:0;width:7px;background:var(--hc,#B07C43)}
+.hoja .hs{display:block;margin:13px 0 0;font-size:10.5px;letter-spacing:.14em;font-weight:700;color:#8B7A66}
+.hoja .hn{display:block;font-size:40px;font-weight:700;line-height:1.05;color:var(--hc,#6B4A31);
+font-family:Georgia,"Iowan Old Style","Times New Roman",serif}
+.hoja .hn.lg{font-size:30px;padding:5px 0}
+.hoja .hf{display:block;font-size:10.5px;color:#8B7A66}
+.hoja .hr{display:block;margin:7px 8px 10px;padding-top:6px;border-top:1px dashed #D9C7A8;font-size:12px;font-weight:700;color:#5A4632}
+.hoja.on{outline:3px solid var(--hc,#B07C43);outline-offset:2px}
+.sdet{margin-top:16px}
+.sdet .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(86px,1fr));gap:8px;margin:4px 0 14px}
+.sdet .tiles div{border:1px solid var(--line);border-radius:12px;background:var(--tile);padding:9px 4px 7px;text-align:center}
+.sdet .tiles b{display:block;font-size:22px;line-height:1.1;font-family:Georgia,"Iowan Old Style","Times New Roman",serif}
+.sdet .tiles span{font-size:11px;color:var(--muted)}
+.sdet h3{font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--navy2);margin:16px 0 8px}
+.sdet .kv{display:flex;gap:8px;font-size:14px;padding:5px 0;border-bottom:1px solid var(--line)}
+.sdet .kv i{font-style:normal;color:var(--muted);flex:0 0 96px}
+.sdet .stat .track{flex:0 0 40%}
+.evo{display:flex;gap:6px;align-items:flex-end;height:70px;margin:6px 0 0}
+.evo div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%}
+.evo i{display:block;width:70%;max-width:34px;border-radius:4px 4px 0 0;background:linear-gradient(180deg,#D8A94B,#B07C43)}
+.evo small{font-size:10.5px;font-weight:700;color:var(--navy2);margin-bottom:2px}
+.evolab{display:flex;gap:6px;margin-top:4px}
+.evolab span{flex:1;text-align:center;font-size:10px;color:var(--muted)}
 </style>
 </head>
 <body>
-<header><svg class="mb-sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="mbGlow"><stop offset="0" stop-color="#FFD79A" stop-opacity=".42"/><stop offset="1" stop-color="#FFD79A" stop-opacity="0"/></radialGradient></defs><g id="mbAll"><ellipse cx="250" cy="86" rx="150" ry="72" fill="url(#mbGlow)"/><ellipse cx="700" cy="96" rx="120" ry="58" fill="url(#mbGlow)"/><ellipse cx="1010" cy="96" rx="90" ry="46" fill="url(#mbGlow)"/><path d="M-10 16 Q 130 48 270 22 T 540 24 T 810 22 T 1110 12" fill="none" stroke="#8A6A4E" stroke-width="1.8" opacity=".8"/><circle cx="60" cy="31" r="8" fill="#FFCE86" opacity=".22"/><circle cx="60" cy="31" r="3.2" fill="#FFDCA6"/><circle cx="130" cy="40" r="8" fill="#FFCE86" opacity=".22"/><circle cx="130" cy="40" r="3.2" fill="#FFDCA6"/><circle cx="200" cy="32" r="8" fill="#FFCE86" opacity=".22"/><circle cx="200" cy="32" r="3.2" fill="#FFDCA6"/><circle cx="270" cy="21" r="8" fill="#FFCE86" opacity=".22"/><circle cx="270" cy="21" r="3.2" fill="#FFDCA6"/><circle cx="340" cy="32" r="8" fill="#FFCE86" opacity=".22"/><circle cx="340" cy="32" r="3.2" fill="#FFDCA6"/><circle cx="405" cy="34" r="8" fill="#FFCE86" opacity=".22"/><circle cx="405" cy="34" r="3.2" fill="#FFDCA6"/><circle cx="470" cy="26" r="8" fill="#FFCE86" opacity=".22"/><circle cx="470" cy="26" r="3.2" fill="#FFDCA6"/><circle cx="540" cy="22" r="8" fill="#FFCE86" opacity=".22"/><circle cx="540" cy="22" r="3.2" fill="#FFDCA6"/><circle cx="610" cy="26" r="8" fill="#FFCE86" opacity=".22"/><circle cx="610" cy="26" r="3.2" fill="#FFDCA6"/><circle cx="680" cy="21" r="8" fill="#FFCE86" opacity=".22"/><circle cx="680" cy="21" r="3.2" fill="#FFDCA6"/><circle cx="740" cy="18" r="8" fill="#FFCE86" opacity=".22"/><circle cx="740" cy="18" r="3.2" fill="#FFDCA6"/><circle cx="805" cy="26" r="8" fill="#FFCE86" opacity=".22"/><circle cx="805" cy="26" r="3.2" fill="#FFDCA6"/><circle cx="872" cy="25" r="8" fill="#FFCE86" opacity=".22"/><circle cx="872" cy="25" r="3.2" fill="#FFDCA6"/><circle cx="940" cy="20" r="8" fill="#FFCE86" opacity=".22"/><circle cx="940" cy="20" r="3.2" fill="#FFDCA6"/><circle cx="1008" cy="17" r="8" fill="#FFCE86" opacity=".22"/><circle cx="1008" cy="17" r="3.2" fill="#FFDCA6"/><circle cx="1076" cy="13" r="8" fill="#FFCE86" opacity=".22"/><circle cx="1076" cy="13" r="3.2" fill="#FFDCA6"/><path d="M250 22 L250 46" stroke="#8A6A4E" stroke-width="2"/><path d="M231 68 L269 68 L261 48 L239 48 Z" fill="#D79B58"/><ellipse cx="250" cy="68" rx="19" ry="4" fill="#F5D298"/><ellipse cx="250" cy="98" rx="40" ry="26" fill="url(#mbGlow)"/><rect x="30" y="62" width="16" height="54" rx="2" fill="#C4714E"/><rect x="30" y="69" width="16" height="3" fill="#000" opacity=".10"/><rect x="48" y="54" width="12" height="62" rx="2" fill="#8AA07E"/><rect x="48" y="61" width="12" height="3" fill="#000" opacity=".10"/><rect x="62" y="68" width="18" height="48" rx="2" fill="#D8A94B"/><rect x="62" y="75" width="18" height="3" fill="#000" opacity=".10"/><rect x="82" y="58" width="13" height="58" rx="2" fill="#6E8CA8"/><rect x="82" y="65" width="13" height="3" fill="#000" opacity=".10"/><rect x="97" y="64" width="16" height="52" rx="2" fill="#A76B8C"/><rect x="97" y="71" width="16" height="3" fill="#000" opacity=".10"/><rect x="115" y="72" width="12" height="44" rx="2" fill="#7FA6A0"/><rect x="115" y="79" width="12" height="3" fill="#000" opacity=".10"/><rect x="129" y="52" width="20" height="64" rx="2" fill="#E3CBA6"/><rect x="129" y="59" width="20" height="3" fill="#000" opacity=".10"/><rect x="151" y="66" width="14" height="50" rx="2" fill="#C4714E"/><rect x="151" y="73" width="14" height="3" fill="#000" opacity=".10"/><rect x="167" y="66" width="14" height="50" rx="2" fill="#8AA07E" transform="rotate(-11 167 116)"/><rect x="198" y="107" width="60" height="9" rx="2" fill="#6E8CA8"/><rect x="202" y="98" width="52" height="9" rx="2" fill="#D8A94B"/><rect x="196" y="89" width="58" height="9" rx="2" fill="#C4714E"/><rect x="318" y="98" width="26" height="18" rx="5" fill="#EFE1C8"/><path d="M344 103 q9 5 0 10" stroke="#EFE1C8" stroke-width="4" fill="none"/><path d="M326 92 q5-6 0-12" stroke="#E9D6B8" stroke-width="2" fill="none" opacity=".55"/><path d="M336 92 q5-6 0-12" stroke="#E9D6B8" stroke-width="2" fill="none" opacity=".4"/><rect x="380" y="60" width="16" height="56" rx="2" fill="#C4714E"/><rect x="380" y="67" width="16" height="3" fill="#000" opacity=".10"/><rect x="398" y="52" width="13" height="64" rx="2" fill="#8AA07E"/><rect x="398" y="59" width="13" height="3" fill="#000" opacity=".10"/><rect x="413" y="66" width="18" height="50" rx="2" fill="#D8A94B"/><rect x="413" y="73" width="18" height="3" fill="#000" opacity=".10"/><rect x="433" y="56" width="12" height="60" rx="2" fill="#6E8CA8"/><rect x="433" y="63" width="12" height="3" fill="#000" opacity=".10"/><rect x="447" y="70" width="16" height="46" rx="2" fill="#A76B8C"/><rect x="447" y="77" width="16" height="3" fill="#000" opacity=".10"/><rect x="465" y="48" width="20" height="68" rx="2" fill="#E3CBA6"/><rect x="465" y="55" width="20" height="3" fill="#000" opacity=".10"/><rect x="487" y="64" width="13" height="52" rx="2" fill="#7FA6A0"/><rect x="487" y="71" width="13" height="3" fill="#000" opacity=".10"/><rect x="502" y="58" width="15" height="58" rx="2" fill="#A76B8C"/><rect x="502" y="65" width="15" height="3" fill="#000" opacity=".10"/><rect x="519" y="62" width="14" height="54" rx="2" fill="#D8A94B" transform="rotate(-10 519 116)"/><path d="M562 116 L616 116 L610 90 L568 90 Z" fill="#B0714A"/><rect x="562" y="84" width="54" height="8" rx="3" fill="#C4835A"/><path d="M589 84 C566 71 560 45 578 33 C594 43 598 69 589 84" fill="#5C8B62"/><path d="M589 84 C612 71 618 45 600 33 C584 43 580 69 589 84" fill="#74A272"/><path d="M589 84 C583 62 590 40 589 26 C588 42 595 62 589 84" fill="#4E7A55"/><ellipse cx="700" cy="105" rx="38" ry="13" fill="#F0E2C8"/><path d="M736 108 c14-2 12-16 0-14" stroke="#F0E2C8" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M690 96 q6 5 0 9" stroke="#DCC5A2" stroke-width="2.5" fill="none" opacity=".8"/><path d="M706 96 q6 5 0 9" stroke="#DCC5A2" stroke-width="2.5" fill="none" opacity=".8"/><path d="M660 93 l3-10 8 7 z" fill="#F0E2C8"/><path d="M676 90 l8-7 2 10 z" fill="#F0E2C8"/><circle cx="670" cy="100" r="14" fill="#F0E2C8"/><path d="M660 100 q4 3 8 0" stroke="#9A7550" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M672 100 q4 3 8 0" stroke="#9A7550" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="670" cy="106" r="1.7" fill="#C79A6E"/><rect x="780" y="62" width="16" height="54" rx="2" fill="#8AA07E"/><rect x="780" y="69" width="16" height="3" fill="#000" opacity=".10"/><rect x="798" y="54" width="13" height="62" rx="2" fill="#C4714E"/><rect x="798" y="61" width="13" height="3" fill="#000" opacity=".10"/><rect x="813" y="70" width="18" height="46" rx="2" fill="#6E8CA8"/><rect x="813" y="77" width="18" height="3" fill="#000" opacity=".10"/><rect x="833" y="58" width="12" height="58" rx="2" fill="#D8A94B"/><rect x="833" y="65" width="12" height="3" fill="#000" opacity=".10"/><rect x="847" y="66" width="16" height="50" rx="2" fill="#7FA6A0"/><rect x="847" y="73" width="16" height="3" fill="#000" opacity=".10"/><rect x="865" y="52" width="20" height="64" rx="2" fill="#E3CBA6"/><rect x="865" y="59" width="20" height="3" fill="#000" opacity=".10"/><rect x="887" y="64" width="14" height="52" rx="2" fill="#A76B8C"/><rect x="887" y="71" width="14" height="3" fill="#000" opacity=".10"/><rect x="905" y="62" width="14" height="54" rx="2" fill="#7FA6A0" transform="rotate(-10 905 116)"/><rect x="925" y="107" width="58" height="9" rx="2" fill="#D8A94B"/><rect x="929" y="98" width="50" height="9" rx="2" fill="#8AA07E"/><rect x="923" y="89" width="54" height="9" rx="2" fill="#C4714E"/><path d="M1008 116 L1052 116 L1047 96 L1013 96 Z" fill="#A96A46"/><rect x="1005" y="90" width="50" height="8" rx="3" fill="#BE7C52"/><ellipse cx="1030" cy="80" rx="7" ry="13" fill="#4E7A55" transform="rotate(-62 1030 90)"/><ellipse cx="1030" cy="80" rx="7" ry="13" fill="#4E7A55" transform="rotate(62 1030 90)"/><ellipse cx="1030" cy="76" rx="8" ry="16" fill="#6F9E6E" transform="rotate(-32 1030 90)"/><ellipse cx="1030" cy="76" rx="8" ry="16" fill="#6F9E6E" transform="rotate(32 1030 90)"/><ellipse cx="1030" cy="70" rx="8" ry="19" fill="#5C8B62"/></g></svg><div class="scene"><svg class="sc sc-w" viewBox="0 0 1100 116" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><use href="#mbAll"/></svg><svg class="sc sc-n" viewBox="640 0 420 116" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><use href="#mbAll"/></svg></div><div class="wrap"><h1>Mazo BIR</h1><p id="hsub"></p></div></header>
+<header><svg class="mb-sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="mbGlow"><stop offset="0" stop-color="#FFD79A" stop-opacity=".42"/><stop offset="1" stop-color="#FFD79A" stop-opacity="0"/></radialGradient></defs><g id="mbAll"><ellipse cx="250" cy="86" rx="150" ry="72" fill="url(#mbGlow)"/><ellipse cx="700" cy="96" rx="120" ry="58" fill="url(#mbGlow)"/><ellipse cx="1010" cy="96" rx="90" ry="46" fill="url(#mbGlow)"/><path d="M-10 16 Q 130 48 270 22 T 540 24 T 810 22 T 1110 12" fill="none" stroke="#8A6A4E" stroke-width="1.8" opacity=".8"/><circle cx="60" cy="31" r="8" fill="#FFCE86" opacity=".22"/><circle cx="60" cy="31" r="3.2" fill="#FFDCA6"/><circle cx="130" cy="40" r="8" fill="#FFCE86" opacity=".22"/><circle cx="130" cy="40" r="3.2" fill="#FFDCA6"/><circle cx="200" cy="32" r="8" fill="#FFCE86" opacity=".22"/><circle cx="200" cy="32" r="3.2" fill="#FFDCA6"/><circle cx="270" cy="21" r="8" fill="#FFCE86" opacity=".22"/><circle cx="270" cy="21" r="3.2" fill="#FFDCA6"/><circle cx="340" cy="32" r="8" fill="#FFCE86" opacity=".22"/><circle cx="340" cy="32" r="3.2" fill="#FFDCA6"/><circle cx="405" cy="34" r="8" fill="#FFCE86" opacity=".22"/><circle cx="405" cy="34" r="3.2" fill="#FFDCA6"/><circle cx="470" cy="26" r="8" fill="#FFCE86" opacity=".22"/><circle cx="470" cy="26" r="3.2" fill="#FFDCA6"/><circle cx="540" cy="22" r="8" fill="#FFCE86" opacity=".22"/><circle cx="540" cy="22" r="3.2" fill="#FFDCA6"/><circle cx="610" cy="26" r="8" fill="#FFCE86" opacity=".22"/><circle cx="610" cy="26" r="3.2" fill="#FFDCA6"/><circle cx="680" cy="21" r="8" fill="#FFCE86" opacity=".22"/><circle cx="680" cy="21" r="3.2" fill="#FFDCA6"/><circle cx="740" cy="18" r="8" fill="#FFCE86" opacity=".22"/><circle cx="740" cy="18" r="3.2" fill="#FFDCA6"/><circle cx="805" cy="26" r="8" fill="#FFCE86" opacity=".22"/><circle cx="805" cy="26" r="3.2" fill="#FFDCA6"/><circle cx="872" cy="25" r="8" fill="#FFCE86" opacity=".22"/><circle cx="872" cy="25" r="3.2" fill="#FFDCA6"/><circle cx="940" cy="20" r="8" fill="#FFCE86" opacity=".22"/><circle cx="940" cy="20" r="3.2" fill="#FFDCA6"/><circle cx="1008" cy="17" r="8" fill="#FFCE86" opacity=".22"/><circle cx="1008" cy="17" r="3.2" fill="#FFDCA6"/><circle cx="1076" cy="13" r="8" fill="#FFCE86" opacity=".22"/><circle cx="1076" cy="13" r="3.2" fill="#FFDCA6"/><path d="M250 22 L250 46" stroke="#8A6A4E" stroke-width="2"/><path d="M231 68 L269 68 L261 48 L239 48 Z" fill="#D79B58"/><ellipse cx="250" cy="68" rx="19" ry="4" fill="#F5D298"/><ellipse cx="250" cy="98" rx="40" ry="26" fill="url(#mbGlow)"/><rect x="30" y="62" width="16" height="54" rx="2" fill="#C4714E"/><rect x="30" y="69" width="16" height="3" fill="#000" opacity=".10"/><rect x="48" y="54" width="12" height="62" rx="2" fill="#8AA07E"/><rect x="48" y="61" width="12" height="3" fill="#000" opacity=".10"/><rect x="62" y="68" width="18" height="48" rx="2" fill="#D8A94B"/><rect x="62" y="75" width="18" height="3" fill="#000" opacity=".10"/><rect x="82" y="58" width="13" height="58" rx="2" fill="#6E8CA8"/><rect x="82" y="65" width="13" height="3" fill="#000" opacity=".10"/><rect x="97" y="64" width="16" height="52" rx="2" fill="#A76B8C"/><rect x="97" y="71" width="16" height="3" fill="#000" opacity=".10"/><rect x="115" y="72" width="12" height="44" rx="2" fill="#7FA6A0"/><rect x="115" y="79" width="12" height="3" fill="#000" opacity=".10"/><rect x="129" y="52" width="20" height="64" rx="2" fill="#E3CBA6"/><rect x="129" y="59" width="20" height="3" fill="#000" opacity=".10"/><rect x="151" y="66" width="14" height="50" rx="2" fill="#C4714E"/><rect x="151" y="73" width="14" height="3" fill="#000" opacity=".10"/><rect x="167" y="66" width="14" height="50" rx="2" fill="#8AA07E" transform="rotate(-11 167 116)"/><rect x="198" y="107" width="60" height="9" rx="2" fill="#6E8CA8"/><rect x="202" y="98" width="52" height="9" rx="2" fill="#D8A94B"/><rect x="196" y="89" width="58" height="9" rx="2" fill="#C4714E"/><rect x="318" y="98" width="26" height="18" rx="5" fill="#EFE1C8"/><path d="M344 103 q9 5 0 10" stroke="#EFE1C8" stroke-width="4" fill="none"/><path d="M326 92 q5-6 0-12" stroke="#E9D6B8" stroke-width="2" fill="none" opacity=".55"/><path d="M336 92 q5-6 0-12" stroke="#E9D6B8" stroke-width="2" fill="none" opacity=".4"/><rect x="380" y="60" width="16" height="56" rx="2" fill="#C4714E"/><rect x="380" y="67" width="16" height="3" fill="#000" opacity=".10"/><rect x="398" y="52" width="13" height="64" rx="2" fill="#8AA07E"/><rect x="398" y="59" width="13" height="3" fill="#000" opacity=".10"/><rect x="413" y="66" width="18" height="50" rx="2" fill="#D8A94B"/><rect x="413" y="73" width="18" height="3" fill="#000" opacity=".10"/><rect x="433" y="56" width="12" height="60" rx="2" fill="#6E8CA8"/><rect x="433" y="63" width="12" height="3" fill="#000" opacity=".10"/><rect x="447" y="70" width="16" height="46" rx="2" fill="#A76B8C"/><rect x="447" y="77" width="16" height="3" fill="#000" opacity=".10"/><rect x="465" y="48" width="20" height="68" rx="2" fill="#E3CBA6"/><rect x="465" y="55" width="20" height="3" fill="#000" opacity=".10"/><rect x="487" y="64" width="13" height="52" rx="2" fill="#7FA6A0"/><rect x="487" y="71" width="13" height="3" fill="#000" opacity=".10"/><rect x="502" y="58" width="15" height="58" rx="2" fill="#A76B8C"/><rect x="502" y="65" width="15" height="3" fill="#000" opacity=".10"/><rect x="519" y="62" width="14" height="54" rx="2" fill="#D8A94B" transform="rotate(-10 519 116)"/><path d="M562 116 L616 116 L610 90 L568 90 Z" fill="#B0714A"/><rect x="562" y="84" width="54" height="8" rx="3" fill="#C4835A"/><path d="M589 84 C566 71 560 45 578 33 C594 43 598 69 589 84" fill="#5C8B62"/><path d="M589 84 C612 71 618 45 600 33 C584 43 580 69 589 84" fill="#74A272"/><path d="M589 84 C583 62 590 40 589 26 C588 42 595 62 589 84" fill="#4E7A55"/><ellipse cx="700" cy="105" rx="38" ry="13" fill="#F0E2C8"/><path d="M736 108 c14-2 12-16 0-14" stroke="#F0E2C8" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M690 96 q6 5 0 9" stroke="#DCC5A2" stroke-width="2.5" fill="none" opacity=".8"/><path d="M706 96 q6 5 0 9" stroke="#DCC5A2" stroke-width="2.5" fill="none" opacity=".8"/><path d="M660 93 l3-10 8 7 z" fill="#F0E2C8"/><path d="M676 90 l8-7 2 10 z" fill="#F0E2C8"/><circle cx="670" cy="100" r="14" fill="#F0E2C8"/><path d="M660 100 q4 3 8 0" stroke="#9A7550" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M672 100 q4 3 8 0" stroke="#9A7550" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="670" cy="106" r="1.7" fill="#C79A6E"/><rect x="780" y="62" width="16" height="54" rx="2" fill="#8AA07E"/><rect x="780" y="69" width="16" height="3" fill="#000" opacity=".10"/><rect x="798" y="54" width="13" height="62" rx="2" fill="#C4714E"/><rect x="798" y="61" width="13" height="3" fill="#000" opacity=".10"/><rect x="813" y="70" width="18" height="46" rx="2" fill="#6E8CA8"/><rect x="813" y="77" width="18" height="3" fill="#000" opacity=".10"/><rect x="833" y="58" width="12" height="58" rx="2" fill="#D8A94B"/><rect x="833" y="65" width="12" height="3" fill="#000" opacity=".10"/><rect x="847" y="66" width="16" height="50" rx="2" fill="#7FA6A0"/><rect x="847" y="73" width="16" height="3" fill="#000" opacity=".10"/><rect x="865" y="52" width="20" height="64" rx="2" fill="#E3CBA6"/><rect x="865" y="59" width="20" height="3" fill="#000" opacity=".10"/><rect x="887" y="64" width="14" height="52" rx="2" fill="#A76B8C"/><rect x="887" y="71" width="14" height="3" fill="#000" opacity=".10"/><rect x="905" y="62" width="14" height="54" rx="2" fill="#7FA6A0" transform="rotate(-10 905 116)"/><rect x="925" y="107" width="58" height="9" rx="2" fill="#D8A94B"/><rect x="929" y="98" width="50" height="9" rx="2" fill="#8AA07E"/><rect x="923" y="89" width="54" height="9" rx="2" fill="#C4714E"/><path d="M1008 116 L1052 116 L1047 96 L1013 96 Z" fill="#A96A46"/><rect x="1005" y="90" width="50" height="8" rx="3" fill="#BE7C52"/><ellipse cx="1030" cy="80" rx="7" ry="13" fill="#4E7A55" transform="rotate(-62 1030 90)"/><ellipse cx="1030" cy="80" rx="7" ry="13" fill="#4E7A55" transform="rotate(62 1030 90)"/><ellipse cx="1030" cy="76" rx="8" ry="16" fill="#6F9E6E" transform="rotate(-32 1030 90)"/><ellipse cx="1030" cy="76" rx="8" ry="16" fill="#6F9E6E" transform="rotate(32 1030 90)"/><ellipse cx="1030" cy="70" rx="8" ry="19" fill="#5C8B62"/></g></svg><div class="scene"><svg class="sc sc-w" viewBox="0 0 1100 116" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><use href="#mbAll"/></svg><svg class="sc sc-n" viewBox="640 0 420 116" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><use href="#mbAll"/></svg></div><div class="wrap hrow"><div class="htit"><h1>Mazo BIR</h1><p id="hsub"></p></div><div><div class="cal" id="cal"></div><p class="calq" id="calq"></p></div></div></header>
 <div class="wrap">
 <div class="tabs" id="tabs">
   <button class="on" onclick="go('home')">Estudiar</button>
-  <button onclick="go('paper')">Examen en papel</button>
+  <button onclick="go('paper')">Simulacros</button>
   <button onclick="go('stats')">Datos</button>
 </div>
 
@@ -279,10 +335,10 @@ box-shadow:0 8px 20px rgba(0,0,0,.28)}
 </div>
 
 <div id="sess" class="hide">
-  <div class="card">
-    <div class="bar"><span id="prog" style="width:0%"></span></div>
+  <div class="card sprog">
     <div class="meta"><span id="pos"></span><span id="left"></span></div>
-    <button class="btn-sec" id="pauseBtn" onclick="pauseSession()" style="margin-top:8px">Pausar y salir</button>
+    <div class="bar"><span id="prog" style="width:0%"></span></div>
+    <button class="btn-sec" id="pauseBtn" onclick="pauseSession()">Pausar y salir</button>
   </div>
   <div class="card">
     <div class="qnum">BIR <span id="qex"></span> · pregunta <span id="qn"></span><span class="pill" id="qb"></span><span class="pill hide" id="qst"></span><span class="pill hide" id="qorig"></span><span class="pill hide" id="qrent"></span><span class="pill hide" id="qcol"></span></div>
@@ -302,6 +358,19 @@ box-shadow:0 8px 20px rgba(0,0,0,.28)}
 </div>
 
 <div id="paper" class="hide">
+  <div class="card">
+    <h2>Simulacros</h2>
+    <p class="hint" style="margin:0 0 12px">Toca una hoja para ver su resumen.</p>
+    <div class="hojas" id="hojas"></div>
+    <div class="sdet hide" id="sdet"></div>
+  </div>
+  <div class="card">
+    <h2>Evolución de netas</h2>
+    <div class="evo" id="evo"></div>
+    <div class="evolab" id="evolab"></div>
+    <p class="hint">En orden de fecha. Academia y oficiales no son comparables entre sí (los oficiales son más fáciles).</p>
+  </div>
+  <div id="ptag">
   <div class="card">
     <h2>Etiquetar fallos del examen</h2>
     <p class="hint" style="margin:0 0 10px">Marca el tipo de error nada más corregir en papel, sin responder nada. Es independiente del repaso: una pregunta etiquetada aquí no te volverá a preguntar el motivo cuando salga en el mazo.</p>
@@ -323,6 +392,7 @@ box-shadow:0 8px 20px rgba(0,0,0,.28)}
   </div>
   <div class="card hide" id="pDone">
     <p style="margin:0">Todas etiquetadas. El reparto lo tienes en la pestaña de Datos.</p>
+  </div>
   </div>
 </div>
 
@@ -781,7 +851,7 @@ function congelar(){
   const lg=logHoy();lg.frz=1;save();drawHome();if(view==='stats')drawStats();
 }
 function drawHome(){
-  drawScope();drawBlq();drawFlt();
+  drawScope();drawBlq();drawFlt();drawCal();
   const d=daysTo(S.cfg.exam);
   document.getElementById('hsub').textContent=DATA.length+' tarjetas · '+
     (d>0?'faltan '+d+' días para el examen':'examen pasado');
@@ -1194,13 +1264,113 @@ function finish(){
       '<span class="track"><i style="width:'+p+'%;background:var('+col[k]+')"></i></span></div>'}).join('');
 }
 
+
+// ---- etiqueta de fallo, UNA por pregunta (7-nov) ----
+// Antes Datos sumaba S.paper + tarjeta.tag: si una pregunta etiquetada en papel se fallaba en el
+// mazo, la etiqueta se copiaba a la tarjeta y contaba dos veces; y las dudas falladas en repaso
+// también sumaban. Ahora: una etiqueta por pregunta fallada en examen (papel > mazo > corrección).
+const ERRM={N:1,S:2,D:3,T:4};
+function tagOf(q){return S.paper[q.id]||(S.cards[q.id]&&S.cards[q.id].tag)||ERRM[q.err]||0}
+
+// ---- calendario de cuenta atrás (7-nov) ----
+const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+function drawCal(){
+  const el=document.getElementById('cal');if(!el)return;
+  const ex=new Date(S.cfg.exam+'T00:00:00'),t=today();
+  if(!(ex>t)){el.innerHTML='';document.getElementById('calq').textContent='';return}
+  let y=t.getFullYear(),m=t.getMonth(),h='',guard=0;
+  while((y<ex.getFullYear()||(y===ex.getFullYear()&&m<=ex.getMonth()))&&guard++<4){
+    const first=new Date(y,m,1),nd=new Date(y,m+1,0).getDate(),off=(first.getDay()+6)%7;
+    let g='<span class="h">L</span><span class="h">M</span><span class="h">X</span><span class="h">J</span><span class="h">V</span><span class="h">S</span><span class="h">D</span>';
+    for(let k=0;k<off;k++)g+='<span></span>';
+    for(let d=1;d<=nd;d++){const x=new Date(y,m,d);let c;
+      if(x<t)c='p';else if(+x===+t)c='hoy';else if(+x===+ex)c='ex';else if(x>ex)c='tr';else c='q';
+      g+='<span class="'+c+'"'+(c==='ex'?' title="Examen"':'')+'>'+d+'</span>'}
+    h+='<div class="mes"><div class="mt">'+MESES[m]+'</div><div class="g">'+g+'</div></div>';
+    m++;if(m>11){m=0;y++}}
+  el.innerHTML=h;
+  const d=daysTo(S.cfg.exam);
+  document.getElementById('calq').textContent='Quedan '+d+' días · examen el '+ex.getDate()+' de '+MESES[ex.getMonth()];
+}
+
+// ---- simulacros como hojas (7-nov) ----
+// Datos de nota: los que ella dio al corregir cada simulacro. Fallos por asignatura y tipo de
+// fallo se calculan en vivo a partir de las tarjetas. Para añadir uno nuevo: una línea aquí.
+const SIMUS={
+'SIMU 20':{ord:20261031,f:'31 oct 2026',ac:122,fa:78,net:96,res:'5 ✓ / 5 ✗',an:'2 (la 1 y la 161, fe de erratas)',t:'17:00–21:30 · 4 h 30 min (por la tarde)',v:'Dos vueltas',fmt:'Papel',nota:'Lo sintió como el peor; muchas no se las sabía. Pesó más el tipo de examen que la hora. Con la fe de erratas quedaba en unas 97,3 netas.'},
+'SIMU 8':{ord:20261025,f:'25 oct 2026',ac:151,fa:49,net:134.67,res:'6 ✓ / 4 ✗',an:'Impugnables: 46, 102 y 155 (121 débil)',t:'10:00–13:45 · 3 h 45 min',v:'Dos vueltas',fmt:'Papel',nota:'Más asequible y útil. Flojos: antiinfecciosos, embriología y bioquímica metabólica. Los fallos del final eran temas no estudiados, no cansancio.'},
+'SIMU 7':{ord:20261017,f:'17 oct 2026',ac:134,fa:66,net:112,res:'7 ✓ / 3 ✗',fmt:'Online',nota:'En papel tenía bien la 1 (la cambió al pasarla). Muchas preguntas fuera del temario.'},
+'SIMU 15':{ord:20261010,f:'10 oct 2026',ac:100,fa:100,net:66.67,res:'5 ✓ / 5 ✗',fmt:'Papel',nota:'Muy cargado de clínica y laboratorio no visto en el temario.'},
+'SIMU 19':{ord:20261003,f:'3 oct 2026',ac:136,fa:64,net:114.67,res:'6 ✓ / 4 ✗',t:'En casa, con unos 30 min de interrupciones',v:'Dos vueltas',fmt:'Papel',nota:'Repetido (el año pasado, 78 netas). Fe de erratas a favor en la 13 y la 14. 22 fallos repetidos con la misma respuesta.'},
+'SIMU 6':{ord:20260926,f:'26 sep 2026',ac:153,fa:47,net:137.33,t:'Le sobró tiempo',v:'Dos vueltas (estreno del método)',fmt:'Papel',nota:'Cree que ya lo había hecho el año pasado. Huecos en biología celular y molecular, citología y bioquímica.'},
+'SIMU 5':{ord:20260919,f:'19 sep 2026',ac:125,fa:75,net:100,res:'6 ✓ / 4 ✗',t:'4 h 30 min, con el tiempo justo',fmt:'Papel',nota:'Lo había empezado el año pasado (hasta la 144).'},
+'2020-21':{ord:20260912,num:'29',sub:'OFICIAL 20-21',f:'12 sep 2026',ac:137,fa:38,net:124.33,pt:175,an:'8 oficiales (cubiertas por reservas)',t:'4 h · sobraron 20 min',fmt:'Papel',nota:'Ya lo había hecho el año pasado. Dos cambios de respuesta convirtieron aciertos en fallos (42 y 175).'},
+'SIMU 18':{ord:20260905,f:'sep 2026',ac:113,fa:87,net:84,nota:'Más fallos en fisiología/análisis clínicos, inmunología y microbiología. 32 fallos con la misma respuesta que el año anterior.'},
+'2018':{ord:20260801,num:'2018',sub:'OFICIAL',f:'',nota:'Sin nota registrada.'}
+};
+const HCOL=['#C4714E','#6E8CA8','#8AA07E','#A76B8C','#D8A94B','#7FA6A0'];
+let simSel='';
+function simList(){const ex={};DATA.forEach(q=>{if(q.tipo!=='ficha'&&q.examen&&q.examen!=='SUELTAS')ex[q.examen]=1});
+  return Object.keys(ex).sort((a,b)=>((SIMUS[b]||{}).ord||0)-((SIMUS[a]||{}).ord||0))}
+function simNum(e){const m=SIMUS[e]||{};if(m.num)return m.num;const r=/(\d+)$/.exec(e);return r?r[1]:e}
+function fmtN(x){return (Math.round(x*100)/100).toString().replace('.',',')}
+function drawSimus(){
+  const L=simList();
+  document.getElementById('hojas').innerHTML=L.map((e,k)=>{const m=SIMUS[e]||{},n=simNum(e);
+    return '<button class="hoja'+(e===simSel?' on':'')+'" style="--hc:'+HCOL[k%HCOL.length]+'" onclick="verSimu(\''+e+'\')">'+
+      '<span class="hs">'+(m.sub||'SIMU')+'</span><span class="hn'+(n.length>2?' lg':'')+'">'+n+'</span>'+
+      '<span class="hf">'+(m.f||'&nbsp;')+'</span>'+
+      '<span class="hr">'+(m.net!=null?fmtN(m.net)+' netas':(DATA.filter(q=>q.examen===e&&!q.origen).length+' fallos'))+'</span></button>'}).join('');
+  const E=L.filter(e=>SIMUS[e]&&SIMUS[e].net!=null).sort((a,b)=>SIMUS[a].ord-SIMUS[b].ord);
+  const mx=Math.max(1,...E.map(e=>SIMUS[e].net));
+  document.getElementById('evo').innerHTML=E.map(e=>'<div><small>'+Math.round(SIMUS[e].net)+'</small><i style="height:'+Math.round(SIMUS[e].net/mx*78)+'%"></i></div>').join('');
+  document.getElementById('evolab').innerHTML=E.map(e=>'<span>'+simNum(e)+'</span>').join('');
+  drawSimDet();
+}
+function verSimu(e){simSel=(simSel===e)?'':e;drawSimus();
+  if(simSel)document.getElementById('sdet').scrollIntoView({behavior:'smooth',block:'start'})}
+function drawSimDet(){
+  const box=document.getElementById('sdet');
+  if(!simSel){box.classList.add('hide');box.innerHTML='';return}
+  const e=simSel,m=SIMUS[e]||{},pt=m.pt||200;
+  const F=DATA.filter(q=>q.examen===e&&!q.origen&&q.tipo!=='ficha'),Du=DATA.filter(q=>q.examen===e&&q.origen==='duda');
+  let h='<h2>'+(m.sub?m.sub.charAt(0)+m.sub.slice(1).toLowerCase()+' · ':'Simulacro ')+simNum(e)+(m.f?' <span class="pill">'+m.f+'</span>':'')+'</h2>';
+  const T=(v,l,c)=>'<div><b style="color:'+(c||'var(--navy2)')+'">'+v+'</b><span>'+l+'</span></div>';
+  if(m.ac!=null){const bl=Math.max(0,pt-m.ac-m.fa);
+    h+='<div class="tiles">'+T(m.ac,'aciertos','var(--green)')+T(m.fa,'fallos','var(--red)')+T(bl,'en blanco','var(--muted)')+
+      T(fmtN(m.net),'netas')+T(Math.round(m.ac/pt*100)+'%','acierto')+'</div>'}
+  const KV=(k,v)=>v?'<div class="kv"><i>'+k+'</i><span>'+v+'</span></div>':'';
+  h+=KV('Tiempo',m.t)+KV('Vueltas',m.v)+KV('Formato',m.fmt)+KV('Reservas',m.res)+KV('Anuladas',m.an)+KV('Notas',m.nota);
+  // tipo de fallo
+  const c={1:0,2:0,3:0,4:0};let nt=0;F.forEach(q=>{const t=tagOf(q);if(t){c[t]++;nt++}});
+  if(nt){h+='<h3>Tipo de fallo</h3>'+[1,2,3,4].filter(k=>c[k]).map(k=>{const p=Math.round(c[k]/nt*100);
+    return '<div class="stat"><b>'+c[k]+'</b><span class="lab">'+TAGS[k].lab+' <span style="color:var(--muted);font-size:12px">'+p+'%</span></span>'+
+    '<span class="track"><i style="width:'+p+'%;background:var('+TAGS[k].c+')"></i></span></div>'}).join('')}
+  // por asignatura
+  const b={};F.forEach(q=>{const k=blq(q);b[k]=(b[k]||0)+1});
+  const K=Object.keys(b).sort((x,y)=>b[y]-b[x]),bm=Math.max(1,...K.map(k=>b[k]));
+  if(K.length)h+='<h3>Fallos por asignatura</h3>'+K.map(k=>'<div class="stat"><b>'+b[k]+'</b><span class="lab">'+nomBlq(k)+'</span>'+
+    '<span class="track"><i style="width:'+Math.round(b[k]/bm*100)+'%;background:var(--navy2)"></i></span></div>').join('');
+  // estado en el mazo
+  const st={nueva:0,roja:0,naranja:0,amarilla:0,verde:0,aprob:0};
+  F.concat(Du).forEach(q=>{const cc=S.cards[q.id];if(!cc){st.nueva++;return}if(cc.aprob||cc.lect){st.aprob++;return}
+    const k=colorOf(cc);if(k)st[k]++;else st.nueva++});
+  h+='<h3>En el mazo</h3><p style="margin:0 0 6px;font-size:14px">'+F.length+' falladas'+(m.fa!=null&&F.length!==m.fa?' (incluye reservas y anuladas)':'')+
+    (Du.length?' + '+Du.length+' acertadas con duda':'')+'.</p>'+
+    '<p style="margin:0;font-size:14px">'+[['aprob','aprobadas','var(--green)'],['verde','verdes','#4f8a5b'],['amarilla','amarillas','#b39327'],['naranja','naranjas','#d9822b'],['roja','rojas','#b8433a'],['nueva','sin estrenar','var(--muted)']]
+      .filter(x=>st[x[0]]).map(x=>'<b style="color:'+x[2]+'">'+st[x[0]]+'</b> '+x[1]).join(' · ')+'</p>';
+  box.innerHTML=h;box.classList.remove('hide');
+}
+
 // ---- examen en papel ----
 let pi=0;
 function pDeck(){return DATA.filter(function(q){return !q.origen&&q.tipo!=='ficha'})
   .sort(function(a,b){return a.examen===b.examen?(a.n-b.n):(a.examen<b.examen?-1:1)})}
 function pPend(){return pDeck().filter(function(q){return !S.paper[q.id]&&!(S.cards[q.id]&&S.cards[q.id].tag)})}
 function drawPaper(){
+  drawSimus();
   const pend=pPend(),tot=pDeck().length,hechas=tot-pend.length;
+  document.getElementById('ptag').classList.toggle('hide',!pend.length);
   document.getElementById('pProg').textContent=hechas+' de '+tot+' etiquetadas';
   document.getElementById('pRest').textContent=pend.length?(pend.length+' pendientes'):'completo';
   document.getElementById('pBar').style.width=(hechas/tot*100)+'%';
@@ -1328,14 +1498,13 @@ function drawStats(){
   document.getElementById('cfgChat').value=S.cfg.chat||'';
   drawResist();drawRitmo();drawPausa();drawAprob();
   const cnt={};
-  Object.values(S.paper).forEach(t=>cnt[t]=(cnt[t]||0)+1);
-  Object.values(S.cards).forEach(c=>{if(c.tag)cnt[c.tag]=(cnt[c.tag]||0)+1});
+  pDeck().forEach(q=>{const t=tagOf(q);if(t)cnt[t]=(cnt[t]||0)+1});
   const tot=Object.values(cnt).reduce((a,b)=>a+b,0);
   document.getElementById('tagstats').innerHTML=tot?[1,2,3,4].filter(k=>cnt[k]).map(k=>{
     const p=Math.round(cnt[k]/tot*100);
     return '<div class="stat"><b>'+p+'%</b><span class="lab">'+TAGS[k].lab+'</span>'+
       '<span class="track"><i style="width:'+p+'%;background:var('+TAGS[k].c+')"></i></span></div>'}).join('')+
-      '<p class="hint">'+tot+' fallos etiquetados.</p>':
+      '<p class="hint">'+tot+' fallos de examen etiquetados (una etiqueta por pregunta).</p>':
       '<p class="hint" style="margin:0">Sin etiquetas todavía.</p>';
 }
 function resetDay(){

@@ -287,7 +287,13 @@ font-family:Georgia,"Iowan Old Style","Times New Roman",serif}
 .sdet .kv{display:flex;gap:8px;font-size:14px;padding:5px 0;border-bottom:1px solid var(--line)}
 .sdet .kv i{font-style:normal;color:var(--muted);flex:0 0 96px}
 .sdet .stat .track{flex:0 0 40%}
-.evo{display:flex;gap:6px;align-items:flex-end;height:70px;margin:6px 0 0}
+.evo{position:relative;display:flex;gap:6px;align-items:flex-end;height:90px;margin:14px 0 0}
+.evo div.otro i{background:linear-gradient(180deg,rgba(216,169,75,.38),rgba(176,124,67,.38))}
+.evo div.otro small{color:var(--muted)}
+.evo div.med{position:absolute;left:0;right:0;height:0;display:block;flex:none;border-top:2px dashed #8AA07E;pointer-events:none}
+.evo .med span{position:absolute;right:0;top:-17px;font-size:10.5px;font-weight:700;color:#8AA07E;background:var(--card);padding:0 4px}
+.evoley{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin:8px 0 0}
+.evoley i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
 .evo div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%}
 .evo i{display:block;width:70%;max-width:34px;border-radius:4px 4px 0 0;background:linear-gradient(180deg,#D8A94B,#B07C43)}
 .evo small{font-size:10.5px;font-weight:700;color:var(--navy2);margin-bottom:2px}
@@ -369,7 +375,9 @@ font-family:Georgia,"Iowan Old Style","Times New Roman",serif}
     <h2>Evolución de netas</h2>
     <div class="evo" id="evo"></div>
     <div class="evolab" id="evolab"></div>
-    <p class="hint">En orden de fecha. Academia y oficiales no son comparables entre sí (los oficiales son más fáciles).</p>
+    <div class="evoley" id="evoley"></div>
+    <p class="hint" id="evotxt" style="font-weight:600;color:var(--txt)"></p>
+    <p class="hint">En orden de fecha. Las notas de academia no se traducen tal cual al oficial: GoBIR es más difícil a propósito.</p>
   </div>
   <div id="ptag">
   <div class="card">
@@ -1303,12 +1311,12 @@ const SIMUS={
 'SIMU 8':{ord:20261025,f:'25 oct 2026',ac:151,fa:49,net:134.67,res:'6 ✓ / 4 ✗',an:'Impugnables: 46, 102 y 155 (121 débil)',t:'10:00–13:45 · 3 h 45 min',v:'Dos vueltas',fmt:'Papel',nota:'Más asequible y útil. Flojos: antiinfecciosos, embriología y bioquímica metabólica. Los fallos del final eran temas no estudiados, no cansancio.'},
 'SIMU 7':{ord:20261017,f:'17 oct 2026',ac:134,fa:66,net:112,res:'7 ✓ / 3 ✗',fmt:'Online',nota:'En papel tenía bien la 1 (la cambió al pasarla). Muchas preguntas fuera del temario.'},
 'SIMU 15':{ord:20261010,f:'10 oct 2026',ac:100,fa:100,net:66.67,res:'5 ✓ / 5 ✗',fmt:'Papel',nota:'Muy cargado de clínica y laboratorio no visto en el temario.'},
-'SIMU 19':{ord:20261003,f:'3 oct 2026',ac:136,fa:64,net:114.67,res:'6 ✓ / 4 ✗',t:'En casa, con unos 30 min de interrupciones',v:'Dos vueltas',fmt:'Papel',nota:'Repetido (el año pasado, 78 netas). Ya con la fe de erratas (13 y 14 a favor). 22 fallos repetidos con la misma respuesta.'},
-'SIMU 6':{ord:20260926,f:'26 sep 2026',ac:153,fa:47,net:137.33,t:'Le sobró tiempo',v:'Dos vueltas (estreno del método)',fmt:'Papel',nota:'Cree que ya lo había hecho el año pasado. Huecos en biología celular y molecular, citología y bioquímica.'},
+'SIMU 19':{ord:20261003,tipo:'rep',f:'3 oct 2026',ac:136,fa:64,net:114.67,res:'6 ✓ / 4 ✗',t:'En casa, con unos 30 min de interrupciones',v:'Dos vueltas',fmt:'Papel',nota:'Repetido (el año pasado, 78 netas). Ya con la fe de erratas (13 y 14 a favor). 22 fallos repetidos con la misma respuesta.'},
+'SIMU 6':{ord:20260926,tipo:'rep',f:'26 sep 2026',ac:153,fa:47,net:137.33,t:'Le sobró tiempo',v:'Dos vueltas (estreno del método)',fmt:'Papel',nota:'Cree que ya lo había hecho el año pasado. Huecos en biología celular y molecular, citología y bioquímica.'},
 'SIMU 5':{ord:20260919,f:'19 sep 2026',ac:125,fa:75,net:100,res:'6 ✓ / 4 ✗',t:'4 h 30 min, con el tiempo justo',fmt:'Papel',nota:'Lo había empezado el año pasado (hasta la 144).'},
-'2020-21':{ord:20260912,num:'29',sub:'OFICIAL 20-21',f:'12 sep 2026',ac:137,fa:38,net:124.33,pt:175,an:'8 oficiales (cubiertas por reservas)',t:'4 h · sobraron 20 min',fmt:'Papel',nota:'Ya lo había hecho el año pasado. Dos cambios de respuesta convirtieron aciertos en fallos (42 y 175).'},
+'2020-21':{ord:20260912,tipo:'of',num:'29',sub:'OFICIAL 20-21',f:'12 sep 2026',ac:137,fa:38,net:124.33,pt:175,an:'8 oficiales (cubiertas por reservas)',t:'4 h · sobraron 20 min',fmt:'Papel',nota:'Ya lo había hecho el año pasado. Dos cambios de respuesta convirtieron aciertos en fallos (42 y 175).'},
 'SIMU 18':{ord:20260905,f:'5 sep 2026',ac:113,fa:87,net:84,res:'8 ✓ / 2 ✗',t:'9:00–13:30 · 4 h 30 min',fmt:'Papel',nota:'Más fallos en fisiología/análisis clínicos, inmunología y microbiología. 32 fallos con la misma respuesta que el año anterior.'},
-'2018':{ord:20260815,num:'28',sub:'OFICIAL 2018',f:'15 ago 2026',ac:172,fa:49,net:155.67,pt:221,an:'14 oficiales (de 235 preguntas quedan 221 puntuables)',t:'4 h 30 min, sin revisar',fmt:'Papel',nota:'Examen oficial BIR 2018 (Simu 28).'}
+'2018':{ord:20260815,tipo:'of',num:'28',sub:'OFICIAL 2018',f:'15 ago 2026',ac:172,fa:49,net:155.67,pt:221,an:'14 oficiales (de 235 preguntas quedan 221 puntuables)',t:'4 h 30 min, sin revisar',fmt:'Papel',nota:'Examen oficial BIR 2018 (Simu 28).'}
 };
 const HCOL=['#C4714E','#6E8CA8','#8AA07E','#A76B8C','#D8A94B','#7FA6A0'];
 let simSel='';
@@ -1325,8 +1333,16 @@ function drawSimus(){
       '<span class="hr">'+(m.net!=null?fmtN(m.net)+' netas':(DATA.filter(q=>q.examen===e&&!q.origen).length+' fallos'))+'</span></button>'}).join('');
   const E=L.filter(e=>SIMUS[e]&&SIMUS[e].net!=null).sort((a,b)=>SIMUS[a].ord-SIMUS[b].ord);
   const mx=Math.max(1,...E.map(e=>SIMUS[e].net));
-  document.getElementById('evo').innerHTML=E.map(e=>'<div><small>'+Math.round(SIMUS[e].net)+'</small><i style="height:'+Math.round(SIMUS[e].net/mx*78)+'%"></i></div>').join('');
+  // Mediana solo de los de academia hechos por primera vez (los oficiales y los repetidos no son comparables)
+  const A=E.filter(e=>!SIMUS[e].tipo),med=v=>{const x=v.slice().sort((a,b)=>a-b),n=x.length;return n?(n%2?x[(n-1)/2]:(x[n/2-1]+x[n/2])/2):0};
+  const mA=med(A.map(e=>SIMUS[e].net)),u3=A.slice(-3).map(e=>SIMUS[e].net);
+  const H=v=>Math.round(v/mx*68);
+  document.getElementById('evo').innerHTML=E.map(e=>'<div class="'+(SIMUS[e].tipo?'otro':'')+'"><small>'+Math.round(SIMUS[e].net)+'</small><i style="height:'+H(SIMUS[e].net)+'%"></i></div>').join('')+
+    (A.length?'<div class="med" style="bottom:'+H(mA)+'%"><span>mediana '+fmtN(Math.round(mA*10)/10)+'</span></div>':'');
   document.getElementById('evolab').innerHTML=E.map(e=>'<span>'+simNum(e)+'</span>').join('');
+  document.getElementById('evoley').innerHTML='<span><i style="background:#C9943F"></i>Academia, primera vez</span><span><i style="background:rgba(201,148,63,.38)"></i>Oficial o repetido</span>'+
+    '<span><i style="background:#8AA07E"></i>Mediana de academia</span>';
+  document.getElementById('evotxt').textContent=u3.length===3?('Últimos 3 de academia: media '+fmtN(Math.round(u3.reduce((a,b)=>a+b,0)/3*10)/10)+' netas (mediana de todos: '+fmtN(Math.round(mA*10)/10)+').'):'';
   drawSimDet();
 }
 function verSimu(e){simSel=(simSel===e)?'':e;drawSimus();

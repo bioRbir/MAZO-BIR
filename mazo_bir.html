@@ -1235,7 +1235,7 @@ function showGrades(){
   const c=S.cards[cur.id]||{ef:2.5,iv:0,reps:0};
   const prev=['','','',''];
   const sim=g=>{const t=JSON.parse(JSON.stringify(c));const v=schedule(t,g);return v?(v===1?'1 día':v+' días'):'ahora'};
-  document.getElementById('navin').innerHTML=(free?'':'<div class="tbar" title="25 segundos"><i onanimationend="this.parentNode.classList.add(\'over\')"></i></div>')+'<div class="grade">'+
+  document.getElementById('navin').innerHTML=((free||cur.tipo==='ficha')?'':'<div class="tbar" title="25 segundos"><i onanimationend="this.parentNode.classList.add(\'over\')"></i></div>')+'<div class="grade">'+
     [[1,'Otra vez','g1'],[2,'Difícil','g2'],[3,'Bien','g3'],[4,'Fácil','g4']].map(x=>
     '<button class="'+x[2]+'" onclick="grade('+x[0]+')">'+x[1]+'<small>'+sim(x[0])+'</small></button>').join('')+'</div>';
 }
@@ -1259,7 +1259,7 @@ function grade(g){
   gcount[g]=(gcount[g]||0)+1;
   save();
   if(g===1)queue.push(cur);
-  if(cardT0){const dt=(Date.now()-cardT0)/1000;if(dt<180)TIMES.push(dt)}
+  if(cardT0&&cur.tipo!=='ficha'){const dt=(Date.now()-cardT0)/1000;if(dt<180)TIMES.push(dt)}
   // Otra vez / Difícil: se abre la justificación completa y se lee UNA vez antes de seguir
   if(g<=2&&abrirJust()){document.getElementById('navin').innerHTML=
     '<p class="hint" style="margin:0 0 8px;text-align:center">Léela una vez y sigue: va a volver pronto.</p>'+

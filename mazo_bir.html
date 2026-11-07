@@ -249,6 +249,7 @@ font-family:Georgia,"Iowan Old Style","Times New Roman",serif}
 .cal .g span.p{color:rgba(227,205,174,.38);background:linear-gradient(135deg,transparent 46%,rgba(227,205,174,.45) 47%,rgba(227,205,174,.45) 53%,transparent 54%)}
 .cal .g span.q{background:rgba(255,215,154,.10)}
 .cal .g span.hoy{background:#F0C68F;color:#3A2410;font-weight:800;box-shadow:0 0 0 1px #FFE2B8}
+.cal .g span.sim{background:#8AA07E;color:#1F2A1C;font-weight:800}
 .cal .g span.ex{background:#C4714E;color:#fff;font-weight:800}
 .cal .g span.tr{color:rgba(227,205,174,.22)}
 .calq{font-size:11px;color:#E3CDAE;margin:4px 0 0;text-align:right}
@@ -1273,6 +1274,8 @@ const ERRM={N:1,S:2,D:3,T:4};
 function tagOf(q){return S.paper[q.id]||(S.cards[q.id]&&S.cards[q.id].tag)||ERRM[q.err]||0}
 
 // ---- calendario de cuenta atrás (7-nov) ----
+// Simulacros del calendario de GoBIR (7-nov, los dio ella). Para cambiar: editar esta lista.
+const SIMU_DIAS=['2026-11-14','2026-11-21','2026-11-28','2026-12-02','2026-12-08','2026-12-16','2026-12-22','2026-12-29','2027-01-07','2027-01-11','2027-01-18'];
 const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 function drawCal(){
   const el=document.getElementById('cal');if(!el)return;
@@ -1284,8 +1287,8 @@ function drawCal(){
     let g='<span class="h">L</span><span class="h">M</span><span class="h">X</span><span class="h">J</span><span class="h">V</span><span class="h">S</span><span class="h">D</span>';
     for(let k=0;k<off;k++)g+='<span></span>';
     for(let d=1;d<=nd;d++){const x=new Date(y,m,d);let c;
-      if(x<t)c='p';else if(+x===+t)c='hoy';else if(+x===+ex)c='ex';else if(x>ex)c='tr';else c='q';
-      g+='<span class="'+c+'"'+(c==='ex'?' title="Examen"':'')+'>'+d+'</span>'}
+      if(x<t)c='p';else if(+x===+t)c='hoy';else if(+x===+ex)c='ex';else if(x>ex)c='tr';else if(SIMU_DIAS.indexOf(iso(x))>=0)c='sim';else c='q';
+      g+='<span class="'+c+'"'+(c==='ex'?' title="Examen"':c==='sim'?' title="Simulacro GoBIR"':'')+'>'+d+'</span>'}
     h+='<div class="mes"><div class="mt">'+MESES[m]+'</div><div class="g">'+g+'</div></div>';
     m++;if(m>11){m=0;y++}}
   el.innerHTML=h;

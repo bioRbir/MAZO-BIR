@@ -309,6 +309,13 @@ font-family:Georgia,"Iowan Old Style","Times New Roman",serif}
 .salres{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 14px}
 .salres div{border:1px solid var(--line);border-radius:12px;background:var(--tile);padding:12px;text-align:center}
 .salres b{display:block;font-size:30px;font-family:Georgia,"Iowan Old Style","Times New Roman",serif}
+/* modo rápido (7-nov) */
+.just.rb{margin:10px 0 4px;padding:10px 14px}
+.just.rb p{margin:0}
+.tbar{height:5px;border-radius:3px;background:rgba(255,255,255,.08);margin:0 0 8px;overflow:hidden}
+.tbar i{display:block;height:100%;width:0;background:#8AA07E;animation:tbar 25s linear forwards}
+.tbar.over i{background:#D9822B}
+@keyframes tbar{to{width:100%}}
 </style>
 </head>
 <body>
@@ -1012,7 +1019,7 @@ function verRef(id){const q=DATA.find(x=>x.id===id);if(!q)return;
 function cerrarRef(){document.getElementById('refbg').classList.add('hide')}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')cerrarRef()});
 // ---- sesión ----
-let queue=[],cur=null,total=0,stepAns=false,stepTag=false,gcount={};
+let queue=[],cur=null,total=0,stepAns=false,stepTag=false,gcount={},TIMES=[],cardT0=0;
 let free=false;
 let kind={};
 function startSession(){
@@ -1025,7 +1032,7 @@ function startSession(){
   queue=rv.concat(nw);
   // intercalar: repasos primero pero mezclados
   queue.sort(()=>Math.random()-0.5);
-  total=queue.length;gcount={};
+  total=queue.length;gcount={};TIMES=[];
   if(!total)return;
   go('sess');document.getElementById('nav').classList.remove('hide');
   nextCard();
@@ -1035,7 +1042,7 @@ function lectEnFiltro(){if(S.cfg.scope!=='ficha')return [];const b=S.cfg.bloque|
 function startFree(){
   const L=pool().concat(lectEnFiltro());
   if(!L.length)return;
-  free=true;lect=false;kind={};gcount={};
+  free=true;lect=false;kind={};gcount={};TIMES=[];
   queue=L.sort(()=>Math.random()-0.5);total=queue.length;
   go('sess');document.getElementById('nav').classList.remove('hide');
   nextCard();
@@ -1050,7 +1057,7 @@ function nextCard(){
   if(!queue.length){if(free){free=false;lect=false;document.getElementById('nav').classList.add('hide');go('home');return}
     finish();return}
   ttsStop();
-  cur=queue.shift();stepAns=false;stepTag=false;
+  cur=queue.shift();stepAns=false;stepTag=false;cardT0=Date.now();
   const c=card(cur.id),isNew=!c;
   document.getElementById('prog').style.width=((total-queue.length-1)/total*100)+'%';
   document.getElementById('pos').textContent=(total-queue.length)+' de '+total;
@@ -1207,14 +1214,19 @@ function showJust(ok,t){
   }
   // La justificacion va plegada: primero los distractores, que es lo que se lee en diagonal.
   // En las fichas no se pliega: ahi la justificacion y las tablas SON el contenido.
-  const jh='<div class="just'+(esFicha?'':' hide')+'" id="justbox"><h3>'+(esFicha?'Contenido':'Justificación')+'</h3>'+
-    cur.just.map(x=>'<p>'+negritas(linkFichas(linkRefs(x,cur),cur))+'</p>').join('')+tablasHTML(cur)+'</div>';
+  // MODO RÁPIDO (7-nov): en las preguntas, la REGLA BASE (primer párrafo) y las demás opciones se ven siempre;
+  // el resto de la justificación va plegado y solo se abre solo si pulsas Otra vez o Difícil.
+  const P_=x=>'<p>'+negritas(linkFichas(linkRefs(x,cur),cur))+'</p>';
+  const resto=esFicha?cur.just:cur.just.slice(1),extra=resto.length||(cur.tablas&&cur.tablas.length);
+  const jh='<div class="just'+(esFicha?'':' hide')+'" id="justbox" data-extra="'+(extra?1:'')+'"><h3>'+(esFicha?'Contenido':'Más justificación')+'</h3>'+
+    resto.map(P_).join('')+tablasHTML(cur)+'</div>';
   if(esFicha){h+=jh}
   else{
+    if(cur.just&&cur.just.length)h+='<div class="just rb">'+P_(cur.just[0])+'</div>';
     if(cur.mal&&cur.mal.length)h+='<div class="wrongs"><h3>'+(pideFalsa(cur)?'Las demás son ciertas':'Por qué fallan las demás')+'</h3>'+
       cur.mal.map(x=>{const c=esCierta(x,cur);
         return '<p'+(c?' class="cierta">✓ ':'>✗ ')+linkFichas(linkRefs(x,cur),cur)+'</p>'}).join('')+'</div>';
-    h+='<button class="jtog" onclick="toggleJust(this)">Ver justificación \u25be</button>'+jh;
+    if(extra)h+='<button class="jtog" id="jtog" onclick="toggleJust(this)">Ver justificación \u25be</button>'+jh;
   }
   const fb=document.getElementById('fb');fb.innerHTML=h;fb.classList.remove('hide');
   fb.scrollIntoView({behavior:'smooth',block:'start'});
@@ -1223,7 +1235,7 @@ function showGrades(){
   const c=S.cards[cur.id]||{ef:2.5,iv:0,reps:0};
   const prev=['','','',''];
   const sim=g=>{const t=JSON.parse(JSON.stringify(c));const v=schedule(t,g);return v?(v===1?'1 día':v+' días'):'ahora'};
-  document.getElementById('navin').innerHTML='<div class="grade">'+
+  document.getElementById('navin').innerHTML=(free?'':'<div class="tbar" title="25 segundos"><i onanimationend="this.parentNode.classList.add(\'over\')"></i></div>')+'<div class="grade">'+
     [[1,'Otra vez','g1'],[2,'Difícil','g2'],[3,'Bien','g3'],[4,'Fácil','g4']].map(x=>
     '<button class="'+x[2]+'" onclick="grade('+x[0]+')">'+x[1]+'<small>'+sim(x[0])+'</small></button>').join('')+'</div>';
 }
@@ -1247,9 +1259,18 @@ function grade(g){
   gcount[g]=(gcount[g]||0)+1;
   save();
   if(g===1)queue.push(cur);
-  if(g>=2&&cumpleAprob(cur,C)){ofrecerAprob(C);return}
-  nextCard();
+  if(cardT0){const dt=(Date.now()-cardT0)/1000;if(dt<180)TIMES.push(dt)}
+  // Otra vez / Difícil: se abre la justificación completa y se lee UNA vez antes de seguir
+  if(g<=2&&abrirJust()){document.getElementById('navin').innerHTML=
+    '<p class="hint" style="margin:0 0 8px;text-align:center">Léela una vez y sigue: va a volver pronto.</p>'+
+    '<button class="btn-main" onclick="trasGrade('+g+')">Siguiente \u2192</button>';return}
+  trasGrade(g);
 }
+function abrirJust(){const jb=document.getElementById('justbox');
+  if(!jb||!cur||cur.tipo==='ficha'||!jb.dataset.extra||!jb.classList.contains('hide'))return false;
+  jb.classList.remove('hide');const b=document.getElementById('jtog');if(b)b.textContent='Ocultar justificación \u25b4';
+  jb.scrollIntoView({behavior:'smooth',block:'start'});return true}
+function trasGrade(g){const C=S.cards[cur.id];if(g>=2&&C&&cumpleAprob(cur,C)){ofrecerAprob(C);return}nextCard()}
 function ofrecerAprob(c){
   const u=umbral(cur);
   document.getElementById('navin').innerHTML='<p class="hint" style="margin:0 0 8px;text-align:center">'+
@@ -1274,7 +1295,7 @@ function aLectura(){if(!cur)return;const id=cur.id;
 function lectHoy(){const t=iso(today());return DATA.filter(q=>{const c=S.cards[q.id];return c&&c.lect&&c.ldue<=t})}
 let lect=false;
 function startLectura(){const L=lectHoy();if(!L.length)return;
-  free=true;lect=true;kind={};gcount={};queue=L.slice();total=queue.length;
+  free=true;lect=true;kind={};gcount={};TIMES=[];queue=L.slice();total=queue.length;
   go('sess');document.getElementById('nav').classList.remove('hide');nextCard()}
 function leida(){const c=S.cards[cur.id];if(c){c.ldue=iso(addDays(today(),21));save()}nextCard()}
 function pauseSession(){
@@ -1288,7 +1309,8 @@ function finish(){
   go('done');
   const n=Object.values(gcount).reduce((a,b)=>a+b,0);
   document.getElementById('dnum').textContent=n;
-  document.getElementById('dsub').textContent='tarjetas repasadas';
+  const T=TIMES.slice().sort((a,b)=>a-b),md=T.length?Math.round(T[Math.floor(T.length/2)]):0;
+  document.getElementById('dsub').textContent='tarjetas repasadas'+(md?' \u00b7 unos '+md+' s por tarjeta':'');
   const lab={1:'Otra vez',2:'Difícil',3:'Bien',4:'Fácil'},col={1:'--red',2:'--t2',3:'--navy2',4:'--green'};
   document.getElementById('dstats').innerHTML=[1,2,3,4].filter(k=>gcount[k]).map(k=>{
     const p=Math.round(gcount[k]/n*100);

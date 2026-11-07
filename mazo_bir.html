@@ -262,10 +262,10 @@ body.sesion header{padding-bottom:6px;margin-bottom:10px}
 body.sesion header .wrap{display:none}
 body.sesion header{padding-bottom:0!important}
 body.sesion header p#hsub,body.sesion .cal,body.sesion .calq{display:none}
-#sess:not(.hide){display:flex;flex-direction:column}
-#sess .sprog{order:2;padding:10px 14px}
-#sess .sprog .bar{margin:2px 0 3px;height:6px}
-#sess .sprog .btn-sec{margin-top:6px;padding:8px 12px;font-size:13px}
+#sess:not(.hide),#salida:not(.hide){display:flex;flex-direction:column}
+.sprog{order:2;padding:10px 14px}
+.sprog .bar{margin:2px 0 3px;height:6px}
+.sprog .btn-sec{margin-top:6px;padding:8px 12px;font-size:13px}
 /* simulacros como hojas */
 .hojas{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:12px}
 .hoja{position:relative;padding:0;border-radius:4px 10px 10px 4px;background:#FBF4E6;border:1px solid #E2D0B6;color:#3A2E24;
@@ -299,6 +299,10 @@ font-family:Georgia,"Iowan Old Style","Times New Roman",serif}
 .evo small{font-size:10.5px;font-weight:700;color:var(--navy2);margin-bottom:2px}
 .evolab{display:flex;gap:6px;margin-top:4px}
 .evolab span{flex:1;text-align:center;font-size:10px;color:var(--muted)}
+.pill.promo{background:#3C5A47;color:#E9F0E3;border-color:#3C5A47}
+.salres{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 14px}
+.salres div{border:1px solid var(--line);border-radius:12px;background:var(--tile);padding:12px;text-align:center}
+.salres b{display:block;font-size:30px;font-family:Georgia,"Iowan Old Style","Times New Roman",serif}
 </style>
 </head>
 <body>
@@ -323,6 +327,7 @@ font-family:Georgia,"Iowan Old Style","Times New Roman",serif}
     <button class="btn-main" id="goStudy" onclick="startSession()">Estudiar</button>
     <button class="btn-sec hide" id="goFree" onclick="startFree()"></button>
     <button class="btn-sec hide" id="goLect" onclick="startLectura()"></button>
+    <button class="btn-sec hide" id="goSal" onclick="startSalida()"></button>
     <p class="hint" id="homehint"></p>
   </div>
   <div class="card">
@@ -348,13 +353,22 @@ font-family:Georgia,"Iowan Old Style","Times New Roman",serif}
     <button class="btn-sec" id="pauseBtn" onclick="pauseSession()">Pausar y salir</button>
   </div>
   <div class="card">
-    <div class="qnum">BIR <span id="qex"></span> · pregunta <span id="qn"></span><span class="pill" id="qb"></span><span class="pill hide" id="qst"></span><span class="pill hide" id="qorig"></span><span class="pill hide" id="qrent"></span><span class="pill hide" id="qcol"></span></div>
+    <div class="qnum">BIR <span id="qex"></span> · pregunta <span id="qn"></span><span class="pill" id="qb"></span><span class="pill hide" id="qst"></span><span class="pill hide" id="qorig"></span><span class="pill hide" id="qrent"></span><span class="pill hide" id="qcol"></span><span class="pill promo hide" id="qpro">🎓 promocionada</span></div>
     <div class="qtext" id="qt"></div>
     <div class="qpista hide" id="qpista"></div>
     <div id="opts"></div>
     <div id="reveal" class="hide"></div>
     <div id="askbox" class="hide"></div>
     <div id="fb" class="hide"></div>
+  </div>
+</div>
+
+<div id="salida" class="hide">
+  <div class="card" id="salCard"></div>
+  <div class="card sprog">
+    <div class="meta"><span id="salPos"></span><span id="salLeft"></span></div>
+    <div class="bar"><span id="salBar" style="width:0%"></span></div>
+    <button class="btn-sec" onclick="salFin()">Terminar la tanda</button>
   </div>
 </div>
 
@@ -830,13 +844,13 @@ let view='home';
 function go(v){
   cerrarRef();
   if(typeof ttsStop==='function')ttsStop();
-  view=v;['home','sess','done','paper','stats'].forEach(x=>document.getElementById(x).classList.add('hide'));
+  view=v;['home','sess','done','paper','stats','salida'].forEach(x=>document.getElementById(x).classList.add('hide'));
   document.getElementById(v).classList.remove('hide');
   document.getElementById('nav').classList.add('hide');
   [...document.querySelectorAll('#tabs button')].forEach((b,k)=>
     b.classList.toggle('on',(v==='home'&&k===0)||(v==='paper'&&k===1)||(v==='stats'&&k===2)));
-  document.getElementById('tabs').classList.toggle('hide',v==='sess');
-  document.body.classList.toggle('sesion',v==='sess');
+  document.getElementById('tabs').classList.toggle('hide',v==='sess'||v==='salida');
+  document.body.classList.toggle('sesion',v==='sess'||v==='salida');
   if(v==='home')drawHome();if(v==='stats')drawStats();if(v==='paper')drawPaper();
   window.scrollTo(0,0);
 }
@@ -878,6 +892,8 @@ function drawHome(){
     fz.textContent=fal>0?('\u2744 Congelar un día · disponible en '+fal+(fal===1?' día':' días')):'\u2744 Congelar hoy (1 vez por semana)'}
   const gl=document.getElementById('goLect'),nl=lectHoy().length;
   if(nl){gl.classList.remove('hide');gl.textContent='\uD83D\uDCD6 Lectura \u00b7 '+nl+(nl===1?' ficha':' fichas')+' para releer'}else gl.classList.add('hide');
+  const gs=document.getElementById('goSal'),ns=promoList().length;
+  if(ns){gs.classList.remove('hide');gs.textContent='\uD83C\uDF93 Examen de salida \u00b7 '+ns+(ns===1?' promocionada':' promocionadas')}else gs.classList.add('hide');
   const gf=document.getElementById('goFree'),psel=pool().length+lectEnFiltro().length;
   if(psel&&(S.cfg.bloque||(S.cfg.scope&&S.cfg.scope!=='todo'))){gf.classList.remove('hide');
     gf.textContent='Repaso libre \u00b7 '+psel+' tarjetas'}
@@ -1052,6 +1068,7 @@ function nextCard(){
   if(cur.rent){qr.textContent='rentabilidad '+cur.rent;qr.className='pill r-'+cur.rent}else qr.className='pill hide';
   const qc=document.getElementById('qcol'),ck=colorOf(c);
   if(ck){qc.textContent=ck+' \u00b7 '+pts(c)+'/'+umbral(cur).p+' pts';qc.className='pill c-'+ck}else qc.className='pill hide';
+  document.getElementById('qpro').classList.toggle('hide',!promo(cur,c));
   const qp=document.getElementById('qpista');
   const conOpc=(!free&&isNew&&cur.opciones&&cur.opciones.length);
   if(cur.pista&&!conOpc){qp.textContent='Pista: '+cur.pista;qp.classList.remove('hide')}else{qp.textContent='';qp.classList.add('hide')}
@@ -1379,6 +1396,81 @@ function drawSimDet(){
       .filter(x=>st[x[0]]).map(x=>'<b style="color:'+x[2]+'">'+st[x[0]]+'</b> '+x[1]).join(' · ')+'</p>';
   box.innerHTML=h;box.classList.remove('hide');
 }
+
+
+// ---- PROMOCIÓN y EXAMEN DE SALIDA (7-nov, acordado con ella) ----
+// Promocionada: vista 5 veces o más, la última acertada tras 14 días o más sin verla, y ni roja ni naranja.
+// En el examen de salida sale SIN pista, primero de memoria y luego con las opciones barajadas.
+// Acierto → aprobada (sale del repaso; recuperable con «Devolver» en Datos). Fallo → vuelve roja, mañana.
+// No cuenta en el cupo diario. En enero: pasada de comprobación de todas las retiradas.
+function promo(q,c){return !!(q&&c&&q.tipo!=='ficha'&&!c.aprob&&!c.lect&&!c.susp&&dif(c)===0&&(c.seen||0)>=5&&(c.ult||0)>=14)}
+function promoList(){return DATA.filter(q=>promo(q,S.cards[q.id]))}
+let SAL=null;
+function mezcla(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function startSalida(){const L=mezcla(promoList()).slice(0,20);if(!L.length)return;
+  SAL={L:L.map(q=>q.id),i:0,ok:[],ko:[],step:0,perm:null,pick:null};document.querySelector('#salida .sprog').classList.remove('hide');go('salida');salDraw()}
+function salQ(){return DATA.find(x=>x.id===SAL.L[SAL.i])}
+function salDraw(){
+  const n=SAL.L.length,box=document.getElementById('salCard');
+  document.getElementById('salPos').textContent='Examen de salida · '+Math.min(SAL.i+1,n)+' de '+n;
+  document.getElementById('salLeft').textContent=SAL.ok.length+' salen · '+SAL.ko.length+' vuelven';
+  document.getElementById('salBar').style.width=(SAL.i/n*100)+'%';
+  const nav=document.getElementById('nav'),nin=document.getElementById('navin');
+  if(SAL.i>=n){salResumen();return}
+  const q=salQ();
+  let h='<div class="qnum">'+q.examen+' · pregunta '+q.n+'<span class="pill">'+nomBlq(blq(q))+'</span><span class="pill promo">🎓 examen de salida</span></div>'+
+    '<div class="qtext">'+q.enunciado+'</div>';
+  if(SAL.step===0){
+    h+='<p class="hint" style="margin:0">Sin pista. Dila de memoria y luego elige entre las opciones, que salen en otro orden.</p>';
+    nin.innerHTML='<button class="btn-main" onclick="SAL.step=1;salDraw()">Ver opciones</button>';nav.classList.remove('hide');
+  }else if(SAL.step===1){
+    const fija=q.opciones.some(o=>/\b[1-5]\s*(y|e|,)\s*[1-5]\b|todas|ninguna|anteriores/i.test(o));
+    if(!SAL.perm)SAL.perm=fija?q.opciones.map((_,k)=>k):mezcla(q.opciones.map((_,k)=>k));
+    h+=SAL.perm.map((k,p)=>'<button class="opt" onclick="salAns('+k+')"><span class="k">'+(p+1)+'</span><span>'+q.opciones[k]+'</span></button>').join('');
+    nav.classList.add('hide');
+  }else{
+    const ok=SAL.pick===q.correcta,fal=pideFalsa(q);
+    // si piden la falsa: la falsa en rojo y las ciertas en verde (como en el repaso); tu elección, recuadrada
+    h+=q.opciones.map((o,k)=>'<button class="opt'+(fal?(k===q.correcta?' ko':' ok'):(k===q.correcta?' ok':(k===SAL.pick?' ko':'')))+'" disabled'+(k===SAL.pick?' style="outline:2px solid var(--navy2);outline-offset:2px"':'')+'><span class="k">'+(k+1)+'</span><span>'+o+'</span></button>').join('');
+    h+='<p class="hint" style="margin:2px 0 8px">Opciones en su orden original'+(fal?' (en rojo, la falsa)':'')+'. Recuadrada, la que elegiste.</p>';
+    h+='<div class="verdict '+(ok?'v-ok':'v-ko')+'">'+(ok?'✓ Acertada: sale del repaso (aprobada).':'✗ Fallada: vuelve al mazo en rojo, mañana.')+
+      (fal?' La falsa era la '+(q.correcta+1)+'.':(ok?'':' La buena era la '+(q.correcta+1)+'.'))+'</div>';
+    if(q.just&&q.just.length)h+='<div class="just"><h3>Idea clave</h3>'+q.just.map(p=>'<p>'+negritas(p)+'</p>').join('')+'</div>';
+    if(!ok&&q.mal&&q.mal.length)h+='<div class="wrongs">'+q.mal.map(p=>'<p class="'+(esCierta(p,q)?'cierta':'')+'">'+negritas(p)+'</p>').join('')+'</div>';
+    nin.innerHTML='<button class="btn-main" onclick="salSig()">Siguiente</button>';nav.classList.remove('hide');
+  }
+  box.innerHTML=h;window.scrollTo(0,0);
+}
+function salAns(k){
+  if(SAL.step!==1)return;const q=salQ(),id=q.id,c=S.cards[id];if(!c)return;
+  SAL.pick=k;SAL.step=2;const t=iso(today());
+  if(k===q.correcta){c.aprob=t;c.salida=t;SAL.ok.push(id)}
+  else{c.dif=Math.max(2,dif(c));c.ult=0;c.ok=0;c.fv=fv(c)+1;c.lapses=(c.lapses||0)+1;
+    c.ef=Math.max(1.3,(c.ef||2.5)-0.2);c.iv=Math.max(1,Math.round((c.iv||2)/4));c.due=iso(addDays(today(),1));SAL.ko.push(id)}
+  save();salDraw()}
+function salSig(){SAL.i++;SAL.step=0;SAL.perm=null;SAL.pick=null;salDraw()}
+function salFin(){if(!SAL)return go('home');SAL.L=SAL.L.slice(0,SAL.i+(SAL.step===2?1:0));SAL.i=SAL.L.length;salDraw()}
+function salResumen(){
+  document.getElementById('nav').classList.add('hide');
+  const b={};SAL.ko.forEach(id=>{const q=DATA.find(x=>x.id===id);const k=nomBlq(blq(q));b[k]=(b[k]||0)+1});
+  const quedan=promoList().length;
+  document.getElementById('salCard').innerHTML='<h2>Tanda terminada</h2><div class="salres">'+
+    '<div><b style="color:var(--green)">'+SAL.ok.length+'</b><span class="hint">salen del repaso</span></div>'+
+    '<div><b style="color:var(--red)">'+SAL.ko.length+'</b><span class="hint">vuelven en rojo</span></div></div>'+
+    (SAL.ko.length?'<p style="margin:0 0 4px;font-size:14px"><b>Vuelven:</b> '+Object.keys(b).map(k=>k+' '+b[k]).join(' · ')+'</p>':'')+
+    '<p class="hint">'+(quedan?'Quedan '+quedan+' promocionadas para otra tanda.':'No quedan más promocionadas por ahora.')+
+    ' Las que salen están en Datos → Aprobadas, y puedes devolverlas cuando quieras.</p>'+
+    '<button class="btn-main" style="margin-top:12px" onclick="SAL=null;go(\'home\')">Volver</button>';
+  document.querySelector('#salida .sprog').classList.add('hide');
+}
+// FICHAS A LECTURA (una sola vez, 7-nov): las transversales verdes y amarillas que siguen en el repaso
+// pasan a lectura, repartidas 1 por día en los huecos de las próximas 3 semanas (nunca todas el mismo día).
+(function(){if(S.fl1)return;const t=today(),cnt={};
+  for(const k in S.cards){const c=S.cards[k];if(c&&c.lect&&c.ldue)cnt[c.ldue]=(cnt[c.ldue]||0)+1}
+  const L=DATA.filter(q=>{const c=S.cards[q.id];return q.tipo==='ficha'&&c&&(c.reps||c.lapses)&&!c.aprob&&!c.lect&&!c.susp&&dif(c)===0});
+  L.forEach(q=>{let best=null;for(let d=1;d<=21;d++){const ds=iso(addDays(t,d));if(best===null||(cnt[ds]||0)<(cnt[best]||0))best=ds}
+    cnt[best]=(cnt[best]||0)+1;const c=S.cards[q.id];c.lect=1;c.ldue=best});
+  S.fl1=iso(t);save()})();
 
 // ---- examen en papel ----
 let pi=0;

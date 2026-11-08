@@ -646,7 +646,7 @@ function lateList(){const t=iso(today());return pool().filter(q=>{const c=S.card
 // ---- SM-2 ----
 function dueCount(ds){let n=0;for(const k in S.cards){const c=S.cards[k];if(c&&!c.susp&&!c.aprob&&!c.lect&&c.due===ds)n++}return n}
 // Intervalos base de los tres botones de acierto. Garantiza SIEMPRE Difícil < Bien < Fácil.
-// Pasos de Bien: 3 → 6 → 12 días; techo 30 para Bien y 35 para Fácil (desde el 11-oct).
+// Pasos de Bien: 3 → 6 → 12 días; techo 27 para Bien y 30 para Fácil (desde el 8-nov; antes 30 y 35).
 function rawIvs(c){
   const r=(c.reps||0)+1,cur=c.iv||1,ef=c.ef||2.5;let d,b,f;
   if(c.rl){b=Math.max(2,c.iv||2);d=Math.round(b*0.7);f=Math.round(b*1.3)+1}  // tras «Otra vez»
@@ -657,8 +657,8 @@ function rawIvs(c){
   else{b=Math.max(cur+2,Math.round(cur*ef))}
   if(r>=3){d=Math.max(Math.round(cur*1.2),Math.round(b*0.6));f=Math.round(b*1.3)}
   // Difícil nunca por debajo del 50% de Bien ni Fácil por encima del 150%: botones proporcionados
-  b=Math.min(b,30);f=Math.min(Math.max(f,b+1),35,Math.max(b+1,Math.round(b*1.5)));
-  d=Math.max(1,Math.min(Math.max(d,Math.round(b*0.5)),b-1));
+  b=Math.min(b,27);f=Math.min(Math.max(f,b+1),30,Math.max(b+1,Math.round(b*1.5)));
+  d=Math.max(1,Math.min(Math.max(d,Math.round(b*0.5)),b-1,Math.max(1,Math.round(b*0.8))));  // Difícil ≤ 80% de Bien (8-nov)
   return [d,b,f];
 }
 function schedule(c,g){
@@ -675,7 +675,7 @@ function schedule(c,g){
   // reparto de carga sin romper el orden de los botones
   if(iv>=4){const lo=(g===2?0:v[g-3]),hi=(g===4?46:v[g-1]);
     let best=iv,bn=dueCount(iso(addDays(today(),iv)));
-    [iv-1,iv+1].forEach(k=>{if(k<1||k<=lo||k>=hi)return;if(cap>=1&&k>cap)return;
+    [iv-1,iv+1].forEach(k=>{if(k<1||k<=lo||k>=hi)return;if(g===3&&k>27)return;if(g===4&&k>30)return;if(cap>=1&&k>cap)return;
       const q=dueCount(iso(addDays(today(),k)));if(q<bn){bn=q;best=k}});
     iv=best}
   c.reps=(c.reps||0)+1;delete c.rl;

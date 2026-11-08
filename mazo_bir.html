@@ -661,24 +661,33 @@ function rawIvs(c){
   d=Math.max(1,Math.min(Math.max(d,Math.round(b*0.5)),b-1,Math.max(1,Math.round(b*0.8))));  // Difícil ≤ 80% de Bien (8-nov)
   return [d,b,f];
 }
+// ESCALERA TRAS FALLO (8-nov): después de un «Otra vez» en una tarjeta ya vista, el primer acierto
+// (normalmente el Difícil de la misma sesión) la manda como mucho a 7 días y el siguiente a 14; luego, normal.
+function escIvs(c,v){if(!c.esc)return v;const C=c.esc===1?7:14;let d=v[0],b=v[1],f=v[2];
+  if(c.esc===2&&!c.rl)b=Math.max(b,Math.round((c.iv||1)*3));   // 2º acierto: hasta triplicar (4 → 12), nunca más de 14
+  b=Math.min(b,C);f=Math.min(f,Math.round(C*1.3));f=Math.max(f,b+1);d=Math.max(1,Math.min(d,Math.round(b*0.6),b-1));
+  return [d,b,f]}
 function schedule(c,g){
   const cap=limit();
   if(g===1){
     // «Otra vez» ya no reinicia: la tarjeta vuelve en esta sesión y después sigue
     // con la MITAD de su intervalo (mínimo 1 día). Las nuevas sí empiezan de cero.
     c.ef=Math.max(1.3,(c.ef||2.5)-0.2);c.fv=fv(c)+1;c.lapses=(c.lapses||0)+1;c.ok=0;
+    if((c.reps||0)>0)c.esc=1;   // escalera tras fallo: próximos aciertos ≤7 y luego ≤14 días
     if(!c.rl){ if((c.reps||0)>0&&(c.iv||0)>0){c.iv=Math.max(1,Math.round(c.iv/2));c.rl=1}
                else{c.reps=0;c.iv=0} }
     c.due=iso(today());return 0}
   c.ok=(c.ok||0)+1;if(c.ok>=2&&fv(c)>0){c.fv=fv(c)-1;c.ok=0}
-  const v=rawIvs(c);let iv=v[g-2];
+  const v=escIvs(c,rawIvs(c));let iv=v[g-2];
   // reparto de carga sin romper el orden de los botones
   if(iv>=4){const lo=(g===2?0:v[g-3]),hi=(g===4?46:v[g-1]);
     let best=iv,bn=dueCount(iso(addDays(today(),iv)));
     [iv-1,iv+1].forEach(k=>{if(k<1||k<=lo||k>=hi)return;if(g===3&&k>27)return;if(g===4&&k>30)return;if(cap>=1&&k>cap)return;
       const q=dueCount(iso(addDays(today(),k)));if(q<bn){bn=q;best=k}});
     iv=best}
+  if(c.esc)iv=Math.min(iv,v[g-2]);
   c.reps=(c.reps||0)+1;delete c.rl;
+  if(c.esc){c.esc++;if(c.esc>2)delete c.esc}
   if(g===2)c.ef=Math.max(1.3,(c.ef||2.5)-0.15);
   if(g===4)c.ef=Math.min(3.0,(c.ef||2.5)+0.15);
   if(cap>=1){ if(iv>cap) iv=Math.max(1,Math.min(iv,cap)); }
@@ -688,6 +697,15 @@ function schedule(c,g){
   c.iv=iv;c.due=iso(addDays(today(),iv));
   return iv;
 }
+
+// Migración única (8-nov): tarjetas con fallos que, tras recuperarse con un intervalo corto, saltaron a más de 16 días
+// se adelantan a 12-16 días (repartidas) y su siguiente acierto queda como máximo a 14.
+(function(){if(S.mig8n)return;const t=today(),lim=iso(addDays(t,16));let n=0;
+  for(const k in S.cards){const c=S.cards[k];
+    if(!c||c.aprob||c.lect||c.susp||!(c.lapses>0)||(c.reps||0)<3||(c.ult||0)>=12||!c.due||c.due<=lim)continue;
+    let best=12,bn=1e9;for(let d=12;d<=16;d++){const q=dueCount(iso(addDays(t,d)));if(q<bn){bn=q;best=d}}
+    c.due=iso(addDays(t,best));c.iv=best;c.esc=2;n++}
+  S.mig8n=n||1;save()})();
 
 // ---- lectura en voz alta ----
 const TTS_OK=(typeof window!=='undefined'&&'speechSynthesis'in window);
@@ -1427,11 +1445,11 @@ function drawSimDet(){
 
 
 // ---- PROMOCIÓN y EXAMEN DE SALIDA (7-nov, acordado con ella) ----
-// Promocionada: vista 5 veces o más, la última acertada tras 14 días o más sin verla, y ni roja ni naranja.
+// Promocionada: vista 4 veces o más, la última acertada tras 12 días o más sin verla, y ni roja ni naranja (desde el 8-nov; antes 5 y 14).
 // En el examen de salida sale SIN pista, primero de memoria y luego con las opciones barajadas.
 // Acierto → aprobada (sale del repaso; recuperable con «Devolver» en Datos). Fallo → vuelve roja, mañana.
 // No cuenta en el cupo diario. En enero: pasada de comprobación de todas las retiradas.
-function promo(q,c){return !!(q&&c&&q.tipo!=='ficha'&&!c.aprob&&!c.lect&&!c.susp&&dif(c)===0&&(c.seen||0)>=5&&(c.ult||0)>=14)}
+function promo(q,c){return !!(q&&c&&q.tipo!=='ficha'&&!c.aprob&&!c.lect&&!c.susp&&dif(c)===0&&(c.seen||0)>=4&&(c.ult||0)>=12)}
 function promoList(){return DATA.filter(q=>promo(q,S.cards[q.id]))}
 let SAL=null;
 function mezcla(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}

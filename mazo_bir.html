@@ -1453,7 +1453,9 @@ function promo(q,c){return !!(q&&c&&q.tipo!=='ficha'&&!c.aprob&&!c.lect&&!c.susp
 function promoList(){return DATA.filter(q=>promo(q,S.cards[q.id]))}
 let SAL=null;
 function mezcla(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function startSalida(){const L=mezcla(promoList()).slice(0,20);if(!L.length)return;
+// Examen de salida (8-nov): primero las que antes te tocaría repasar en el calendario (empates al azar),
+// así cada aprobada te quita un repaso cercano. Tandas de 20.
+function startSalida(){const L=mezcla(promoList()).sort((a,b)=>{const x=S.cards[a.id].due||'',y=S.cards[b.id].due||'';return x<y?-1:x>y?1:0}).slice(0,20);if(!L.length)return;
   SAL={L:L.map(q=>q.id),i:0,ok:[],ko:[],step:0,perm:null,pick:null};document.querySelector('#salida .sprog').classList.remove('hide');go('salida');salDraw()}
 function salQ(){return DATA.find(x=>x.id===SAL.L[SAL.i])}
 function salDraw(){

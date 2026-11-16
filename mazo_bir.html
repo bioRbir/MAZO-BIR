@@ -1375,7 +1375,7 @@ const SIMUS={
 'SIMU 20':{ord:20261031,f:'31 oct 2026',ac:123,fa:77,net:97.33,res:'5 ✓ / 5 ✗',an:'2 (la 1 y la 161, fe de erratas; ya descontadas)',t:'17:00–21:30 · 4 h 30 min (por la tarde)',v:'Dos vueltas',fmt:'Papel',nota:'Lo sintió como el peor; muchas no se las sabía. Pesó más el tipo de examen que la hora.'},
 'SIMU 8':{ord:20261025,f:'25 oct 2026',ac:151,fa:49,net:134.67,res:'6 ✓ / 4 ✗',an:'Impugnables: 46, 102 y 155 (121 débil)',t:'10:00–13:45 · 3 h 45 min',v:'Dos vueltas',fmt:'Papel',nota:'Más asequible y útil. Flojos: antiinfecciosos, embriología y bioquímica metabólica. Los fallos del final eran temas no estudiados, no cansancio.'},
 'SIMU 7':{ord:20261017,f:'17 oct 2026',ac:134,fa:66,net:112,res:'7 ✓ / 3 ✗',fmt:'Online',nota:'En papel tenía bien la 1 (la cambió al pasarla). Muchas preguntas fuera del temario.'},
-'SIMU 15':{ord:20261010,f:'10 oct 2026',ac:100,fa:100,net:66.67,res:'5 ✓ / 5 ✗',fmt:'Papel',nota:'Muy cargado de clínica y laboratorio no visto en el temario.'},
+'SIMU 15':{ord:20261010,tipo:'poco',f:'10 oct 2026',ac:100,fa:100,net:66.67,res:'5 ✓ / 5 ✗',fmt:'Papel',nota:'Muy cargado de clínica y de laboratorio no visto en el temario de la academia; según ella la clínica es ~5 % del BIR real. Marcado como poco representativo por contenido, no por la nota.'},
 'SIMU 19':{ord:20261003,tipo:'rep',f:'3 oct 2026',ac:136,fa:64,net:114.67,res:'6 ✓ / 4 ✗',t:'En casa, con unos 30 min de interrupciones',v:'Dos vueltas',fmt:'Papel',nota:'Repetido (el año pasado, 78 netas). Ya con la fe de erratas (13 y 14 a favor). 22 fallos repetidos con la misma respuesta.'},
 'SIMU 6':{ord:20260926,tipo:'rep',f:'26 sep 2026',ac:153,fa:47,net:137.33,t:'Le sobró tiempo',v:'Dos vueltas (estreno del método)',fmt:'Papel',nota:'Cree que ya lo había hecho el año pasado. Huecos en biología celular y molecular, citología y bioquímica.'},
 'SIMU 5':{ord:20260919,f:'19 sep 2026',ac:125,fa:75,net:100,res:'6 ✓ / 4 ✗',t:'4 h 30 min, con el tiempo justo',fmt:'Papel',nota:'Lo había empezado el año pasado (hasta la 144).'},
@@ -1408,8 +1408,9 @@ function drawSimus(){
   document.getElementById('evoley').innerHTML='<span><i style="background:#C9943F"></i>Academia, primera vez</span><span><i style="background:rgba(201,148,63,.38)"></i>Oficial, repetido o poco representativo</span>'+
     '<span><i style="background:#8AA07E"></i>Mediana de academia</span>';
   document.getElementById('evotxt').textContent=u3.length===3?('Últimos 3 de academia: media '+fmtN(Math.round(u3.reduce((a,b)=>a+b,0)/3*10)/10)+' netas (mediana de todos: '+fmtN(Math.round(mA*10)/10)+').'):'';
-  const PR=E.filter(e=>SIMUS[e].tipo==='poco').map(e=>simNum(e));
-  if(PR.length)document.getElementById('evotxt').textContent+=' Fuera del cálculo: simulacro'+(PR.length>1?'s ':' ')+PR.join(', ')+' (poco representativo'+(PR.length>1?'s':'')+'), más los oficiales y los repetidos.';
+  const P=E.filter(e=>SIMUS[e].tipo==='poco');
+  if(P.length){const T=A.concat(P).sort((a,b)=>SIMUS[a].ord-SIMUS[b].ord),mT=med(T.map(e=>SIMUS[e].net));
+    document.getElementById('evotxt').textContent+=' Contando también '+(P.length>1?'los simulacros ':'el simulacro ')+P.map(e=>simNum(e)).join(' y ')+', marcado'+(P.length>1?'s':'')+' como poco representativo'+(P.length>1?'s':'')+', la mediana sería '+fmtN(Math.round(mT*10)/10)+'.';}
   drawSimDet();
 }
 function verSimu(e){simSel=(simSel===e)?'':e;drawSimus();

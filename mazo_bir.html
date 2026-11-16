@@ -293,17 +293,17 @@ font-family:Georgia,"Iowan Old Style","Times New Roman",serif}
 .sdet .kv{display:flex;gap:8px;font-size:14px;padding:5px 0;border-bottom:1px solid var(--line)}
 .sdet .kv i{font-style:normal;color:var(--muted);flex:0 0 96px}
 .sdet .stat .track{flex:0 0 40%}
-.evo{position:relative;display:flex;gap:6px;align-items:flex-end;height:90px;margin:14px 0 0}
+.evo{position:relative;display:flex;gap:6px;align-items:flex-end;height:90px;margin:14px 0 0;padding-right:66px}
 .evo div.otro i{background:linear-gradient(180deg,rgba(216,169,75,.38),rgba(176,124,67,.38))}
 .evo div.otro small{color:var(--muted)}
-.evo div.med{position:absolute;left:0;right:0;height:0;display:block;flex:none;border-top:2px dashed #8AA07E;pointer-events:none}
-.evo .med span{position:absolute;right:0;top:-17px;font-size:10.5px;font-weight:700;color:#8AA07E;background:var(--card);padding:0 4px}
+.evo div.med{position:absolute;left:0;right:0;height:0;display:block;flex:none;border-top:2px dashed #8AA07E;pointer-events:none;z-index:1}
+.evo .med span{position:absolute;right:0;top:-8px;white-space:nowrap;font-size:10.5px;font-weight:700;color:#8AA07E;background:var(--card);padding:0 4px}
 .evoley{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin:8px 0 0}
 .evoley i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
 .evo div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%}
 .evo i{display:block;width:70%;max-width:34px;border-radius:4px 4px 0 0;background:linear-gradient(180deg,#D8A94B,#B07C43)}
-.evo small{font-size:10.5px;font-weight:700;color:var(--navy2);margin-bottom:2px}
-.evolab{display:flex;gap:6px;margin-top:4px}
+.evo small{font-size:10.5px;font-weight:700;color:var(--navy2);margin-bottom:2px;position:relative;z-index:2;background:var(--card);border-radius:3px;padding:0 2px}
+.evolab{display:flex;gap:6px;margin-top:4px;padding-right:66px}
 .evolab span{flex:1;text-align:center;font-size:10px;color:var(--muted)}
 .pill.promo{background:#3C5A47;color:#E9F0E3;border-color:#3C5A47}
 .pill.poco{background:#8A6B2F;color:#FBF4E4;border-color:#8A6B2F}
@@ -1383,6 +1383,10 @@ const SIMUS={
 'SIMU 18':{ord:20260905,f:'5 sep 2026',ac:113,fa:87,net:84,res:'8 ✓ / 2 ✗',t:'9:00–13:30 · 4 h 30 min',fmt:'Papel',nota:'Más fallos en fisiología/análisis clínicos, inmunología y microbiología. 32 fallos con la misma respuesta que el año anterior.'},
 '2018':{ord:20260815,tipo:'of',num:'28',sub:'OFICIAL 2018',f:'15 ago 2026',ac:172,fa:49,net:155.67,pt:221,an:'14 oficiales (de 235 preguntas quedan 221 puntuables)',t:'4 h 30 min, sin revisar',fmt:'Papel',nota:'Examen oficial BIR 2018 (Simu 28).'}
 };
+// Fallos SIN tarjeta propia (van dentro de fichas transversales): solo para que las
+// estadisticas de la pestana de simulacros cuenten los fallos REALES, no solo los del mazo.
+// n = numero de pregunta, b = bloque, t = tipo de fallo (1 N, 2 S, 3 D, 4 T).
+const FEXTRA={"SIMU 16": [{"n": 1, "b": "ANÁLISIS CLÍNICOS", "t": 1}, {"n": 10, "b": "ANÁLISIS CLÍNICOS", "t": 1}, {"n": 20, "b": "ANÁLISIS CLÍNICOS", "t": 1}, {"n": 21, "b": "ANÁLISIS CLÍNICOS", "t": 1}, {"n": 23, "b": "ANÁLISIS CLÍNICOS", "t": 3}, {"n": 26, "b": "FISIOLOGÍA", "t": 3}, {"n": 29, "b": "ANÁLISIS CLÍNICOS", "t": 1}, {"n": 32, "b": "ANÁLISIS CLÍNICOS", "t": 1}, {"n": 33, "b": "ANÁLISIS CLÍNICOS", "t": 1}, {"n": 36, "b": "ANÁLISIS CLÍNICOS", "t": 1}, {"n": 44, "b": "ANÁLISIS CLÍNICOS", "t": 3}, {"n": 69, "b": "EMBRIOLOGÍA", "t": 1}, {"n": 71, "b": "INMUNOLOGÍA", "t": 1}, {"n": 72, "b": "INMUNOLOGÍA", "t": 1}, {"n": 75, "b": "INMUNOLOGÍA", "t": 1}, {"n": 79, "b": "INMUNOLOGÍA", "t": 2}, {"n": 80, "b": "INMUNOLOGÍA", "t": 1}, {"n": 84, "b": "INMUNOLOGÍA", "t": 1}, {"n": 89, "b": "INMUNOLOGÍA", "t": 1}, {"n": 97, "b": "INMUNOLOGÍA", "t": 1}, {"n": 98, "b": "INMUNOLOGÍA", "t": 3}, {"n": 99, "b": "INMUNOLOGÍA", "t": 1}, {"n": 101, "b": "MICROBIOLOGÍA", "t": 3}, {"n": 102, "b": "MICROBIOLOGÍA", "t": 1}, {"n": 103, "b": "MICROBIOLOGÍA", "t": 3}, {"n": 106, "b": "MICROBIOLOGÍA", "t": 4}, {"n": 108, "b": "MICROBIOLOGÍA", "t": 3}, {"n": 111, "b": "MICROBIOLOGÍA", "t": 1}, {"n": 114, "b": "MICROBIOLOGÍA", "t": 3}, {"n": 115, "b": "MICROBIOLOGÍA", "t": 1}, {"n": 116, "b": "MICROBIOLOGÍA", "t": 1}, {"n": 117, "b": "MICROBIOLOGÍA", "t": 1}, {"n": 119, "b": "BIOESTADÍSTICA", "t": 1}, {"n": 132, "b": "PARASITOLOGÍA", "t": 1}, {"n": 133, "b": "PARASITOLOGÍA", "t": 1}, {"n": 138, "b": "VIROLOGÍA", "t": 1}, {"n": 139, "b": "PARASITOLOGÍA", "t": 1}, {"n": 140, "b": "VIROLOGÍA", "t": 1}, {"n": 145, "b": "VIROLOGÍA", "t": 1}, {"n": 156, "b": "ANÁLISIS CLÍNICOS", "t": 3}, {"n": 159, "b": "ANÁLISIS CLÍNICOS", "t": 1}, {"n": 165, "b": "BIOESTADÍSTICA", "t": 1}, {"n": 166, "b": "ANÁLISIS CLÍNICOS", "t": 1}, {"n": 169, "b": "ANÁLISIS CLÍNICOS", "t": 1}, {"n": 170, "b": "GENÉTICA", "t": 1}, {"n": 176, "b": "ANÁLISIS CLÍNICOS", "t": 3}, {"n": 178, "b": "GENÉTICA", "t": 3}, {"n": 184, "b": "EMBRIOLOGÍA", "t": 1}, {"n": 186, "b": "BIOLOGÍA MOLECULAR", "t": 1}, {"n": 197, "b": "ANÁLISIS CLÍNICOS", "t": 3}]};
 const HCOL=['#C4714E','#6E8CA8','#8AA07E','#A76B8C','#D8A94B','#7FA6A0'];
 let simSel='';
 function simList(){const ex={};DATA.forEach(q=>{if(q.tipo!=='ficha'&&q.examen&&q.examen!=='SUELTAS')ex[q.examen]=1});
@@ -1428,12 +1432,14 @@ function drawSimDet(){
   const KV=(k,v)=>v?'<div class="kv"><i>'+k+'</i><span>'+v+'</span></div>':'';
   h+=KV('Tiempo',m.t)+KV('Vueltas',m.v)+KV('Formato',m.fmt)+KV('Reservas',m.res)+KV('Anuladas',m.an)+KV('Notas',m.nota);
   // tipo de fallo
+  const XF=FEXTRA[e]||[];
   const c={1:0,2:0,3:0,4:0};let nt=0;F.forEach(q=>{const t=tagOf(q);if(t){c[t]++;nt++}});
+  XF.forEach(x=>{if(x.t){c[x.t]++;nt++}});
   if(nt){h+='<h3>Tipo de fallo</h3>'+[1,2,3,4].filter(k=>c[k]).map(k=>{const p=Math.round(c[k]/nt*100);
     return '<div class="stat"><b>'+c[k]+'</b><span class="lab">'+TAGS[k].lab+' <span style="color:var(--muted);font-size:12px">'+p+'%</span></span>'+
     '<span class="track"><i style="width:'+p+'%;background:var('+TAGS[k].c+')"></i></span></div>'}).join('')}
   // por asignatura
-  const b={};F.forEach(q=>{const k=blq(q);b[k]=(b[k]||0)+1});
+  const b={};F.forEach(q=>{const k=blq(q);b[k]=(b[k]||0)+1});XF.forEach(x=>{b[x.b]=(b[x.b]||0)+1});
   const K=Object.keys(b).sort((x,y)=>b[y]-b[x]),bm=Math.max(1,...K.map(k=>b[k]));
   if(K.length)h+='<h3>Fallos por asignatura</h3>'+K.map(k=>'<div class="stat"><b>'+b[k]+'</b><span class="lab">'+nomBlq(k)+'</span>'+
     '<span class="track"><i style="width:'+Math.round(b[k]/bm*100)+'%;background:var(--navy2)"></i></span></div>').join('');
@@ -1441,7 +1447,7 @@ function drawSimDet(){
   const st={nueva:0,roja:0,naranja:0,amarilla:0,verde:0,aprob:0};
   F.concat(Du).forEach(q=>{const cc=S.cards[q.id];if(!cc){st.nueva++;return}if(cc.aprob||cc.lect){st.aprob++;return}
     const k=colorOf(cc);if(k)st[k]++;else st.nueva++});
-  h+='<h3>En el mazo</h3><p style="margin:0 0 6px;font-size:14px">'+F.length+' falladas'+(m.fa!=null&&F.length!==m.fa?' (incluye reservas y anuladas)':'')+
+  h+='<h3>En el mazo</h3><p style="margin:0 0 6px;font-size:14px">'+(XF.length?F.length+' con tarjeta propia y '+XF.length+' agrupadas en fichas transversales':F.length+' falladas'+(m.fa!=null&&F.length!==m.fa?' (incluye reservas y anuladas)':''))+
     (Du.length?' + '+Du.length+' acertadas con duda':'')+'.</p>'+
     '<p style="margin:0;font-size:14px">'+[['aprob','aprobadas','var(--green)'],['verde','verdes','#4f8a5b'],['amarilla','amarillas','#b39327'],['naranja','naranjas','#d9822b'],['roja','rojas','#b8433a'],['nueva','sin estrenar','var(--muted)']]
       .filter(x=>st[x[0]]).map(x=>'<b style="color:'+x[2]+'">'+st[x[0]]+'</b> '+x[1]).join(' · ')+'</p>';

@@ -306,6 +306,7 @@ font-family:Georgia,"Iowan Old Style","Times New Roman",serif}
 .evolab{display:flex;gap:6px;margin-top:4px}
 .evolab span{flex:1;text-align:center;font-size:10px;color:var(--muted)}
 .pill.promo{background:#3C5A47;color:#E9F0E3;border-color:#3C5A47}
+.pill.poco{background:#8A6B2F;color:#FBF4E4;border-color:#8A6B2F}
 .salres{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 14px}
 .salres div{border:1px solid var(--line);border-radius:12px;background:var(--tile);padding:12px;text-align:center}
 .salres b{display:block;font-size:30px;font-family:Georgia,"Iowan Old Style","Times New Roman",serif}
@@ -1370,6 +1371,7 @@ function drawCal(){
 // Datos de nota: los que ella dio al corregir cada simulacro. Fallos por asignatura y tipo de
 // fallo se calculan en vivo a partir de las tarjetas. Para añadir uno nuevo: una línea aquí.
 const SIMUS={
+'SIMU 16':{ord:20261107,tipo:'poco',f:'7 nov 2026',ac:108,fa:92,net:77.33,res:'5 ✓ / 5 ✗',t:'Repartido entre el 7 y el 9 · era muy largo',v:'Dos vueltas',fmt:'Papel',nota:'Muy cargado de clínica y de laboratorio fuera del temario, como el Simu 15. El 62 % de los fallos son «no lo sabía» (su media histórica es ~53 %): se perdió por contenido no estudiado, no por gestión ni por cansancio. Marcado como poco representativo: no cuenta para la mediana ni para la media de los últimos tres.'},
 'SIMU 20':{ord:20261031,f:'31 oct 2026',ac:123,fa:77,net:97.33,res:'5 ✓ / 5 ✗',an:'2 (la 1 y la 161, fe de erratas; ya descontadas)',t:'17:00–21:30 · 4 h 30 min (por la tarde)',v:'Dos vueltas',fmt:'Papel',nota:'Lo sintió como el peor; muchas no se las sabía. Pesó más el tipo de examen que la hora.'},
 'SIMU 8':{ord:20261025,f:'25 oct 2026',ac:151,fa:49,net:134.67,res:'6 ✓ / 4 ✗',an:'Impugnables: 46, 102 y 155 (121 débil)',t:'10:00–13:45 · 3 h 45 min',v:'Dos vueltas',fmt:'Papel',nota:'Más asequible y útil. Flojos: antiinfecciosos, embriología y bioquímica metabólica. Los fallos del final eran temas no estudiados, no cansancio.'},
 'SIMU 7':{ord:20261017,f:'17 oct 2026',ac:134,fa:66,net:112,res:'7 ✓ / 3 ✗',fmt:'Online',nota:'En papel tenía bien la 1 (la cambió al pasarla). Muchas preguntas fuera del temario.'},
@@ -1392,7 +1394,7 @@ function drawSimus(){
   document.getElementById('hojas').innerHTML=L.map((e,k)=>{const m=SIMUS[e]||{},n=simNum(e);
     return '<button class="hoja'+(e===simSel?' on':'')+'" style="--hc:'+HCOL[k%HCOL.length]+'" onclick="verSimu(\''+e+'\')">'+
       '<span class="hs">'+(m.sub||'SIMU')+'</span><span class="hn'+(n.length>2?' lg':'')+'">'+n+'</span>'+
-      '<span class="hf">'+(m.f||'&nbsp;')+'</span>'+
+      '<span class="hf">'+(m.f||'&nbsp;')+(m.tipo==='poco'?' ⚠':'')+'</span>'+
       '<span class="hr">'+(m.net!=null?fmtN(m.net)+' netas':(DATA.filter(q=>q.examen===e&&!q.origen).length+' fallos'))+'</span></button>'}).join('');
   const E=L.filter(e=>SIMUS[e]&&SIMUS[e].net!=null).sort((a,b)=>SIMUS[a].ord-SIMUS[b].ord);
   const mx=Math.max(1,...E.map(e=>SIMUS[e].net));
@@ -1403,9 +1405,11 @@ function drawSimus(){
   document.getElementById('evo').innerHTML=E.map(e=>'<div class="'+(SIMUS[e].tipo?'otro':'')+'"><small>'+Math.round(SIMUS[e].net)+'</small><i style="height:'+H(SIMUS[e].net)+'%"></i></div>').join('')+
     (A.length?'<div class="med" style="bottom:'+H(mA)+'%"><span>mediana '+fmtN(Math.round(mA*10)/10)+'</span></div>':'');
   document.getElementById('evolab').innerHTML=E.map(e=>'<span>'+simNum(e)+'</span>').join('');
-  document.getElementById('evoley').innerHTML='<span><i style="background:#C9943F"></i>Academia, primera vez</span><span><i style="background:rgba(201,148,63,.38)"></i>Oficial o repetido</span>'+
+  document.getElementById('evoley').innerHTML='<span><i style="background:#C9943F"></i>Academia, primera vez</span><span><i style="background:rgba(201,148,63,.38)"></i>Oficial, repetido o poco representativo</span>'+
     '<span><i style="background:#8AA07E"></i>Mediana de academia</span>';
   document.getElementById('evotxt').textContent=u3.length===3?('Últimos 3 de academia: media '+fmtN(Math.round(u3.reduce((a,b)=>a+b,0)/3*10)/10)+' netas (mediana de todos: '+fmtN(Math.round(mA*10)/10)+').'):'';
+  const PR=E.filter(e=>SIMUS[e].tipo==='poco').map(e=>simNum(e));
+  if(PR.length)document.getElementById('evotxt').textContent+=' Fuera del cálculo: simulacro'+(PR.length>1?'s ':' ')+PR.join(', ')+' (poco representativo'+(PR.length>1?'s':'')+'), más los oficiales y los repetidos.';
   drawSimDet();
 }
 function verSimu(e){simSel=(simSel===e)?'':e;drawSimus();
@@ -1415,7 +1419,7 @@ function drawSimDet(){
   if(!simSel){box.classList.add('hide');box.innerHTML='';return}
   const e=simSel,m=SIMUS[e]||{},pt=m.pt||200;
   const F=DATA.filter(q=>q.examen===e&&!q.origen&&q.tipo!=='ficha'),Du=DATA.filter(q=>q.examen===e&&q.origen==='duda');
-  let h='<h2>'+(m.sub?m.sub.charAt(0)+m.sub.slice(1).toLowerCase()+' · ':'Simulacro ')+simNum(e)+(m.f?' <span class="pill">'+m.f+'</span>':'')+'</h2>';
+  let h='<h2>'+(m.sub?m.sub.charAt(0)+m.sub.slice(1).toLowerCase()+' · ':'Simulacro ')+simNum(e)+(m.f?' <span class="pill">'+m.f+'</span>':'')+(m.tipo==='poco'?' <span class="pill poco">poco representativo</span>':'')+'</h2>';
   const T=(v,l,c)=>'<div><b style="color:'+(c||'var(--navy2)')+'">'+v+'</b><span>'+l+'</span></div>';
   if(m.ac!=null){const bl=Math.max(0,pt-m.ac-m.fa);
     h+='<div class="tiles">'+T(m.ac,'aciertos','var(--green)')+T(m.fa,'fallos','var(--red)')+T(bl,'en blanco','var(--muted)')+
